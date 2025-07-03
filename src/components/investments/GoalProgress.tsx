@@ -13,7 +13,7 @@ export function GoalProgress({ goal }: GoalProgressProps) {
     const progress = (goal.currentAmount / goal.targetAmount) * 100;
 
     return (
-        <Card>
+        <Card className="bg-card/60 backdrop-blur-lg">
             <CardHeader className="flex flex-row items-center justify-between">
                 <div className="space-y-1">
                     <CardTitle>{goal.name}</CardTitle>

@@ -98,7 +98,7 @@ export function AccountPageLayout({ title, description, transactions }: AccountP
                 </header>
 
                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-                    <Card className="lg:col-span-2">
+                    <Card className="lg:col-span-2 bg-card/60 backdrop-blur-lg">
                         <CardHeader>
                             <CardTitle>Category Breakdown</CardTitle>
                         </CardHeader>
@@ -131,7 +131,7 @@ export function AccountPageLayout({ title, description, transactions }: AccountP
                             ) : <p className="text-muted-foreground text-center h-[250px] flex items-center justify-center">No data for this period.</p>}
                         </CardContent>
                     </Card>
-                     <Card className="lg:col-span-3">
+                     <Card className="lg:col-span-3 bg-card/60 backdrop-blur-lg">
                         <CardHeader>
                             <CardTitle>Spending Trend</CardTitle>
                         </CardHeader>
@@ -170,7 +170,7 @@ export function AccountPageLayout({ title, description, transactions }: AccountP
                     </Card>
                 </div>
                 
-                <Card>
+                <Card className="bg-card/60 backdrop-blur-lg">
                     <CardHeader>
                         <CardTitle>Transactions</CardTitle>
                         <CardDescription>

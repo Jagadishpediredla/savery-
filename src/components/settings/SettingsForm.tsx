@@ -95,7 +95,7 @@ export function SettingsForm() {
     <Form {...form}>
       <div className="grid gap-8 md:grid-cols-3">
         <Collapsible open={isSettingsOpen} onOpenChange={setIsSettingsOpen} className="md:col-span-2">
-            <Card>
+            <Card className="bg-card/60 backdrop-blur-lg">
                 <CardHeader>
                     <div className="flex justify-between items-center">
                         <div>
@@ -192,7 +192,7 @@ export function SettingsForm() {
         </Collapsible>
 
         <div className="space-y-8">
-            <Card>
+            <Card className="bg-card/60 backdrop-blur-lg">
                 <CardHeader>
                     <CardTitle>Your Plan</CardTitle>
                     <CardDescription>Live visualization of your budget.</CardDescription>
@@ -238,7 +238,7 @@ export function SettingsForm() {
                     </div>
                 </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-card/60 backdrop-blur-lg">
                 <CardHeader>
                     <CardTitle>Data Management</CardTitle>
                     <CardDescription>Use these actions to manage your app data for testing.</CardDescription>

@@ -1,7 +1,8 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, CalendarIcon, SlidersHorizontal, Sparkles, Shield, ShoppingBag, PiggyBank, CandlestickChart, ArrowRight, Sun, Moon } from 'lucide-react';
+import { ArrowLeft, CalendarIcon, SlidersHorizontal, Sparkles, ArrowRight, Sun, Moon, ArrowDown, ArrowUp } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -45,6 +46,9 @@ import { Card, CardHeader, CardTitle } from '../ui/card';
 import { categories, mockAccounts } from '@/data/mock-data';
 import { useFirebase } from '@/context/FirebaseContext';
 import { useToast } from '@/hooks/use-toast';
+import { Shield, ShoppingBag, PiggyBank, CandlestickChart } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+
 
 const transactionSchema = z.object({
   date: z.date({ required_error: "A date is required." }),
@@ -179,7 +183,7 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
         }
         onOpenChange(open);
     }}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg bg-card/80 backdrop-blur-xl border-border/20">
         <DialogHeader>
           <Button
             variant="ghost"
@@ -209,41 +213,7 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                     exit="exit"
                     className="space-y-6 pt-4"
                     >
-                    <FormField
-                        control={form.control}
-                        name="type"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Type</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                    <SelectTrigger>
-                                    <SelectValue placeholder="Select transaction type" />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    <SelectItem value="Credit">Credit</SelectItem>
-                                    <SelectItem value="Debit">Debit</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="amount"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Amount</FormLabel>
-                            <FormControl>
-                            <Input type="number" placeholder="0.00" {...field} value={field.value ?? ''} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
+                     <FormField
                         control={form.control}
                         name="date"
                         render={({ field }) => (
@@ -284,6 +254,63 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                         </FormItem>
                         )}
                     />
+                    <FormField
+                        control={form.control}
+                        name="type"
+                        render={({ field }) => (
+                          <FormItem className="space-y-3">
+                            <FormLabel>Type</FormLabel>
+                            <FormControl>
+                              <RadioGroup
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                                className="grid grid-cols-2 gap-4"
+                              >
+                                <FormItem>
+                                  <RadioGroupItem value="Debit" id="debit" className="peer sr-only" />
+                                  <Label
+                                    htmlFor="debit"
+                                    className="flex flex-col items-center justify-center rounded-2xl border-2 border-muted bg-popover/40 p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer transition-all"
+                                  >
+                                    <div className="p-2 rounded-full bg-red-500/20 text-red-400 mb-2">
+                                        <ArrowDown className="h-5 w-5" />
+                                    </div>
+                                    <span className="font-bold">Debit</span>
+                                    <span className="text-xs text-muted-foreground">Money out</span>
+                                  </Label>
+                                </FormItem>
+                                <FormItem>
+                                  <RadioGroupItem value="Credit" id="credit" className="peer sr-only" />
+                                  <Label
+                                    htmlFor="credit"
+                                    className="flex flex-col items-center justify-center rounded-2xl border-2 border-muted bg-popover/40 p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer transition-all"
+                                  >
+                                     <div className="p-2 rounded-full bg-green-500/20 text-green-400 mb-2">
+                                        <ArrowUp className="h-5 w-5" />
+                                    </div>
+                                    <span className="font-bold">Credit</span>
+                                    <span className="text-xs text-muted-foreground">Money in</span>
+                                  </Label>
+                                </FormItem>
+                              </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    <FormField
+                        control={form.control}
+                        name="amount"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Amount</FormLabel>
+                            <FormControl>
+                            <Input type="number" placeholder="0.00" {...field} value={field.value ?? ''} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
                     </motion.div>
                 )}
                 {step === 2 && (
@@ -314,7 +341,7 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                                                         key={typeInfo.name} 
                                                         onClick={() => handleAccountSelect(account.name)} 
                                                         className={cn(
-                                                            "cursor-pointer transition-all hover:border-primary/50 text-center py-6", 
+                                                            "cursor-pointer transition-all hover:border-primary/50 text-center py-6 bg-popover/40", 
                                                             isSelected ? "ring-2 ring-primary border-primary" : ""
                                                         )}
                                                     >
@@ -394,17 +421,26 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
             
             <div className="flex w-full items-center justify-between pt-8 mt-4 border-t">
                 <div>
-                    {step > 1 && (
-                        <Button type="button" variant="outline" onClick={() => setStep(step - 1)}>
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Back
-                        </Button>
-                    )}
+                {step > 1 && (
+                    <Button type="button" variant="outline" onClick={() => setStep(step - 1)}>
+                        <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                    </Button>
+                )}
                 </div>
-                
-                <div className="flex items-center gap-2">
+
+                <div className="flex items-center gap-4">
                     {step === 1 && (
-                        <Button type="button" variant="gradient" onClick={handleNext} className="w-full">
-                            Next <ArrowRight className="ml-2 h-4 w-4" />
+                        <>
+                            <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                            <Button type="button" variant="gradient" onClick={handleNext}>
+                                Next <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </>
+                    )}
+
+                    {step === 2 && (
+                         <Button type="button" variant="outline" onClick={() => setStep(step - 1)}>
+                            <ArrowLeft className="mr-2 h-4 w-4" /> Back
                         </Button>
                     )}
 

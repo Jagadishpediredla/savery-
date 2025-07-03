@@ -25,7 +25,7 @@ const LoadingSkeleton = () => (
             <Skeleton className="h-96 lg:col-span-2" />
             <Skeleton className="h-96" />
         </div>
-        <Skeleton className="h-80 w-full" />
+         <Skeleton className="h-80 w-full" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Skeleton className="h-96 lg:col-span-2" />
             <Skeleton className="h-96" />

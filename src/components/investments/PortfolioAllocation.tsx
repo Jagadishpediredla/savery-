@@ -17,7 +17,7 @@ export function PortfolioAllocation() {
     ];
 
     return (
-        <Card>
+        <Card className="bg-card/60 backdrop-blur-lg">
             <CardHeader>
                 <CardTitle>Portfolio Allocation</CardTitle>
                 <CardDescription>Adjust your desired Debt to Equity ratio.</CardDescription>

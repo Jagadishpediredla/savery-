@@ -108,7 +108,7 @@ export default function InvestmentsPage() {
                              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 <div className="lg:col-span-2 space-y-6">
                                     <PortfolioAllocation />
-                                    <Card>
+                                    <Card className="bg-card/60 backdrop-blur-lg">
                                         <CardHeader>
                                             <CardTitle>Investment Growth</CardTitle>
                                             <CardDescription>Cumulative contributions over time.</CardDescription>
@@ -146,7 +146,7 @@ export default function InvestmentsPage() {
                                     {goals.length > 0 ? goals.map(goal => (
                                         <GoalProgress key={goal.id} goal={goal} />
                                     )) : (
-                                        <Card>
+                                        <Card className="bg-card/60 backdrop-blur-lg">
                                             <CardContent className="pt-6">
                                                 <p className="text-muted-foreground text-center">No investment goals set up yet.</p>
                                             </CardContent>
@@ -155,7 +155,7 @@ export default function InvestmentsPage() {
                                 </div>
                             </div>
 
-                            <Card>
+                            <Card className="bg-card/60 backdrop-blur-lg">
                                 <CardHeader>
                                     <CardTitle>Investment History</CardTitle>
                                     <CardDescription>Review and filter your investment transactions.</CardDescription>

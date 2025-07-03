@@ -26,7 +26,7 @@ export function MagicCalendar() {
 
     return (
         <>
-            <Card className="h-full">
+            <Card className="h-full bg-card/60 backdrop-blur-lg">
                 <CardHeader>
                     <CardTitle>Magic Calendar</CardTitle>
                     <CardDescription>Click a date to see daily transactions.</CardDescription>
