@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,6 +12,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import { useFirebase } from '@/context/FirebaseContext';
+import { Skeleton } from '../ui/skeleton';
 
 const settingsSchema = z.object({
   monthlySalary: z.coerce.number().min(0, 'Salary must be a positive number'),
@@ -24,17 +27,30 @@ type SettingsFormValues = z.infer<typeof settingsSchema>;
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))'];
 
 export function SettingsForm() {
+  const { settings, updateSettings, loading } = useFirebase();
+
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      monthlySalary: 50000,
-      needsPercentage: 50,
-      wantsPercentage: 30,
-      investmentsPercentage: 15,
+      monthlySalary: 0,
+      needsPercentage: 0,
+      wantsPercentage: 0,
+      investmentsPercentage: 0,
     },
   });
 
-  const { watch, setValue } = form;
+  useEffect(() => {
+    if (settings) {
+      form.reset({
+        monthlySalary: settings.monthlySalary,
+        needsPercentage: settings.needsPercentage,
+        wantsPercentage: settings.wantsPercentage,
+        investmentsPercentage: settings.investmentsPercentage,
+      });
+    }
+  }, [settings, form]);
+
+  const { watch } = form;
   const needs = watch('needsPercentage');
   const wants = watch('wantsPercentage');
   const investments = watch('investmentsPercentage');
@@ -48,8 +64,17 @@ export function SettingsForm() {
   ].filter(item => item.value > 0);
 
   const onSubmit = (data: SettingsFormValues) => {
-    console.log('Settings saved:', { ...data, savingsPercentage: savings });
+    updateSettings(data);
   };
+  
+  if (loading) {
+    return (
+        <div className="grid gap-8 md:grid-cols-3">
+            <Skeleton className="md:col-span-2 h-[500px]" />
+            <Skeleton className="h-[500px]" />
+        </div>
+    );
+  }
 
   return (
     <Form {...form}>

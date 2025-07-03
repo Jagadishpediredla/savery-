@@ -42,7 +42,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { mockAccounts } from '@/data/mock-data';
+import { categories } from '@/data/mock-data';
+import { useFirebase } from '@/context/FirebaseContext';
 
 const transactionSchema = z.object({
   date: z.date(),
@@ -55,10 +56,6 @@ const transactionSchema = z.object({
 
 type TransactionFormValues = z.infer<typeof transactionSchema>;
 
-const categories = [
-    'Groceries', 'Rent', 'Salary', 'Dining Out', 'Entertainment', 'Transfer', 'Investment', 'Utilities', 'Shopping', 'Other'
-];
-
 interface AddTransactionModalProps {
     isOpen: boolean;
     onOpenChange: (isOpen: boolean) => void;
@@ -66,21 +63,26 @@ interface AddTransactionModalProps {
 
 export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModalProps) {
   const [step, setStep] = useState(1);
+  const { accounts, addTransaction } = useFirebase();
 
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       date: new Date(),
       type: 'Debit',
-      amount: '' as any, // Initialize to prevent uncontrolled -> controlled error
+      amount: 0,
       account: '',
       category: '',
       note: ''
     },
   });
 
-  const onSubmit = (data: TransactionFormValues) => {
-    console.log('Transaction submitted:', data);
+  const onSubmit = async (data: TransactionFormValues) => {
+    const transactionData = {
+        ...data,
+        date: format(data.date, 'yyyy-MM-dd'),
+    };
+    await addTransaction(transactionData);
     onOpenChange(false);
   };
 
@@ -103,7 +105,6 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
         if (!open) {
-            // Reset form state when dialog is closed
             setTimeout(() => {
                 form.reset();
                 setStep(1);
@@ -225,8 +226,8 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                                     <FormLabel>Account</FormLabel>
                                     <FormControl>
                                         <div className="grid grid-cols-2 gap-4">
-                                            {mockAccounts.map(account => (
-                                                <Card key={account.id} onClick={() => field.onChange(account.id)} className={cn("cursor-pointer transition-all", field.value === account.id ? "ring-2 ring-primary border-primary" : "hover:border-primary/50")}>
+                                            {accounts.map(account => (
+                                                <Card key={account.id} onClick={() => field.onChange(account.name)} className={cn("cursor-pointer transition-all", field.value === account.name ? "ring-2 ring-primary border-primary" : "hover:border-primary/50")}>
                                                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                                         <CardTitle className="text-sm font-medium">{account.name}</CardTitle>
                                                         <Landmark className="h-4 w-4 text-muted-foreground" />

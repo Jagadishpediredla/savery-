@@ -1,3 +1,4 @@
+
 'use client';
 
 import { PageWrapper } from '@/components/PageWrapper';
@@ -5,12 +6,38 @@ import { BalanceOverview } from '@/components/dashboard/BalanceOverview';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import { SpendingChart } from '@/components/dashboard/SpendingChart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { mockAccounts } from '@/data/mock-data';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useFirebase } from '@/context/FirebaseContext';
 import { Wallet } from 'lucide-react';
 import CountUp from 'react-countup';
 
 export default function DashboardPage() {
-  const totalBalance = mockAccounts.reduce((sum, acc) => sum + acc.balance, 0);
+  const { accounts, loading } = useFirebase();
+  const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
+
+  if (loading) {
+    return (
+      <PageWrapper>
+        <div className="space-y-8">
+          <header>
+            <Skeleton className="h-9 w-48" />
+            <Skeleton className="h-4 w-64 mt-2" />
+          </header>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28" />)}
+          </div>
+          <div className="grid gap-6 lg:grid-cols-5">
+              <div className="lg:col-span-3">
+                  <Skeleton className="h-80" />
+              </div>
+              <div className="lg:col-span-2">
+                  <Skeleton className="h-80" />
+              </div>
+          </div>
+        </div>
+      </PageWrapper>
+    );
+  }
 
   return (
     <PageWrapper>
@@ -42,7 +69,7 @@ export default function DashboardPage() {
               <p className="text-xs text-muted-foreground">Across all accounts</p>
             </CardContent>
           </Card>
-          {mockAccounts.slice(0, 3).map(account => (
+          {accounts.slice(0, 3).map(account => (
              <Card key={account.id}>
              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                <CardTitle className="text-sm font-medium">{account.name}</CardTitle>

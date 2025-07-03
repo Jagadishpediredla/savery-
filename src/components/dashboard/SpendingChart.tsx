@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -14,25 +15,48 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { mockMonthlyBreakdown } from '@/data/mock-data';
+import { useFirebase } from '@/context/FirebaseContext';
+import { useMemo } from 'react';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { format, parseISO, startOfMonth } from 'date-fns';
+import { mockAccounts } from '@/data/mock-data';
 
 const chartConfig = {
-  needs: {
-    label: 'Needs',
-    color: 'hsl(var(--chart-1))',
-  },
-  wants: {
-    label: 'Wants',
-    color: 'hsl(var(--chart-2))',
-  },
-  investments: {
-    label: 'Investments',
-    color: 'hsl(var(--chart-3))',
-  }
+  Needs: { label: 'Needs', color: 'hsl(var(--chart-1))' },
+  Wants: { label: 'Wants', color: 'hsl(var(--chart-2))' },
+  Investments: { label: 'Investments', color: 'hsl(var(--chart-3))' },
 };
 
 export function SpendingChart() {
+  const { transactions } = useFirebase();
+
+  const monthlyBreakdown = useMemo(() => {
+    const accountTypeMap = new Map(mockAccounts.map(acc => [acc.name, acc.type]));
+    
+    const monthlyData: { [key: string]: { Needs: number, Wants: number, Investments: number, Savings: number } } = {};
+
+    transactions.forEach(t => {
+      if (t.type === 'Debit') {
+        const month = format(startOfMonth(parseISO(t.date)), 'MMM yyyy');
+        if (!monthlyData[month]) {
+          monthlyData[month] = { Needs: 0, Wants: 0, Investments: 0, Savings: 0 };
+        }
+        const accountType = accountTypeMap.get(t.account);
+        if (accountType && (accountType === 'Needs' || accountType === 'Wants' || accountType === 'Investments')) {
+          monthlyData[month][accountType] += t.amount;
+        }
+      }
+    });
+    
+    return Object.entries(monthlyData).map(([month, data]) => ({
+      month: month.split(' ')[0], // just 'May', 'Jun', etc.
+      needs: data.Needs,
+      wants: data.Wants,
+      investments: data.Investments,
+    })).sort((a,b) => new Date(a.month + " 1, 2024").getTime() - new Date(b.month + " 1, 2024").getTime()); // A bit hacky sort
+  }, [transactions]);
+
+
   return (
     <Card>
       <CardHeader>
@@ -42,21 +66,21 @@ export function SpendingChart() {
       <CardContent>
         <ChartContainer config={chartConfig} className="h-64 w-full">
           <AreaChart
-            data={mockMonthlyBreakdown}
+            data={monthlyBreakdown}
             margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
           >
             <defs>
                 <linearGradient id="colorNeeds" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-needs)" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="var(--color-needs)" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="var(--color-Needs)" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="var(--color-Needs)" stopOpacity={0}/>
                 </linearGradient>
                  <linearGradient id="colorWants" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-wants)" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="var(--color-wants)" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="var(--color-Wants)" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="var(--color-Wants)" stopOpacity={0}/>
                 </linearGradient>
                  <linearGradient id="colorInvestments" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-investments)" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="var(--color-investments)" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="var(--color-Investments)" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="var(--color-Investments)" stopOpacity={0}/>
                 </linearGradient>
             </defs>
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
@@ -77,7 +101,7 @@ export function SpendingChart() {
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent 
-                formatter={(value) => `₹${Number(value).toLocaleString()}`}
+                formatter={(value, name) => `₹${Number(value).toLocaleString()}`}
                 indicator="dot"
               />}
             />
@@ -85,24 +109,27 @@ export function SpendingChart() {
             <Area
               type="monotone"
               dataKey="needs"
+              name="Needs"
               stackId="1"
-              stroke="var(--color-needs)"
+              stroke="var(--color-Needs)"
               fill="url(#colorNeeds)"
               strokeWidth={2}
             />
              <Area
               type="monotone"
               dataKey="wants"
+              name="Wants"
               stackId="1"
-              stroke="var(--color-wants)"
+              stroke="var(--color-Wants)"
               fill="url(#colorWants)"
               strokeWidth={2}
             />
             <Area
               type="monotone"
               dataKey="investments"
+              name="Investments"
               stackId="1"
-              stroke="var(--color-investments)"
+              stroke="var(--color-Investments)"
               fill="url(#colorInvestments)"
               strokeWidth={2}
             />

@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -13,36 +14,24 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart';
-import { mockAccounts } from '@/data/mock-data';
+import { useFirebase } from '@/context/FirebaseContext';
 import { useMemo } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 
-const balanceTypes = ['Needs', 'Wants', 'Savings', 'Investments'];
-
 const chartConfig = {
-  Needs: {
-    label: 'Needs',
-    color: 'hsl(var(--chart-1))',
-  },
-  Wants: {
-    label: 'Wants',
-    color: 'hsl(var(--chart-2))',
-  },
-  Savings: {
-    label: 'Savings',
-    color: 'hsl(var(--chart-3))',
-  },
-  Investments: {
-    label: 'Investments',
-    color: 'hsl(var(--chart-4))',
-  },
+  Needs: { label: 'Needs', color: 'hsl(var(--chart-1))' },
+  Wants: { label: 'Wants', color: 'hsl(var(--chart-2))' },
+  Savings: { label: 'Savings', color: 'hsl(var(--chart-3))' },
+  Investments: { label: 'Investments', color: 'hsl(var(--chart-4))' },
 } satisfies ChartConfig;
 
 export function BalanceOverview() {
+  const { accounts } = useFirebase();
+
   const pieData = useMemo(() => {
-    return balanceTypes
-      .map((type) => {
-        const balance = mockAccounts
+    return Object.entries(chartConfig)
+      .map(([type, config]) => {
+        const balance = accounts
           .filter((acc) => acc.type === type)
           .reduce((sum, acc) => sum + acc.balance, 0);
         return {
@@ -52,7 +41,7 @@ export function BalanceOverview() {
         };
       })
       .filter((item) => item.value > 0);
-  }, []);
+  }, [accounts]);
 
   return (
     <Card className="h-full">
@@ -67,6 +56,15 @@ export function BalanceOverview() {
         >
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
+               <ChartTooltip
+                cursor={false}
+                content={
+                  <ChartTooltipContent
+                    formatter={(value) => `₹${Number(value).toLocaleString()}`}
+                    indicator="dot"
+                  />
+                }
+              />
               <Pie
                 data={pieData}
                 cx="50%"
@@ -84,15 +82,6 @@ export function BalanceOverview() {
                   />
                 ))}
               </Pie>
-              <ChartTooltip
-                cursor={false}
-                content={
-                  <ChartTooltipContent
-                    formatter={(value) => `₹${Number(value).toLocaleString()}`}
-                    indicator="dot"
-                  />
-                }
-              />
             </PieChart>
           </ResponsiveContainer>
         </ChartContainer>
