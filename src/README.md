@@ -1,18 +1,18 @@
-# 1️⃣ FinanceFlow v1.0.0
+# 1️⃣ Savvy Saver v1.0.0
 
 ## 2️⃣ Overall Objective
-FinanceFlow is a modern, responsive personal finance tracker designed to provide users with a clear and insightful overview of their financial health. It helps users manage their money by summarizing accounts, tracking spending trends, visualizing data through interactive charts, and offering personalized insights via an integrated AI assistant.
+Savvy Saver is a modern, responsive personal finance tracker designed to provide users with a clear and insightful overview of their financial health. It helps users manage their money by summarizing accounts, tracking spending trends, visualizing data through interactive charts, and offering personalized insights via an integrated AI assistant.
 
 ---
 
 ## 3️⃣ Feature List
 
--   **Dashboard**: Summarizes total balance and balances for individual account types. Features a spending trend area chart and a balance overview pie chart. Displays a list of recent transactions.
--   **Account Detail Pages (Needs, Wants, Savings)**: Each account page provides a dedicated view with a category breakdown pie chart, a spending trend line chart, and a filterable list of transactions for that specific account.
--   **Investments Page**: Tracks investment goals and portfolio allocation. Includes transaction history, goal progress bars, and a portfolio allocation tool with sliders and a live-updating pie chart.
+-   **Dashboard**: A comprehensive overview of the user's financial status. It summarizes total balance and balances for individual account types (Needs, Wants, Savings, Investments). Features a main spending trend area chart, a balance overview pie chart, a list of recent transactions, a chart for top spending categories, a "Magic Calendar" for drilling down into daily transactions, and an overview of financial goals.
+-   **Account Detail Pages (Needs, Wants, Savings)**: Each account page provides a dedicated view with a category breakdown pie chart, a spending trend line chart, and a filterable list of all transactions for that specific account.
+-   **Investments Page**: Tracks investment goals and portfolio allocation. Includes transaction history, goal progress bars, an investment growth chart, and a portfolio allocation tool with sliders and a live-updating pie chart.
 -   **Visualizer AI**: A chat-based assistant that can answer questions about finances, generate charts, and provide summaries. The interface features a welcome card to guide new users.
--   **Settings Page**: Allows users to set their monthly salary and define their budget by allocating percentages to Needs, Wants, and Investments. The Savings percentage is calculated automatically, and the allocation is visualized with a live pie chart.
--   **Add Transaction Modal**: A floating action button opens a sleek, multi-step modal for adding new transactions with fields for type, amount, date, account, category, and notes.
+-   **Settings Page**: Allows users to set their monthly salary and define their budget by allocating percentages to Needs, Wants, and Investments. The Savings percentage is calculated automatically, and the allocation is visualized with a live pie chart. Includes data management tools to seed or clear the database.
+-   **Add Transaction Modal**: A floating action button (and a button in the sidebar) opens a sleek, multi-step modal for adding new transactions with fields for type, amount, date, account, category, and notes.
 
 ---
 
@@ -27,6 +27,10 @@ FinanceFlow is a modern, responsive personal finance tracker designed to provide
     -   **Location**: Dashboard Page
     -   **Type**: Pie Chart
     -   **Data**: Shows the distribution of the total balance across all account types (Needs, Wants, Savings, Investments).
+-   **Top Spending Categories (Dashboard)**
+    -   **Location**: Dashboard Page
+    -   **Type**: Vertical Bar Chart
+    -   **Data**: Displays the top 5 spending categories across all accounts.
 -   **Category Breakdown (Account Pages)**
     -   **Location**: Needs, Wants, Savings Pages
     -   **Type**: Pie Chart
@@ -35,6 +39,10 @@ FinanceFlow is a modern, responsive personal finance tracker designed to provide
     -   **Location**: Needs, Wants, Savings Pages
     -   **Type**: Line Chart
     -   **Data**: Shows the total monthly spending trend for the specific account.
+-   **Investment Growth (Investments Page)**
+    -   **Location**: Investments Page
+    -   **Type**: Line Chart
+    -   **Data**: Shows the cumulative growth of investment contributions over time.
 -   **Portfolio Allocation (Investments)**
     -   **Location**: Investments Page
     -   **Type**: Pie Chart
@@ -48,88 +56,33 @@ FinanceFlow is a modern, responsive personal finance tracker designed to provide
 
 ## 5️⃣ Design & UI Language
 
--   **Theme**: A premium, modern dark-mode UI is the primary theme.
--   **Colors**: The palette features a deep, nearly-black background (`#0d0c12`), high-contrast light text, and a vibrant neon/pinkish accent (`#e11d48`) for interactive elements, highlights, and active states.
--   **Glassmorphism**: Key UI elements like modals, cards, and popovers use a semi-transparent, blurred "frosted glass" effect. This is achieved with `bg-card/60`, `backdrop-blur-lg`, and similar Tailwind CSS classes.
--   **Layout**: The app uses a responsive, grid-based layout with consistent padding and spacing to ensure a clean and organized look on all devices.
--   **Style**: All elements feature soft, rounded corners and subtle drop shadows to create a sense of depth and elevation.
+-   **Theme**: A premium, modern dark-mode UI is the primary theme, with a clean light-mode variant. The default is set to the user's system preference.
+-   **Colors**: The palette features a deep, nearly-black background with a subtle radial gradient for depth (`#0d0c12`). High-contrast light text ensures readability. A vibrant gradient from pink (`#e11d48`) to purple (`#9333ea`) is used for primary actions, accents, and highlights.
+-   **Glassmorphism**: Key UI elements like modals and cards use a semi-transparent, blurred "frosted glass" effect. This is achieved with `bg-card/60`, `backdrop-blur-lg`, and similar Tailwind CSS classes.
+-   **Layout**: The app uses a responsive, grid-based layout with consistent padding and spacing to ensure a clean and organized look on all devices. The main content area scrolls independently of the fixed sidebar.
+-   **Style**: All elements feature soft, rounded corners (`rounded-2xl`) and subtle drop shadows to create a sense of depth and elevation.
 -   **Typography**: The app uses the 'Inter' sans-serif font for body text and headlines, and 'Source Code Pro' for code snippets, ensuring high readability.
--   **Interactivity**: Interactive elements provide clear feedback with a soft glow or border highlight on hover and focus states, with smooth, non-abrupt transitions.
+-   **Interactivity**: Interactive elements provide clear feedback with a soft glow or border highlight on hover and focus states, with smooth, non-abrupt transitions powered by Framer Motion.
 
 ---
 
 ## 6️⃣ Backend & Environments
 
 -   **Firebase**: The app uses Firebase for backend services. The configuration is stored in `src/lib/firebase.ts`.
-    ```javascript
-    const firebaseConfig = {
-      apiKey: "AIzaSyBfeXt8GhvrQiGDMGdZI2wCG1cYJoNjUGo",
-      authDomain: "jntuacek-c4cf8.firebaseapp.com",
-      databaseURL: "https://jntuacek-c4cf8-default-rtdb.firebaseio.com",
-      projectId: "jntuacek-c4cf8",
-      storageBucket: "jntuacek-c4cf8.appspot.com",
-      messagingSenderId: "426214539597",
-      appId: "1:426214539597:web:b8413548fbe2f5f94bf704",
-      measurementId: "G-J2PF9JJRQG"
-    };
-    ```
--   **Firebase Realtime Database Design**:
+-   **Firebase Realtime Database Design**: The database uses a hierarchical structure for efficient querying.
     ```json
     {
       "users": {
         "userId": {
           "transactions": {
-            "Needs": {
-              "2025": {
-                "07": {
-                  "02": {
-                    "txnId1": {
-                      "amount": 1500,
-                      "type": "debit",
-                      "category": "Groceries",
-                      "note": "Weekly shopping",
-                      "timestamp": "2025-07-02T14:23:00Z"
-                    },
-                    "txnId2": "..."
-                  }
-                },
-                "06": "..."
-              }
-            },
-            "Wants": "...",
-            "Savings": "...",
-            "Investments": "..."
+            "Needs": { "2025": { "07": { "02": { "txnId1": { "...details" } }}}},
+            "Wants": { "...": {} },
+            "Savings": { "...": {} },
+            "Investments": { "...": {} }
           },
-          "goals": {
-            "goalId1": {
-              "name": "Emergency Fund",
-              "targetAmount": 50000,
-              "savedAmount": 15000
-            },
-            "goalId2": "..."
-          },
-          "sipPlans": {
-            "sipId1": {
-              "name": "Mutual Fund SIP",
-              "amount": 2000,
-              "date": "2025-07-15"
-            },
-            "sipId2": "..."
-          },
-          "settings": {
-            "salary": 60000,
-            "needsPercentage": 50,
-            "wantsPercentage": 30,
-            "investmentsPercentage": 15,
-            "savingsPercentage": 5
-          },
-          "aiHistory": {
-            "promptId1": {
-              "prompt": "What did I spend on Dining Out in June?",
-              "response": "₹4000"
-            },
-            "promptId2": "..."
-          }
+          "goals": { "goalId1": { "name": "...", "targetAmount": "...", "currentAmount": "..." } },
+          "settings": { "salary": "...", "needsPercentage": "...", "wantsPercentage": "...", "investmentsPercentage": "..." },
+          "aiHistory": { "promptId1": { "prompt": "...", "response": "..." } }
         }
       }
     }
@@ -141,28 +94,12 @@ FinanceFlow is a modern, responsive personal finance tracker designed to provide
 ## 7️⃣ AI Assistant Features
 
 -   **Live Data Integration**: The AI Assistant is fully integrated with Firebase Realtime Database, allowing it to fetch and analyze a user's live financial data to provide up-to-date, accurate answers.
--   **Comprehensive Data Awareness**: The assistant is aware of all user data, including transactions, goals, and budget settings. It can handle a wide range of conversational queries.
 -   **Core Capabilities**:
-    -   **Summaries**: Can summarize total spending, income, net balance, and spending breakdowns by category, account, or time period.
-    -   **Transaction Analysis**: Provides date-wise or month-wise transaction lists and can identify the highest or lowest spending categories.
-    -   **Goal Tracking**: Lists all financial goals, showing target amounts, current saved amounts, and progress percentages.
-    -   **Budget & Savings**: Computes savings allocations based on the user's defined salary and budget percentages.
--   **Natural Language Questions**: Can understand and process complex natural language questions like:
-    -   *"How much did I spend on Entertainment last month?"*
-    -   *"List my transactions in June."*
-    -   *"What's my Needs balance?"*
-    -   *"How close am I to completing my Emergency Fund goal?"*
--   **Dynamic Responses**: The AI can generate responses in various formats to best suit the user's query, including:
-    -   Clear text summaries.
-    -   Well-formatted Markdown tables.
--   **Conversational Context**:
-    -   Maintains chat history to understand follow-up questions and provide contextually relevant answers.
-    -   If a query is ambiguous, it will ask for clarification.
--   **User Experience**:
-    -   Features a persistent, scrollable chat history.
-    -   Includes friendly, natural language responses.
-    -   Provides graceful error messages if data is missing or a question cannot be answered.
--   **Underlying Tools**: The AI uses a set of tools to interact with Firebase data, including `getTransactionsTool`, `getGoalsTool`, `getSettingsTool`, and `getAccountsTool`.
+    -   Can summarize spending, income, and account balances.
+    -   Can analyze transactions by date, category, or account.
+    -   Can track progress towards financial goals.
+-   **Natural Language Questions**: Can understand and process complex natural language questions.
+-   **Dynamic Responses**: The AI can generate responses in various formats, including clear text summaries and well-formatted Markdown tables.
 
 ---
 
@@ -180,57 +117,33 @@ FinanceFlow is a modern, responsive personal finance tracker designed to provide
 
 ## 9️⃣ Filters
 
--   **Functionality (Planned)**: The UI specification calls for robust filtering on all transaction-based pages.
--   **Category Dropdown**: Allows filtering transactions by one or more categories.
--   **Date Range Picker**: An integrated calendar for selecting custom date ranges.
--   **Clear Filters**: A button to reset all active filters.
+-   **Functionality**: Robust filtering is available on all account detail pages.
+-   **Controls**: Includes a category dropdown, a date range picker with presets, a search input for notes, and a toggle for transaction type (All/Credit/Debit).
+-   **UX**: Filters are housed within a collapsible section for a clean interface.
 
 ---
 
 ## 10️⃣ Smart Calendar
 
--   **Functionality (Planned)**: A future feature will include a smart calendar view.
--   **Behavior**: Days will be visually shaded based on whether spending was over or under a defined daily budget. Users will be able to drag to select date ranges for analysis.
+-   **Functionality**: The `Magic Calendar` on the dashboard allows users to explore their financial history visually.
+-   **Behavior**: Days with transactions are visually highlighted. Clicking any date opens a modal displaying a focused list of only that day's transactions.
 
 ---
 
 ## 11️⃣ Errors & Edge Cases
 
--   **Hydration Errors**:
-    -   **Issue**: The app experienced several React hydration errors (`Error: Hydration failed because the server rendered HTML didn't match the client.`).
-    -   **Cause**: This was caused by components like the `Sidebar` that relied on the `useIsMobile` hook. The server, having no concept of screen size, would render a different initial HTML than the client, causing a mismatch.
-    -   **Resolution**: The issue was resolved by refactoring the components to be "client-aware." They now render a default (desktop) state on the server and only render the mobile-specific view after the component has safely mounted on the client, thus preventing the mismatch.
--   **Chart Container Error**:
-    -   **Issue**: Charts were throwing a `useChart must be used within a <ChartContainer />` error.
-    -   **Cause**: The custom `ChartTooltip` was being used on charts that were not wrapped by the required `ChartContainer` component.
-    -   **Resolution**: The charts on the Dashboard and Account pages were wrapped in a `ChartContainer` with the appropriate configuration, resolving the error.
-- **Module Not Found Error**:
-    - **Issue**: A build error occurred (`Module not found: Can't resolve '../ui/avatar'`).
-    - **Cause**: An incorrect relative path was used to import the `Avatar` component.
-    - **Resolution**: The import path was corrected to use the `@/components/ui/avatar` alias.
+-   **Hydration Errors**: Resolved multiple React hydration errors by ensuring chart components render only on the client-side and by correcting component composition issues (`DialogTrigger` outside `Dialog`).
+-   **Chart Container Error**: Resolved a `useChart must be used within a <ChartContainer />` error by ensuring all charts using custom tooltips are properly wrapped.
+-   **Module Not Found / Reference Errors**: Fixed build-time and runtime errors caused by incorrect import paths or missing imports.
 
 ---
 
-## 12️⃣ Advice & Notes
+## 12️⃣ Versioning & Changelog
 
--   **Charting Library**: The application currently uses `recharts`, which is the default for `shadcn/ui` charts. The UI specification mentions `Chart.js`. A decision should be made whether to stick with `recharts` for consistency or migrate to `Chart.js`.
--   **Component Library**: Continue to use `shadcn/ui` components where possible to maintain a consistent design system.
--   **Styling**: Use the `cn` utility function from `src/lib/utils.ts` for combining and managing Tailwind CSS classes.
-
----
-
-## 13️⃣ Versioning & Changelog
-
--   **v1.0.0 (Initial Version)**
-    -   Initial project setup with Next.js, React, Tailwind CSS, and Genkit.
-    -   Basic app shell with a sidebar and main content area.
-    -   Placeholder pages for Dashboard, Accounts, Investments, Visualizer, and Settings.
--   **Changelog (Recent Updates)**:
-    -   **UI Overhaul**: Implemented a new dark theme with a pinkish-neon accent. Applied glassmorphism effects to all cards, modals, and popups for a consistent, modern look.
-    -   **Dashboard Redesign**: Added `BalanceOverview` and `SpendingChart` to the dashboard.
-    -   **Account Page Layout**: Created a standardized `AccountPageLayout` with charts, now used by Needs, Wants, and Savings pages.
-    -   **Investments Upgrade**: Added `PortfolioAllocation` and `GoalProgress` components.
-    -   **Bug Fixes**: Resolved multiple hydration errors, a chart container error, and a module import error.
-    -   **Layout Fix**: Corrected sidebar layout issues to prevent the main content from overlapping with the sidebar.
+-   **v1.0.0 (Current)**
+    -   **UI Overhaul**: Implemented a new dark theme with a pink/purple gradient accent. Applied glassmorphism effects to all cards, modals, and popups.
+    -   **Dashboard Redesign**: Rebuilt the dashboard to cohesively display all financial widgets: Total Balance, Spending Chart, Balance Overview, Recent Transactions, Top Spending Categories, Magic Calendar, and a new Goals Overview.
+    -   **Navigation Fix**: Corrected sidebar and mobile navigation to use appropriate links for the finance application.
+    -   **Code Refactoring**: Removed all obsolete CRM-related components and consolidated UI logic for a cleaner, more maintainable codebase.
     -   **Firebase Integration**: Connected the app to Firebase Realtime Database for live data synchronization. Added data seeding and clearing functionality.
     -   **AI Upgrade**: Transformed the AI into a `financialAssistant` that uses tools to fetch and analyze live data from Firebase, providing conversational and data-rich responses.

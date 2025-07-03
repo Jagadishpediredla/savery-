@@ -20,7 +20,8 @@ export function TotalBalanceCard() {
 
     if (loading) {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                <Skeleton className="h-40 lg:col-span-1 md:col-span-2" />
                 <Skeleton className="h-40" />
                 <Skeleton className="h-40" />
                 <Skeleton className="h-40" />
@@ -30,8 +31,8 @@ export function TotalBalanceCard() {
     }
 
     return (
-        <>
-            <Card className="col-span-1 md:col-span-2 lg:col-span-4 p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            <Card className="col-span-1 md:col-span-2 lg:col-span-1 p-6 flex flex-col justify-center bg-card/60 backdrop-blur-lg">
                 <CardHeader className="p-0">
                     <CardDescription>Total Balance</CardDescription>
                     <CardTitle className="text-4xl font-bold">
@@ -50,31 +51,27 @@ export function TotalBalanceCard() {
              <DashboardStatCard 
                 title="Needs"
                 amount={needsBalance}
-                progress={50}
-                icon={<Shield className="h-6 w-6" />}
-                color="bg-needs/20 text-needs"
+                icon={<Shield className="h-6 w-6 text-white" />}
+                color="bg-gradient-to-tr from-pink-500 to-fuchsia-500"
             />
              <DashboardStatCard 
                 title="Wants"
                 amount={wantsBalance}
-                progress={30}
-                icon={<ShoppingBag className="h-6 w-6" />}
-                color="bg-wants/20 text-wants"
+                icon={<ShoppingBag className="h-6 w-6 text-white" />}
+                color="bg-gradient-to-tr from-blue-500 to-cyan-500"
             />
              <DashboardStatCard 
                 title="Savings"
                 amount={savingsBalance}
-                progress={15}
-                icon={<PiggyBank className="h-6 w-6" />}
-                color="bg-savings/20 text-savings"
+                icon={<PiggyBank className="h-6 w-6 text-white" />}
+                color="bg-gradient-to-tr from-emerald-500 to-green-500"
             />
              <DashboardStatCard 
                 title="Investments"
                 amount={investmentsBalance}
-                progress={5}
-                icon={<CandlestickChart className="h-6 w-6" />}
-                color="bg-investments/20 text-investments"
+                icon={<CandlestickChart className="h-6 w-6 text-white" />}
+                color="bg-gradient-to-tr from-amber-500 to-orange-500"
             />
-        </>
+        </div>
     );
 }
