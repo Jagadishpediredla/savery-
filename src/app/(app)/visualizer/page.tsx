@@ -115,7 +115,7 @@ export default function VisualizerPage() {
                 </header>
 
                 <Card className="flex-1 flex flex-col overflow-hidden">
-                    <ScrollArea className="flex-1 p-6" ref={scrollAreaRef} viewportRef={viewportRef}>
+                    <ScrollArea className="flex-1 p-6" viewportRef={viewportRef}>
                         {messages.length <= 1 && !isThinking ? (
                             <div className="flex h-full items-center justify-center">
                                 <WelcomeCard onPromptClick={handlePromptClick} />
@@ -189,7 +189,7 @@ export default function VisualizerPage() {
                             className="pr-12 h-12 rounded-full bg-card/80 backdrop-blur-sm border-white/10 focus-visible:ring-2 focus-visible:ring-primary"
                             disabled={isThinking}
                         />
-                        <Button type="submit" size="icon" className="absolute top-1.5 right-1.5 h-9 w-9 rounded-full" disabled={isThinking}>
+                        <Button type="submit" size="icon" variant="gradient" className="absolute top-1.5 right-1.5 h-9 w-9 rounded-full" disabled={isThinking}>
                             <Send className="h-4 w-4" />
                         </Button>
                     </form>

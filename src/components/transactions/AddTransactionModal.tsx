@@ -403,7 +403,7 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                 
                 <div className="flex items-center gap-2">
                     {step === 1 && (
-                        <Button type="button" onClick={handleNext} className="w-full">
+                        <Button type="button" variant="gradient" onClick={handleNext} className="w-full">
                             Next <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                     )}
@@ -411,7 +411,7 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                     {step === 3 && (
                         <div className="flex flex-col-reverse sm:flex-row items-center gap-3">
                             <Button type="button" variant="secondary" onClick={() => handleFormSubmit(false)}>Save Transaction</Button>
-                            <Button type="button" onClick={() => handleFormSubmit(true)}>Save & Implement</Button>
+                            <Button type="button" variant="gradient" onClick={() => handleFormSubmit(true)}>Save & Implement</Button>
                         </div>
                     )}
                 </div>

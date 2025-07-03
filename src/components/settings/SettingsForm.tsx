@@ -244,7 +244,7 @@ export function SettingsForm() {
                     <CardDescription>Use these actions to manage your app data for testing.</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">
-                    <Button type="button" onClick={seedDatabase} className="w-full">
+                    <Button type="button" variant="gradient" onClick={seedDatabase} className="w-full">
                         Seed with Sample Data
                     </Button>
                     <AlertDialog>
