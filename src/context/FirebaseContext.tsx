@@ -6,6 +6,7 @@ import { ref, onValue, push, set } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import type { Transaction, Account, Goal, Settings } from '@/lib/types';
 import { mockAccounts as accountDefinitions } from '@/data/mock-data';
+import { seedDatabase, clearDatabase } from '@/lib/seed';
 
 // Hardcoded user ID for now. In a real app, this would come from an auth system.
 const userId = 'user1';
@@ -18,6 +19,8 @@ interface FirebaseContextType {
     loading: boolean;
     addTransaction: (transaction: Omit<Transaction, 'id'>) => Promise<void>;
     updateSettings: (settings: Omit<Settings, 'savingsPercentage'>) => Promise<void>;
+    seedDatabase: () => Promise<void>;
+    clearDatabase: () => Promise<void>;
 }
 
 const FirebaseContext = createContext<FirebaseContextType | undefined>(undefined);
@@ -110,6 +113,8 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         loading,
         addTransaction,
         updateSettings,
+        seedDatabase,
+        clearDatabase,
     };
 
     return <FirebaseContext.Provider value={value}>{children}</FirebaseContext.Provider>;

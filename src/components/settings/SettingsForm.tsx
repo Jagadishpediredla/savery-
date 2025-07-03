@@ -14,6 +14,17 @@ import { Slider } from '@/components/ui/slider';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { useFirebase } from '@/context/FirebaseContext';
 import { Skeleton } from '../ui/skeleton';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 const settingsSchema = z.object({
   monthlySalary: z.coerce.number().min(0, 'Salary must be a positive number'),
@@ -27,7 +38,7 @@ type SettingsFormValues = z.infer<typeof settingsSchema>;
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))'];
 
 export function SettingsForm() {
-  const { settings, updateSettings, loading } = useFirebase();
+  const { settings, updateSettings, loading, seedDatabase, clearDatabase } = useFirebase();
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsSchema),
@@ -160,52 +171,82 @@ export function SettingsForm() {
                 <Button type="submit">Save Settings</Button>
             </CardContent>
         </Card>
-        <Card>
-            <CardHeader>
-                <CardTitle>Your Plan</CardTitle>
-                <CardDescription>Live visualization of your budget.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <ResponsiveContainer width="100%" height={250}>
-                    <PieChart>
-                        <Pie
-                            data={pieData}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            outerRadius={80}
-                            dataKey="value"
-                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                        >
-                            {pieData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.fill} stroke={entry.fill} />
-                            ))}
-                        </Pie>
-                        <Tooltip
-                            contentStyle={{
-                                background: "hsl(var(--background))",
-                                border: "1px solid hsl(var(--border))",
-                                borderRadius: "var(--radius)"
-                            }}
-                            formatter={(value) => `${value}%`}
-                        />
-                    </PieChart>
-                </ResponsiveContainer>
-                <div className="mt-4 space-y-2">
-                    {pieData.map(entry => (
-                        <div key={entry.name} className="flex items-center justify-between text-sm">
-                            <div className="flex items-center gap-2">
-                                <span className="h-2 w-2 rounded-full" style={{backgroundColor: entry.fill}}/>
-                                <span>{entry.name}</span>
+        <div className="space-y-8">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Your Plan</CardTitle>
+                    <CardDescription>Live visualization of your budget.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <ResponsiveContainer width="100%" height={250}>
+                        <PieChart>
+                            <Pie
+                                data={pieData}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                outerRadius={80}
+                                dataKey="value"
+                                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                            >
+                                {pieData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={entry.fill} stroke={entry.fill} />
+                                ))}
+                            </Pie>
+                            <Tooltip
+                                contentStyle={{
+                                    background: "hsl(var(--background))",
+                                    border: "1px solid hsl(var(--border))",
+                                    borderRadius: "var(--radius)"
+                                }}
+                                formatter={(value) => `${value}%`}
+                            />
+                        </PieChart>
+                    </ResponsiveContainer>
+                    <div className="mt-4 space-y-2">
+                        {pieData.map(entry => (
+                            <div key={entry.name} className="flex items-center justify-between text-sm">
+                                <div className="flex items-center gap-2">
+                                    <span className="h-2 w-2 rounded-full" style={{backgroundColor: entry.fill}}/>
+                                    <span>{entry.name}</span>
+                                </div>
+                                <span className="font-medium">
+                                    ₹{((watch('monthlySalary') * entry.value) / 100).toLocaleString()}
+                                </span>
                             </div>
-                            <span className="font-medium">
-                                ₹{((watch('monthlySalary') * entry.value) / 100).toLocaleString()}
-                            </span>
-                        </div>
-                    ))}
-                </div>
-            </CardContent>
-        </Card>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Data Management</CardTitle>
+                    <CardDescription>Use these actions to manage your app data for testing.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-4">
+                    <Button type="button" onClick={seedDatabase} className="w-full">
+                        Seed with Sample Data
+                    </Button>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button type="button" variant="destructive" className="w-full">Clear All Data</Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete all your data.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={clearDatabase}>Continue</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </CardContent>
+            </Card>
+        </div>
       </form>
     </Form>
   );
