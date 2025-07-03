@@ -24,11 +24,14 @@ export function MobileNav({ navItems }: MobileNavProps) {
   if (!isMobile) {
     return null;
   }
+  
+  // Show only first 4 items on mobile
+  const mobileNavItems = navItems.slice(0,4);
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-card border-t z-50">
       <div className="flex justify-around items-center h-full max-w-md mx-auto">
-        {navItems.map((item) => {
+        {mobileNavItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link

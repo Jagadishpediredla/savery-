@@ -1,58 +1,41 @@
+
 'use client';
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFirebase } from "@/context/FirebaseContext";
 import CountUp from "react-countup";
-import { Area, AreaChart, ResponsiveContainer } from "recharts";
-import { useMemo, useState, useEffect } from "react";
-import { parseISO, startOfMonth, format } from "date-fns";
 import { Skeleton } from "../ui/skeleton";
-
-const chartConfig = {
-    balance: { color: 'hsl(var(--chart-1))' },
-};
+import { Shield, ShoppingBag, PiggyBank, CandlestickChart } from "lucide-react";
+import { DashboardStatCard } from "./DashboardStatCard";
 
 export function TotalBalanceCard() {
-    const { accounts, transactions } = useFirebase();
-    const [isMounted, setIsMounted] = useState(false);
+    const { accounts, loading } = useFirebase();
 
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
+    const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
 
-    const totalBalance = useMemo(() => {
-        return accounts.reduce((sum, acc) => sum + acc.balance, 0);
-    }, [accounts]);
+    const needsBalance = accounts.find(a => a.type === 'Needs')?.balance ?? 0;
+    const wantsBalance = accounts.find(a => a.type === 'Wants')?.balance ?? 0;
+    const savingsBalance = accounts.find(a => a.type === 'Savings')?.balance ?? 0;
+    const investmentsBalance = accounts.find(a => a.type === 'Investments')?.balance ?? 0;
 
-    const balanceHistory = useMemo(() => {
-        if (transactions.length === 0) return [];
+    if (loading) {
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Skeleton className="h-40" />
+                <Skeleton className="h-40" />
+                <Skeleton className="h-40" />
+                <Skeleton className="h-40" />
+            </div>
+        )
+    }
 
-        const sortedTransactions = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-        
-        let cumulativeBalance = 0;
-        const dataMap = new Map<string, number>();
-
-        sortedTransactions.forEach(t => {
-            if (t.type === 'Credit') cumulativeBalance += t.amount;
-            else cumulativeBalance -= t.amount;
-            
-            const month = format(startOfMonth(parseISO(t.date)), 'MMM');
-            dataMap.set(month, cumulativeBalance);
-        });
-
-        return Array.from(dataMap.entries()).map(([month, balance]) => ({
-            month,
-            balance,
-        }));
-    }, [transactions]);
-    
     return (
-        <Card className="col-span-1 lg:col-span-4">
-            <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="space-y-2">
-                    <p className="text-muted-foreground text-sm">Total Balance</p>
-                    <p className="text-4xl font-bold">
-                        <CountUp
+        <>
+            <Card className="col-span-1 md:col-span-2 lg:col-span-4 p-6">
+                <CardHeader className="p-0">
+                    <CardDescription>Total Balance</CardDescription>
+                    <CardTitle className="text-4xl font-bold">
+                         <CountUp
                             start={0}
                             end={totalBalance}
                             duration={1.5}
@@ -60,27 +43,38 @@ export function TotalBalanceCard() {
                             prefix="₹"
                             decimals={2}
                         />
-                    </p>
-                    <p className="text-sm text-green-400">+15% from last month</p>
-                </div>
-                <div className="h-24 w-full md:w-1/3">
-                    {isMounted ? (
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={balanceHistory} margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
-                                <defs>
-                                    <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor={chartConfig.balance.color} stopOpacity={0.4}/>
-                                        <stop offset="95%" stopColor={chartConfig.balance.color} stopOpacity={0}/>
-                                    </linearGradient>
-                                </defs>
-                                <Area type="monotone" dataKey="balance" stroke={chartConfig.balance.color} fill="url(#colorBalance)" strokeWidth={2} dot={false} />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    ): (
-                        <Skeleton className="h-full w-full" />
-                    )}
-                </div>
-            </CardContent>
-        </Card>
+                    </CardTitle>
+                </CardHeader>
+            </Card>
+
+             <DashboardStatCard 
+                title="Needs"
+                amount={needsBalance}
+                progress={50}
+                icon={<Shield className="h-6 w-6" />}
+                color="bg-needs/20 text-needs"
+            />
+             <DashboardStatCard 
+                title="Wants"
+                amount={wantsBalance}
+                progress={30}
+                icon={<ShoppingBag className="h-6 w-6" />}
+                color="bg-wants/20 text-wants"
+            />
+             <DashboardStatCard 
+                title="Savings"
+                amount={savingsBalance}
+                progress={15}
+                icon={<PiggyBank className="h-6 w-6" />}
+                color="bg-savings/20 text-savings"
+            />
+             <DashboardStatCard 
+                title="Investments"
+                amount={investmentsBalance}
+                progress={5}
+                icon={<CandlestickChart className="h-6 w-6" />}
+                color="bg-investments/20 text-investments"
+            />
+        </>
     );
 }

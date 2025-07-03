@@ -1,3 +1,4 @@
+
 import { AppShell } from '@/components/AppShell';
 import { FirebaseProvider } from '@/context/FirebaseContext';
 
@@ -8,7 +9,9 @@ export default function AppLayout({
 }) {
   return (
     <FirebaseProvider>
-      <AppShell>{children}</AppShell>
+      <div className="dark">
+        <AppShell>{children}</AppShell>
+      </div>
     </FirebaseProvider>
   );
 }

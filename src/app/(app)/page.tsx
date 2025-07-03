@@ -1,21 +1,22 @@
+
 'use client';
 
 import { PageWrapper } from '@/components/PageWrapper';
 import { useFirebase } from '@/context/FirebaseContext';
 import { Skeleton } from '@/components/ui/skeleton';
-import { WelcomeHeader } from '@/components/dashboard/new/WelcomeHeader';
-import { StatCard } from '@/components/dashboard/new/StatCard';
-import { ArrowDown, ArrowUp } from 'lucide-react';
-import { EarningsChart } from '@/components/dashboard/new/EarningsChart';
-import { SpendingBreakdown } from '@/components/dashboard/new/SpendingBreakdown';
-import { CashflowCard } from '@/components/dashboard/new/CashflowCard';
-import { UpcomingBills } from '@/components/dashboard/new/UpcomingBills';
-import { FinancialHabits } from '@/components/dashboard/new/FinancialHabits';
-import { GoalStorageCard } from '@/components/dashboard/new/GoalStorageCard';
+import { StatCard } from '@/components/dashboard/crm/StatCard';
+import { TicketsCreatedChart } from '@/components/dashboard/crm/TicketsCreatedChart';
+import { TicketsByTypeChart } from '@/components/dashboard/crm/TicketsByTypeChart';
+import { NewVsReturnedChart } from '@/components/dashboard/crm/NewVsReturnedChart';
+import { ResolveTimeChart } from '@/components/dashboard/crm/ResolveTimeChart';
+import { TicketsByDayChart } from '@/components/dashboard/crm/TicketsByDayChart';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { MoreHorizontal } from 'lucide-react';
 
 const LoadingSkeleton = () => (
     <div className="space-y-6">
-        <Skeleton className="h-12 w-1/3" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Skeleton className="h-36" />
             <Skeleton className="h-36" />
@@ -24,6 +25,11 @@ const LoadingSkeleton = () => (
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Skeleton className="h-96 lg:col-span-2" />
+            <Skeleton className="h-96" />
+        </div>
+         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Skeleton className="h-96" />
+            <Skeleton className="h-96" />
             <Skeleton className="h-96" />
         </div>
     </div>
@@ -44,55 +50,51 @@ export default function DashboardPage() {
     return (
         <PageWrapper>
             <div className="space-y-6">
-                <WelcomeHeader />
-
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <StatCard 
-                        title="Total Balance"
-                        value="$12,345"
-                        footerText="+15% from last month"
-                        icon={<ArrowUp className="text-green-500" />}
+                        title="Avg First Reply Time"
+                        value="30"
+                        unit="h"
+                        value2="15"
+                        unit2="min"
+                        variant="purple"
                     />
                     <StatCard 
-                        title="Income"
-                        value="$5,678"
-                        footerText="vs. $4,321 last month"
-                        icon={<ArrowUp className="text-green-500" />}
+                        title="Avg Full Resolve Time"
+                        value="22"
+                        unit="h"
+                        value2="40"
+                        unit2="min"
+                        variant="cyan"
                     />
-                    <StatCard 
-                        title="Expenses"
-                        value="$3,456"
-                        footerText="vs. $3,123 last month"
-                        icon={<ArrowDown className="text-red-500" />}
-                    />
-                    <StatCard 
-                        title="Savings"
-                        value="$2,222"
-                        footerText="Goal: $4,000"
-                        icon={<ArrowUp className="text-green-500" />}
-                    />
+                    <Card>
+                        <CardContent className="p-4 flex items-center justify-between">
+                            <p className="font-semibold">Messages</p>
+                            <Badge variant="secondary" className="bg-red-500/10 text-red-400 border-none">-20%</Badge>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="p-4 flex items-center justify-between">
+                             <p className="font-semibold">Emails</p>
+                            <Badge variant="secondary" className="bg-green-500/10 text-green-400 border-none">+33%</Badge>
+                        </CardContent>
+                    </Card>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                    <div className="lg:col-span-3 space-y-6">
-                       <EarningsChart />
-                       <FinancialHabits />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2">
+                       <TicketsCreatedChart />
                     </div>
-                    <div className="lg:col-span-2 space-y-6">
-                        <SpendingBreakdown />
-                        <CashflowCard />
-                    </div>
-                </div>
-
-                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                    <div className="lg:col-span-3 space-y-6">
-                        <UpcomingBills />
-                    </div>
-                     <div className="lg:col-span-2 space-y-6">
-                        <GoalStorageCard />
+                    <div className="space-y-6">
+                        <ResolveTimeChart />
                     </div>
                 </div>
 
+                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <TicketsByTypeChart />
+                    <NewVsReturnedChart />
+                    <TicketsByDayChart />
+                </div>
             </div>
         </PageWrapper>
     );
