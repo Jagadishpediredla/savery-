@@ -13,7 +13,7 @@ import { useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { parseISO, format, startOfMonth } from 'date-fns';
 import { TransactionFilters } from "@/components/transactions/TransactionFilters";
-import { LineChart, Line, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { LineChart, Line, CartesianGrid, XAxis, YAxis } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 
 const investmentGrowthChartConfig = {
@@ -116,28 +116,26 @@ export default function InvestmentsPage() {
                                         <CardContent>
                                             {investmentGrowthData.length > 0 ? (
                                                 <ChartContainer config={investmentGrowthChartConfig} className="h-[250px] w-full">
-                                                    <ResponsiveContainer width="100%" height="100%">
-                                                        <LineChart data={investmentGrowthData}>
-                                                            <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                                                            <XAxis
-                                                                dataKey="month"
-                                                                stroke="hsl(var(--muted-foreground))"
-                                                                fontSize={12}
-                                                                tickLine={false}
-                                                                axisLine={false}
-                                                                tickFormatter={(value) => format(new Date(value), 'MMM')}
-                                                            />
-                                                            <YAxis 
-                                                                stroke="hsl(var(--muted-foreground))" 
-                                                                fontSize={12}
-                                                                tickLine={false}
-                                                                axisLine={false}
-                                                                tickFormatter={(value) => `₹${Number(value)/1000}k`}
-                                                            />
-                                                            <ChartTooltip cursor={false} content={<ChartTooltipContent formatter={(value) => `₹${Number(value).toLocaleString()}`} indicator="dot" />} />
-                                                            <Line type="monotone" dataKey="cumulativeAmount" stroke="var(--color-cumulativeAmount)" strokeWidth={2} />
-                                                        </LineChart>
-                                                    </ResponsiveContainer>
+                                                    <LineChart data={investmentGrowthData}>
+                                                        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                                                        <XAxis
+                                                            dataKey="month"
+                                                            stroke="hsl(var(--muted-foreground))"
+                                                            fontSize={12}
+                                                            tickLine={false}
+                                                            axisLine={false}
+                                                            tickFormatter={(value) => format(new Date(value), 'MMM')}
+                                                        />
+                                                        <YAxis 
+                                                            stroke="hsl(var(--muted-foreground))" 
+                                                            fontSize={12}
+                                                            tickLine={false}
+                                                            axisLine={false}
+                                                            tickFormatter={(value) => `₹${Number(value)/1000}k`}
+                                                        />
+                                                        <ChartTooltip cursor={false} content={<ChartTooltipContent formatter={(value) => `₹${Number(value).toLocaleString()}`} indicator="dot" />} />
+                                                        <Line type="monotone" dataKey="cumulativeAmount" stroke="var(--color-cumulativeAmount)" strokeWidth={2} />
+                                                    </LineChart>
                                                 </ChartContainer>
                                             ) : <p className="text-muted-foreground text-center h-[250px] flex items-center justify-center">No investment data to display.</p>}
                                         </CardContent>

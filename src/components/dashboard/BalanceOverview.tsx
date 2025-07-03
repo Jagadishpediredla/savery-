@@ -16,7 +16,7 @@ import {
 import type { ChartConfig } from '@/components/ui/chart';
 import { useFirebase } from '@/context/FirebaseContext';
 import { useMemo } from 'react';
-import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
+import { Cell, Pie, PieChart } from 'recharts';
 
 const chartConfig = {
   Needs: { label: 'Needs', color: 'hsl(var(--chart-3))' },
@@ -54,36 +54,34 @@ export function BalanceOverview() {
           config={chartConfig}
           className="mx-auto aspect-square h-[200px]"
         >
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-               <ChartTooltip
-                cursor={false}
-                content={
+          <PieChart>
+              <ChartTooltip
+              cursor={false}
+              content={
                   <ChartTooltipContent
-                    formatter={(value) => `₹${Number(value).toLocaleString()}`}
-                    indicator="dot"
+                  formatter={(value) => `₹${Number(value).toLocaleString()}`}
+                  indicator="dot"
                   />
-                }
+              }
               />
               <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                outerRadius={80}
-                dataKey="value"
-                label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+              data={pieData}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              outerRadius={80}
+              dataKey="value"
+              label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
               >
-                {pieData.map((entry) => (
+              {pieData.map((entry) => (
                   <Cell
-                    key={`cell-${entry.name}`}
-                    fill={entry.fill}
-                    stroke={entry.fill}
+                  key={`cell-${entry.name}`}
+                  fill={entry.fill}
+                  stroke={entry.fill}
                   />
-                ))}
+              ))}
               </Pie>
-            </PieChart>
-          </ResponsiveContainer>
+          </PieChart>
         </ChartContainer>
         <div className="mt-4 space-y-2">
           {pieData.map((entry) => (

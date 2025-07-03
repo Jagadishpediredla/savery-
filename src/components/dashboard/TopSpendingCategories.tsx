@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from "@/components/ui/chart";
 import { useFirebase } from "@/context/FirebaseContext";
@@ -41,30 +41,28 @@ export function TopSpendingCategories() {
             </CardHeader>
             <CardContent>
                 <ChartContainer config={chartConfig} className="h-80 w-full">
-                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={topCategoriesData} layout="vertical" margin={{ left: 10, right: 10 }}>
-                            <CartesianGrid horizontal={false} />
-                            <XAxis type="number" dataKey="amount" hide />
-                            <YAxis 
-                                dataKey="category" 
-                                type="category" 
-                                tickLine={false} 
-                                axisLine={false}
-                                tickMargin={10}
-                                width={80}
-                                stroke="hsl(var(--muted-foreground))"
-                            />
-                             <ChartTooltip
-                                cursor={false}
-                                content={<ChartTooltipContent 
-                                    formatter={(value) => `₹${Number(value).toLocaleString()}`}
-                                    indicator="dot"
-                                    nameKey="category"
-                                />}
-                            />
-                            <Bar dataKey="amount" fill="var(--color-amount)" radius={4} />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    <BarChart data={topCategoriesData} layout="vertical" margin={{ left: 10, right: 10 }}>
+                        <CartesianGrid horizontal={false} />
+                        <XAxis type="number" dataKey="amount" hide />
+                        <YAxis 
+                            dataKey="category" 
+                            type="category" 
+                            tickLine={false} 
+                            axisLine={false}
+                            tickMargin={10}
+                            width={80}
+                            stroke="hsl(var(--muted-foreground))"
+                        />
+                            <ChartTooltip
+                            cursor={false}
+                            content={<ChartTooltipContent 
+                                formatter={(value) => `₹${Number(value).toLocaleString()}`}
+                                indicator="dot"
+                                nameKey="category"
+                            />}
+                        />
+                        <Bar dataKey="amount" fill="var(--color-amount)" radius={4} />
+                    </BarChart>
                 </ChartContainer>
             </CardContent>
         </Card>
