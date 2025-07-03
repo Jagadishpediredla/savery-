@@ -32,7 +32,7 @@ const mainNavItems = [
 
 const analyticsNavItems = [
   { href: '/visualizer', icon: Bot, label: 'Visualizer AI' },
-  { href: '/support', icon: LayoutGrid, label: 'Support' },
+  { href: '/support', icon: LayoutGrid, label: 'Analytics' },
 ];
 
 const settingsNavItem = { href: '/settings', icon: Settings, label: 'Settings' };

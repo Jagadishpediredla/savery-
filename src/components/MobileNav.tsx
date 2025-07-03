@@ -11,7 +11,7 @@ import { Button } from './ui/button';
 const navItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/accounts', icon: Wallet, label: 'Accounts' },
-  { href: '/support', icon: LayoutGrid, label: 'Support' },
+  { href: '/support', icon: LayoutGrid, label: 'Analytics' },
   { href: '/visualizer', icon: Bot, label: 'AI' },
 ];
 
