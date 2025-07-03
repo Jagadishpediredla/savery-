@@ -25,14 +25,19 @@ import { ThemeToggle } from './ThemeToggle';
 import { Input } from './ui/input';
 import { HeaderDate } from './HeaderDate';
 
-const navItems = [
+const mainNavItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/accounts', icon: Wallet, label: 'Accounts' },
   { href: '/investments', icon: CandlestickChart, label: 'Investments' },
+];
+
+const analyticsNavItems = [
   { href: '/visualizer', icon: Bot, label: 'Visualizer AI' },
   { href: '/support', icon: LayoutGrid, label: 'Support' },
-  { href: '/settings', icon: Settings, label: 'Settings' },
 ];
+
+const settingsNavItem = { href: '/settings', icon: Settings, label: 'Settings' };
+
 
 const NavItem = ({ item, isExpanded }: { item: any, isExpanded: boolean }) => {
     const pathname = usePathname();
@@ -41,8 +46,9 @@ const NavItem = ({ item, isExpanded }: { item: any, isExpanded: boolean }) => {
         <Link
             href={item.href}
             className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10",
-                isActive && "bg-primary/20 text-primary font-semibold",
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all duration-300 hover:text-primary hover:bg-primary/10",
+                "hover:pl-4",
+                isActive && "bg-gradient-to-r from-primary/20 to-primary/5 text-primary font-semibold border-l-4 border-primary",
                 !isExpanded && "justify-center"
             )}
         >
@@ -59,20 +65,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isMobile = useIsMobile();
   
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground">
-        <div className="flex h-16 items-center border-b border-sidebar-border px-4 shrink-0">
+    <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground overflow-y-auto">
+        <div className="flex h-16 items-center border-b border-sidebar-border px-4 shrink-0 sticky top-0 bg-sidebar/80 backdrop-blur-lg">
           <Link href="/" className="flex items-center gap-2 font-bold text-lg">
             Savvy Saver
           </Link>
         </div>
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
-            {navItems.map((item) => <NavItem key={item.href} item={item} isExpanded={true} />)}
-        </div>
-        <div className="mt-auto p-4 border-t border-sidebar-border space-y-4">
-            <Button variant="gradient" className="w-full" onClick={() => setIsModalOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Transaction
-            </Button>
+        <div className="flex-1 p-4 space-y-2">
+            
+            <h3 className="px-3 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-2 mt-4">Main</h3>
+            {mainNavItems.map((item) => <NavItem key={item.href} item={item} isExpanded={true} />)}
+
+            <h3 className="px-3 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-2 mt-6">Analytics</h3>
+            {analyticsNavItems.map((item) => <NavItem key={item.href} item={item} isExpanded={true} />)}
+
+            <div className="absolute bottom-0 left-0 w-full p-4 space-y-2 border-t border-sidebar-border bg-sidebar/80 backdrop-blur-lg">
+              <NavItem item={settingsNavItem} isExpanded={true} />
+              <Button variant="gradient" className="w-full" onClick={() => setIsModalOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Transaction
+              </Button>
+            </div>
         </div>
     </div>
   );
@@ -81,7 +94,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen w-full bg-background overflow-hidden">
         {/* Desktop Sidebar */}
         {!isMobile && (
-            <aside className="w-64 border-r bg-card/60 backdrop-blur-lg hidden md:flex flex-col">
+            <aside className="w-64 border-r bg-card/60 backdrop-blur-lg hidden md:flex flex-col relative">
                 {sidebarContent}
             </aside>
         )}

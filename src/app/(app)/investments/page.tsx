@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AccountPageLayout } from "@/components/accounts/AccountPageLayout";
 import { useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
-import { parseISO, format, startOfMonth } from 'date-fns';
+import { parseISO, format, startOfMonth, addDays } from 'date-fns';
 import { TransactionFilters } from "@/components/transactions/TransactionFilters";
 import { LineChart, Line, CartesianGrid, XAxis, YAxis } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
@@ -183,10 +183,4 @@ export default function InvestmentsPage() {
             </div>
         </PageWrapper>
     );
-}
-
-function addDays(date: Date, days: number): Date {
-    const result = new Date(date);
-    result.setDate(result.getDate() + days);
-    return result;
 }

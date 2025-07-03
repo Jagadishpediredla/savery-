@@ -16,7 +16,7 @@ import {
 import type { ChartConfig } from '@/components/ui/chart';
 import { useFirebase } from '@/context/FirebaseContext';
 import { useMemo } from 'react';
-import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
+import { Cell, Pie, PieChart, ResponsiveContainer, Label } from 'recharts';
 
 const chartConfig = {
   Needs: { label: 'Needs', color: 'hsl(var(--chart-3))' },
@@ -28,8 +28,8 @@ const chartConfig = {
 export function BalanceOverview() {
   const { accounts } = useFirebase();
 
-  const pieData = useMemo(() => {
-    return Object.entries(chartConfig)
+  const { pieData, totalBalance } = useMemo(() => {
+    const data = Object.entries(chartConfig)
       .map(([type, config]) => {
         const balance = accounts
           .filter((acc) => acc.type === type)
@@ -41,10 +41,14 @@ export function BalanceOverview() {
         };
       })
       .filter((item) => item.value > 0);
+      
+    const total = data.reduce((sum, item) => sum + item.value, 0);
+
+    return { pieData: data, totalBalance: total };
   }, [accounts]);
 
   return (
-    <Card className="h-full">
+    <Card className="h-full bg-card/60 backdrop-blur-lg">
       <CardHeader>
         <CardTitle>Balance Overview</CardTitle>
         <CardDescription>Your total balance distribution.</CardDescription>
@@ -66,21 +70,38 @@ export function BalanceOverview() {
                 }
                 />
                 <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                outerRadius={80}
-                dataKey="value"
-                label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={80}
+                  innerRadius={60}
+                  dataKey="value"
                 >
-                {pieData.map((entry) => (
-                    <Cell
-                    key={`cell-${entry.name}`}
-                    fill={entry.fill}
-                    stroke={entry.fill}
-                    />
-                ))}
+                  {pieData.map((entry) => (
+                      <Cell
+                      key={`cell-${entry.name}`}
+                      fill={entry.fill}
+                      stroke={entry.fill}
+                      />
+                  ))}
+                   <Label
+                    content={({ viewBox }) => {
+                      if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+                        return (
+                          <text
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                            className="fill-foreground text-xl font-bold"
+                          >
+                            {`₹${totalBalance.toLocaleString()}`}
+                          </text>
+                        );
+                      }
+                    }}
+                  />
                 </Pie>
             </PieChart>
           </ResponsiveContainer>
