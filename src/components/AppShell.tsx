@@ -4,7 +4,6 @@ import {
   Bot,
   CandlestickChart,
   Home,
-  Menu,
   PiggyBank,
   Plus,
   Settings,
@@ -27,12 +26,13 @@ import {
   SidebarProvider,
 } from '@/components/ui/sidebar';
 import { Button } from './ui/button';
-import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import { AddTransactionModal } from './transactions/AddTransactionModal';
 import { format } from 'date-fns';
+import { MobileNav } from './MobileNav';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Dashboard' },
+  { href: '/accounts', icon: Wallet, label: 'All Accounts' },
   { href: '/needs', icon: Shield, label: 'Needs Account' },
   { href: '/wants', icon: ShoppingBag, label: 'Wants Account' },
   { href: '/savings', icon: PiggyBank, label: 'Savings Account' },
@@ -94,21 +94,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <NavContent />
         </Sidebar>
         <SidebarInset>
-           <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-8">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button size="icon" variant="outline" className="md:hidden">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle Menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="sm:max-w-xs p-0 md:hidden">
-                <nav className="grid gap-6 text-lg font-medium">
-                  <NavContent />
-                </nav>
-              </SheetContent>
-            </Sheet>
-            
+           <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-8">
             <Link href="/" className="flex items-center gap-2 font-bold text-lg md:hidden">
                 <Wallet className="h-6 w-6 text-primary" />
                 <span>Savvy Saver</span>
@@ -118,15 +104,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <div className="text-sm text-muted-foreground">
                   {currentDate}
               </div>
-              {/* Future: Theme toggle button can go here */}
             </div>
           </header>
-          <main className="p-4 sm:p-6 lg:p-8">{children}</main>
+          <main className="p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">{children}</main>
         </SidebarInset>
+
+        <MobileNav />
+        
         <AddTransactionModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
+        
         <Button
           onClick={() => setIsModalOpen(true)}
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl"
+          className="fixed bottom-20 right-6 h-14 w-14 rounded-full shadow-2xl z-40 md:bottom-6"
           size="icon"
         >
           <Plus className="h-7 w-7" />
