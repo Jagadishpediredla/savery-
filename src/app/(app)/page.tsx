@@ -3,9 +3,9 @@
 
 import { PageWrapper } from '@/components/PageWrapper';
 import { BalanceOverview } from '@/components/dashboard/BalanceOverview';
-import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
+import { TransactionList } from '@/components/dashboard/RecentTransactions';
 import { SpendingChart } from '@/components/dashboard/SpendingChart';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFirebase } from '@/context/FirebaseContext';
 import { Wallet, Shield, ShoppingBag, PiggyBank, CandlestickChart, ArrowRight } from 'lucide-react';
@@ -55,7 +55,7 @@ const AccountCard = ({ account }: { account: Account }) => {
 }
 
 export default function DashboardPage() {
-  const { accounts, loading } = useFirebase();
+  const { accounts, transactions, loading } = useFirebase();
   const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
 
   if (loading) {
@@ -124,9 +124,17 @@ export default function DashboardPage() {
             </div>
         </div>
 
-        <div>
-            <RecentTransactions />
-        </div>
+        <Card>
+            <CardHeader>
+                <CardTitle>Recent Transactions</CardTitle>
+                <CardDescription>
+                Your latest financial movements.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <TransactionList transactions={transactions.slice(0, 5)} />
+            </CardContent>
+        </Card>
       </div>
     </PageWrapper>
   );
