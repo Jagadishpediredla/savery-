@@ -2,7 +2,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, CalendarIcon, Landmark, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { ArrowLeft, CalendarIcon, SlidersHorizontal, Sparkles, Shield, ShoppingBag, PiggyBank, CandlestickChart } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -42,14 +42,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { categories } from '@/data/mock-data';
+import { categories, mockAccounts } from '@/data/mock-data';
 import { useFirebase } from '@/context/FirebaseContext';
+import { useToast } from '@/hooks/use-toast';
 
 const transactionSchema = z.object({
-  date: z.date(),
+  date: z.date({ required_error: "A date is required." }),
   type: z.enum(['Credit', 'Debit']),
   amount: z.coerce.number().min(0.01, 'Amount must be greater than 0'),
-  account: z.string().min(1, 'Please select an account'),
+  account: z.string().min(1, 'Please select an account type'),
   category: z.string().min(1, 'Please select a category'),
   note: z.string().optional(),
 });
@@ -61,29 +62,71 @@ interface AddTransactionModalProps {
     onOpenChange: (isOpen: boolean) => void;
 }
 
+const accountTypes = [
+    { name: 'Needs', icon: Shield },
+    { name: 'Wants', icon: ShoppingBag },
+    { name: 'Savings', icon: PiggyBank },
+    { name: 'Investments', icon: CandlestickChart },
+];
+
 export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModalProps) {
   const [step, setStep] = useState(1);
-  const { accounts, addTransaction } = useFirebase();
+  const { addTransaction } = useFirebase();
+  const { toast } = useToast();
 
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       date: new Date(),
       type: 'Debit',
-      amount: 0,
+      amount: undefined,
       account: '',
       category: '',
       note: ''
     },
   });
 
-  const onSubmit = async (data: TransactionFormValues) => {
+  const handleFormSubmit = async (implement: boolean) => {
+    const isValid = await form.trigger();
+    if (!isValid) {
+        toast({
+            variant: "destructive",
+            title: "Validation Error",
+            description: "Please fill all required fields correctly.",
+        });
+        return;
+    }
+
+    const data = form.getValues();
     const transactionData = {
         ...data,
         date: format(data.date, 'yyyy-MM-dd'),
     };
-    await addTransaction(transactionData);
-    onOpenChange(false);
+
+    try {
+        await addTransaction(transactionData);
+
+        if (implement) {
+            const amount = transactionData.amount;
+            const note = encodeURIComponent(transactionData.note || 'FinanceFlow Transaction');
+            // A generic UPI link. The user must select the payee in their app.
+            const upiUrl = `upi://pay?am=${amount}&tn=${note}&cu=INR`;
+            window.location.href = upiUrl;
+        }
+
+        toast({
+            title: "Success!",
+            description: `Transaction has been ${implement ? 'implemented' : 'saved'}.`,
+        });
+        onOpenChange(false); // Close modal on success
+    } catch (error) {
+        console.error("Failed to save transaction", error);
+        toast({
+            variant: "destructive",
+            title: "Oh no! Something went wrong.",
+            description: "Could not save your transaction. Please try again.",
+        });
+    }
   };
 
   const handleNext = async () => {
@@ -106,7 +149,14 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
     <Dialog open={isOpen} onOpenChange={(open) => {
         if (!open) {
             setTimeout(() => {
-                form.reset();
+                form.reset({
+                  date: new Date(),
+                  type: 'Debit',
+                  amount: undefined,
+                  account: '',
+                  category: '',
+                  note: ''
+                });
                 setStep(1);
             }, 300);
         }
@@ -116,12 +166,11 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Add New Transaction</DialogTitle>
           <DialogDescription>
-            Fill in the details below to add a new transaction to your records.
+            Step {step} of 3: {step === 1 ? 'Enter Details' : step === 2 ? 'Choose Account' : 'Add Category & Note'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="min-h-[280px]">
+            <div className="min-h-[320px]">
                 <AnimatePresence mode="wait">
                 {step === 1 && (
                     <motion.div
@@ -223,22 +272,24 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                             name="account"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Account</FormLabel>
+                                    <FormLabel>Account Type</FormLabel>
                                     <FormControl>
                                         <div className="grid grid-cols-2 gap-4">
-                                            {accounts.map(account => (
-                                                <Card key={account.id} onClick={() => field.onChange(account.name)} className={cn("cursor-pointer transition-all", field.value === account.name ? "ring-2 ring-primary border-primary" : "hover:border-primary/50")}>
-                                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                                        <CardTitle className="text-sm font-medium">{account.name}</CardTitle>
-                                                        <Landmark className="h-4 w-4 text-muted-foreground" />
-                                                    </CardHeader>
-                                                    <CardContent>
-                                                        <div className="text-lg font-bold">
-                                                            ₹{account.balance.toLocaleString()}
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
-                                            ))}
+                                            {accountTypes.map(typeInfo => {
+                                                const account = mockAccounts.find(a => a.type === typeInfo.name);
+                                                if (!account) return null; // In case no account of this type is defined
+                                                
+                                                const isSelected = field.value === account.name;
+                                                
+                                                return (
+                                                    <Card key={typeInfo.name} onClick={() => field.onChange(account.name)} className={cn("cursor-pointer transition-all hover:border-primary/50", isSelected ? "ring-2 ring-primary border-primary" : "")}>
+                                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3">
+                                                            <CardTitle className="text-base font-medium">{typeInfo.name}</CardTitle>
+                                                            <typeInfo.icon className="h-5 w-5 text-muted-foreground" />
+                                                        </CardHeader>
+                                                    </Card>
+                                                )
+                                            })}
                                         </div>
                                     </FormControl>
                                     <FormMessage />
@@ -263,7 +314,7 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                         <FormItem>
                             <FormLabel>Note</FormLabel>
                             <FormControl>
-                            <Textarea placeholder="none" {...field} />
+                            <Textarea placeholder="e.g., Weekly grocery shopping" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -277,7 +328,7 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                                 <div className="flex justify-between items-center">
                                     <FormLabel>Category</FormLabel>
                                     <div className="flex items-center gap-2">
-                                        <Button type="button" size="sm">
+                                        <Button type="button" size="sm" variant="outline">
                                             <Sparkles className="mr-2 h-4 w-4" />
                                             Suggest
                                         </Button>
@@ -306,33 +357,34 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                 </AnimatePresence>
             </div>
 
-            <div className="flex justify-between pt-6">
-                {step > 1 ? (
-                <Button type="button" variant="outline" onClick={() => setStep(step - 1)}>
-                    <ArrowLeft className="mr-2 h-4 w-4" /> Back
-                </Button>
-                ) : <div></div>}
+            <div className="flex justify-between items-center pt-6">
+                <div>
+                    {step > 1 && (
+                    <Button type="button" variant="outline" onClick={() => setStep(step - 1)}>
+                        <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                    </Button>
+                    )}
+                </div>
                 
                 {step === 1 && (
-                <Button type="button" onClick={handleNext}>
+                <Button type="button" onClick={handleNext} className="w-full">
                     Next
                 </Button>
                 )}
 
                 {step === 2 && (
-                <Button type="button" onClick={handleNextToStep3}>
+                <Button type="button" onClick={handleNextToStep3} className="w-full">
                     Next
                 </Button>
                 )}
 
                 {step === 3 && (
                     <div className="flex items-center gap-2">
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-                        <Button type="submit">Save Transaction</Button>
+                        <Button type="button" variant="secondary" onClick={() => handleFormSubmit(false)}>Save Transaction</Button>
+                        <Button type="button" onClick={() => handleFormSubmit(true)}>Implement Transaction</Button>
                     </div>
                 )}
             </div>
-          </form>
         </Form>
       </DialogContent>
     </Dialog>

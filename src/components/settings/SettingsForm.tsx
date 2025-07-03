@@ -4,7 +4,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { ChevronsUpDown } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,7 +25,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 
 const settingsSchema = z.object({
   monthlySalary: z.coerce.number().min(0, 'Salary must be a positive number'),
@@ -39,6 +41,7 @@ const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3
 
 export function SettingsForm() {
   const { settings, updateSettings, loading, seedDatabase, clearDatabase } = useFirebase();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(true);
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsSchema),
@@ -60,6 +63,11 @@ export function SettingsForm() {
       });
     }
   }, [settings, form]);
+  
+  const handleSettingsUpdate = useCallback(() => {
+    const values = form.getValues();
+    updateSettings(values);
+  }, [form, updateSettings]);
 
   const { watch } = form;
   const needs = watch('needsPercentage');
@@ -73,10 +81,6 @@ export function SettingsForm() {
     { name: 'Investments', value: investments, fill: COLORS[2] },
     { name: 'Savings', value: savings, fill: COLORS[3] },
   ].filter(item => item.value > 0);
-
-  const onSubmit = (data: SettingsFormValues) => {
-    updateSettings(data);
-  };
   
   if (loading) {
     return (
@@ -89,88 +93,104 @@ export function SettingsForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-8 md:grid-cols-3">
-        <Card className="md:col-span-2">
-            <CardHeader>
-                <CardTitle>Budget Allocation</CardTitle>
-                <CardDescription>Set your monthly salary and allocate your budget.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-8">
-                <FormField
-                    control={form.control}
-                    name="monthlySalary"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Monthly Salary (₹)</FormLabel>
-                        <FormControl>
-                        <Input type="number" placeholder="50000" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
+      <div className="grid gap-8 md:grid-cols-3">
+        <Collapsible open={isSettingsOpen} onOpenChange={setIsSettingsOpen} className="md:col-span-2">
+            <Card>
+                <CardHeader>
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <CardTitle>Budget Allocation</CardTitle>
+                            <CardDescription>Set your monthly salary and allocate your budget. Changes save automatically.</CardDescription>
+                        </div>
+                        <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                                <ChevronsUpDown className="h-4 w-4" />
+                                <span className="sr-only">Toggle</span>
+                            </Button>
+                        </CollapsibleTrigger>
+                    </div>
+                </CardHeader>
+                <CollapsibleContent>
+                    <CardContent className="space-y-8 pt-4">
+                        <FormField
+                            control={form.control}
+                            name="monthlySalary"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Monthly Salary (₹)</FormLabel>
+                                <FormControl>
+                                <Input type="number" placeholder="50000" {...field} onBlur={handleSettingsUpdate} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
 
-                <FormField
-                    control={form.control}
-                    name="needsPercentage"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Needs ({field.value}%)</FormLabel>
-                            <FormControl>
-                                <Slider
-                                    value={[field.value]}
-                                    onValueChange={(vals) => field.onChange(vals[0])}
-                                    max={100}
-                                    step={1}
-                                />
-                            </FormControl>
-                        </FormItem>
-                    )}
-                />
-                 <FormField
-                    control={form.control}
-                    name="wantsPercentage"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Wants ({field.value}%)</FormLabel>
-                            <FormControl>
-                                <Slider
-                                    value={[field.value]}
-                                    onValueChange={(vals) => field.onChange(vals[0])}
-                                    max={100}
-                                    step={1}
-                                />
-                            </FormControl>
-                        </FormItem>
-                    )}
-                />
-                 <FormField
-                    control={form.control}
-                    name="investmentsPercentage"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Investments ({field.value}%)</FormLabel>
-                            <FormControl>
-                                <Slider
-                                    value={[field.value]}
-                                    onValueChange={(vals) => field.onChange(vals[0])}
-                                    max={100}
-                                    step={1}
-                                />
-                            </FormControl>
-                        </FormItem>
-                    )}
-                />
-                
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">Savings ({savings}%)</label>
-                    <Slider disabled value={[savings]} max={100} step={1} />
-                    <p className="text-xs text-muted-foreground">Savings are calculated automatically.</p>
-                </div>
-                
-                <Button type="submit">Save Settings</Button>
-            </CardContent>
-        </Card>
+                        <FormField
+                            control={form.control}
+                            name="needsPercentage"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Needs ({field.value}%)</FormLabel>
+                                    <FormControl>
+                                        <Slider
+                                            value={[field.value]}
+                                            onValueChange={(vals) => field.onChange(vals[0])}
+                                            onValueCommit={handleSettingsUpdate}
+                                            max={100}
+                                            step={1}
+                                        />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="wantsPercentage"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Wants ({field.value}%)</FormLabel>
+                                    <FormControl>
+                                        <Slider
+                                            value={[field.value]}
+                                            onValueChange={(vals) => field.onChange(vals[0])}
+                                            onValueCommit={handleSettingsUpdate}
+                                            max={100}
+                                            step={1}
+                                        />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="investmentsPercentage"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Investments ({field.value}%)</FormLabel>
+                                    <FormControl>
+                                        <Slider
+                                            value={[field.value]}
+                                            onValueChange={(vals) => field.onChange(vals[0])}
+                                            onValueCommit={handleSettingsUpdate}
+                                            max={100}
+                                            step={1}
+                                        />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                        
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Savings ({savings}%)</label>
+                            <Slider disabled value={[savings]} max={100} step={1} />
+                            <p className="text-xs text-muted-foreground">Savings are calculated automatically.</p>
+                        </div>
+                    </CardContent>
+                </CollapsibleContent>
+            </Card>
+        </Collapsible>
+
         <div className="space-y-8">
             <Card>
                 <CardHeader>
@@ -247,7 +267,7 @@ export function SettingsForm() {
                 </CardContent>
             </Card>
         </div>
-      </form>
+      </div>
     </Form>
   );
 }
