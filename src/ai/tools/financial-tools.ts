@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview This file defines Genkit tools for accessing user financial data from Firebase.
@@ -20,6 +21,11 @@ export const getTransactionsTool = ai.defineTool(
                 account: z.string(),
                 category: z.string(),
                 note: z.string(),
+                location: z.object({
+                    latitude: z.number(),
+                    longitude: z.number(),
+                    label: z.string().optional(),
+                }).optional(),
             })
         ),
     },

@@ -2,7 +2,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, CalendarIcon, SlidersHorizontal, Sparkles, ArrowRight, Sun, Moon, ArrowDown, ArrowUp } from 'lucide-react';
+import { ArrowLeft, CalendarIcon, SlidersHorizontal, Sparkles, ArrowRight, Sun, Moon, ArrowDown, ArrowUp, MapPin, LocateFixed } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -50,7 +50,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Shield, ShoppingBag, PiggyBank, CandlestickChart } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
-
 const transactionSchema = z.object({
   date: z.date({ required_error: "A date is required." }),
   type: z.enum(['Credit', 'Debit']),
@@ -58,6 +57,11 @@ const transactionSchema = z.object({
   account: z.string().min(1, 'Please select an account type'),
   category: z.string().min(1, 'Please select a category'),
   note: z.string().optional(),
+  location: z.object({
+    latitude: z.number(),
+    longitude: z.number(),
+    label: z.string().optional(),
+  }).optional(),
 });
 
 type TransactionFormValues = z.infer<typeof transactionSchema>;
@@ -93,6 +97,8 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
   const { addTransaction } = useFirebase();
   const { toast } = useToast();
   const { setTheme, theme } = useTheme();
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+
 
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
@@ -102,7 +108,8 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
       amount: undefined,
       account: '',
       category: '',
-      note: ''
+      note: '',
+      location: undefined,
     },
   });
 
@@ -147,18 +154,56 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
         });
     }
   };
+  
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      toast({ variant: 'destructive', title: 'Geolocation is not supported by your browser.' });
+      return;
+    }
 
-  const handleNext = async () => {
-    const isValid = await form.trigger(['date', 'type', 'amount']);
-    if (isValid) setStep(2);
+    setIsGettingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        form.setValue('location', {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        setIsGettingLocation(false);
+        toast({ title: 'Location captured successfully!' });
+      },
+      () => {
+        setIsGettingLocation(false);
+        toast({ variant: 'destructive', title: 'Unable to retrieve location. Please grant permission.' });
+      }
+    );
   };
+
+  const nextStep = async (fieldsToValidate: (keyof TransactionFormValues)[]) => {
+      const isValid = await form.trigger(fieldsToValidate);
+      if(isValid) setStep(prev => prev + 1);
+  }
+
+  const handleModalClose = (open: boolean) => {
+    if (!open) {
+        setTimeout(() => {
+            form.reset({
+              date: new Date(),
+              type: 'Debit',
+              amount: undefined,
+              account: '',
+              category: '',
+              note: '',
+              location: undefined,
+            });
+            setStep(1);
+        }, 300);
+    }
+    onOpenChange(open);
+  }
   
   const handleAccountSelect = async (accountName: string) => {
     form.setValue('account', accountName, { shouldValidate: true });
-    const isValid = await form.trigger(['account']);
-    if (isValid) {
-      setStep(3);
-    }
+    nextStep(['account']);
   };
 
   const stepVariants = {
@@ -168,23 +213,8 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-        if (!open) {
-            setTimeout(() => {
-                form.reset({
-                  date: new Date(),
-                  type: 'Debit',
-                  amount: undefined,
-                  account: '',
-                  category: '',
-                  note: ''
-                });
-                setStep(1);
-            }, 300);
-        }
-        onOpenChange(open);
-    }}>
-      <DialogContent className="sm:max-w-lg bg-card/80 backdrop-blur-xl border-border/20">
+    <Dialog open={isOpen} onOpenChange={handleModalClose}>
+      <DialogContent>
         <DialogHeader>
           <Button
             variant="ghost"
@@ -198,9 +228,12 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
           </Button>
           <DialogTitle className="text-2xl font-bold">Add New Transaction</DialogTitle>
            <DialogDescription>
-            {step === 1 ? 'Enter transaction details' : step === 2 ? 'Choose an account' : 'Add category & notes'}
+            {step === 1 && 'Enter transaction details'}
+            {step === 2 && 'Choose an account'}
+            {step === 3 && 'Add category & notes'}
+            {step === 4 && 'Optionally, add a location'}
           </DialogDescription>
-          <ProgressDots current={step} total={3} />
+          <ProgressDots current={step} total={4} />
         </DialogHeader>
         <Form {...form}>
             <div className="min-h-[380px]">
@@ -417,6 +450,64 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                         />
                     </motion.div>
                 )}
+                {step === 4 && (
+                    <motion.div
+                        key="step4"
+                        variants={stepVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        className="space-y-6 pt-4"
+                    >
+                         <div className="space-y-2">
+                           <Label>Location (Optional)</Label>
+                            <p className="text-sm text-muted-foreground">
+                                Add a location to this transaction to see it on your map.
+                            </p>
+                        </div>
+
+                         <Button 
+                            type="button" 
+                            variant="outline" 
+                            className="w-full" 
+                            onClick={handleGetLocation}
+                            disabled={isGettingLocation}
+                         >
+                            {isGettingLocation ? (
+                                <>
+                                    <LocateFixed className="mr-2 h-4 w-4 animate-pulse" />
+                                    Getting Location...
+                                </>
+                            ) : (
+                                 <>
+                                    <MapPin className="mr-2 h-4 w-4" />
+                                    Get Current Location
+                                </>
+                            )}
+                         </Button>
+
+                         {form.watch('location') && (
+                             <div className="p-4 rounded-lg bg-muted/50 text-xs space-y-1">
+                                <p>Lat: {form.watch('location.latitude')}</p>
+                                <p>Lon: {form.watch('location.longitude')}</p>
+                             </div>
+                         )}
+
+                         <FormField
+                            control={form.control}
+                            name="location.label"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Location Label</FormLabel>
+                                <FormControl>
+                                <Input placeholder="e.g., Downtown Coffee Shop" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                    </motion.div>
+                )}
                 </AnimatePresence>
             </div>
             
@@ -433,19 +524,26 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                     {step === 1 && (
                         <>
                             <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-                            <Button type="button" variant="gradient" onClick={handleNext}>
+                            <Button type="button" variant="gradient" onClick={() => nextStep(['date', 'type', 'amount'])}>
                                 Next <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
                         </>
                     )}
 
                     {step === 2 && (
-                         <Button type="button" variant="outline" onClick={() => setStep(step - 1)}>
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Back
-                        </Button>
+                         <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                     )}
 
                     {step === 3 && (
+                        <>
+                             <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                             <Button type="button" variant="gradient" onClick={() => nextStep(['note', 'category'])}>
+                                Next <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </>
+                    )}
+
+                    {step === 4 && (
                         <div className="flex flex-col-reverse sm:flex-row items-center gap-3">
                             <Button type="button" variant="secondary" onClick={() => handleFormSubmit(false)}>Save Transaction</Button>
                             <Button type="button" variant="gradient" onClick={() => handleFormSubmit(true)}>Save & Implement</Button>

@@ -1,3 +1,10 @@
+
+export interface LocationData {
+  latitude: number;
+  longitude: number;
+  label?: string;
+}
+
 export interface Transaction {
   id: string;
   date: string;
@@ -6,6 +13,7 @@ export interface Transaction {
   account: string;
   category: string;
   note: string;
+  location?: LocationData;
 }
 
 export interface Account {

@@ -1,7 +1,7 @@
 
 import { ref, set, remove, push } from 'firebase/database';
 import { db } from '@/lib/firebase';
-import type { Transaction, Goal, Settings } from '@/lib/types';
+import type { Transaction, Goal, Settings, LocationData } from '@/lib/types';
 import { mockAccounts, categories } from '@/data/mock-data';
 
 const userId = 'user1';
@@ -17,6 +17,34 @@ const getRandomDate = (): string => {
   const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
   return date.toISOString().split('T')[0]; // YYYY-MM-DD
 };
+
+// Helper to generate a random location around a central point (e.g., Delhi, India)
+const getRandomLocation = (): LocationData => {
+    const centerLat = 28.6139;
+    const centerLng = 77.2090;
+    const radius = 0.5; // Approx 55km radius
+
+    const y0 = centerLat;
+    const x0 = centerLng;
+    const rd = radius / 111.32; // ~111.32 km per degree
+
+    const u = Math.random();
+    const v = Math.random();
+
+    const w = rd * Math.sqrt(u);
+    const t = 2 * Math.PI * v;
+    const x = w * Math.cos(t);
+    const y = w * Math.sin(t);
+
+    const newLat = y + y0;
+    const newLng = x + x0;
+
+    return {
+        latitude: parseFloat(newLat.toFixed(6)),
+        longitude: parseFloat(newLng.toFixed(6)),
+    };
+};
+
 
 const generateRandomTransactions = (count: number): Omit<Transaction, 'id'>[] => {
   const transactions: Omit<Transaction, 'id'>[] = [];
@@ -38,6 +66,12 @@ const generateRandomTransactions = (count: number): Omit<Transaction, 'id'>[] =>
     const category = type === 'Credit' ? 'Salary' : getRandomItem(categories.filter(c => c !== 'Salary'));
     const account = getRandomItem(mockAccounts).name;
     const note = getRandomItem(transactionNotes[category] || ['Misc note']);
+    
+    // Add location to about 70% of debit transactions
+    const location = type === 'Debit' && Math.random() < 0.7 ? getRandomLocation() : undefined;
+    if (location) {
+        location.label = `Purchase near ${location.latitude.toFixed(2)}, ${location.longitude.toFixed(2)}`;
+    }
 
     transactions.push({
       date: getRandomDate(),
@@ -46,6 +80,7 @@ const generateRandomTransactions = (count: number): Omit<Transaction, 'id'>[] =>
       account,
       category,
       note,
+      location
     });
   }
   return transactions;
