@@ -111,14 +111,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         
         <AddTransactionModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
         
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          className="fixed bottom-20 right-6 h-14 w-14 rounded-full shadow-2xl z-40 md:bottom-6"
-          size="icon"
-        >
-          <Plus className="h-7 w-7" />
-          <span className="sr-only">Add Transaction</span>
-        </Button>
+        {pathname === '/' && (
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              className="fixed bottom-20 right-6 h-14 w-14 rounded-full shadow-2xl z-40 md:bottom-6"
+              size="icon"
+            >
+              <Plus className="h-7 w-7" />
+              <span className="sr-only">Add Transaction</span>
+            </Button>
+        )}
       </div>
     </SidebarProvider>
   );
