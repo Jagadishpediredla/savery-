@@ -29,7 +29,7 @@ export default function InvestmentsPage() {
 
                 <div>
                     <h2 className="text-xl font-semibold mb-4">Investment History</h2>
-                    <RecentTransactions />
+                    <RecentTransactions transactions={investmentTransactions} />
                 </div>
             </div>
         </PageWrapper>

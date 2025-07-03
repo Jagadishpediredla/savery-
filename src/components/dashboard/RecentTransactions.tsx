@@ -1,27 +1,23 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { mockTransactions } from '@/data/mock-data';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
+import type { Transaction } from '@/lib/types';
+import { TransactionCard } from '../transactions/TransactionCard';
 
-export function RecentTransactions() {
+
+interface RecentTransactionsProps {
+  transactions?: Transaction[];
+}
+
+export function RecentTransactions({ transactions = mockTransactions }: RecentTransactionsProps) {
+  const displayTransactions = transactions.slice(0, 5); // Show latest 5 or all if prop is passed
+
   return (
     <Card>
       <CardHeader>
@@ -30,42 +26,19 @@ export function RecentTransactions() {
           Your latest financial movements.
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Details</TableHead>
-              <TableHead className="hidden sm:table-cell">Category</TableHead>
-              <TableHead className="hidden sm:table-cell">Date</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {mockTransactions.map((transaction) => (
-              <TableRow key={transaction.id}>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div className={cn("p-2 rounded-full", transaction.type === 'Credit' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400')}>
-                        {transaction.type === 'Credit' ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownLeft className="h-4 w-4" />}
-                    </div>
-                    <div>
-                        <p className="font-medium">{transaction.note}</p>
-                        <p className="text-sm text-muted-foreground">{transaction.account}</p>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="hidden sm:table-cell">
-                    <Badge variant="outline">{transaction.category}</Badge>
-                </TableCell>
-                <TableCell className="hidden sm:table-cell">{format(new Date(transaction.date), 'MMM dd, yyyy')}</TableCell>
-                <TableCell className={cn("text-right font-semibold", transaction.type === 'Credit' ? 'text-green-400' : 'text-red-400')}>
-                    {transaction.type === 'Credit' ? '+' : '-'}${transaction.amount.toFixed(2)}
-                </TableCell>
-              </TableRow>
+      <div className="p-0 sm:p-2 md:p-4">
+        {transactions.length > 0 ? (
+          <div className="space-y-4">
+            {transactions.map((transaction) => (
+              <TransactionCard key={transaction.id} transaction={transaction} />
             ))}
-          </TableBody>
-        </Table>
-      </CardContent>
+          </div>
+        ) : (
+          <div className="text-center text-muted-foreground py-12">
+            No transactions found for this period.
+          </div>
+        )}
+      </div>
     </Card>
   );
 }
