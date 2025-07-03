@@ -9,12 +9,14 @@ import { useState, useRef, useEffect, type FormEvent } from "react";
 import { AnimatePresence, motion } from 'framer-motion';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { PageWrapper } from "@/components/PageWrapper";
-
+import { financialAssistant } from '@/ai/flows/financial-assistant-flow';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Message {
     id: number;
-    text: string;
-    sender: 'user' | 'ai';
+    role: 'user' | 'model'; // 'model' is the term Genkit uses for AI
+    content: string;
 }
 
 const WelcomeCard = ({ onPromptClick }: { onPromptClick: (prompt: string) => void }) => {
@@ -50,9 +52,10 @@ const WelcomeCard = ({ onPromptClick }: { onPromptClick: (prompt: string) => voi
 
 export default function VisualizerPage() {
     const [messages, setMessages] = useState<Message[]>([
-        { id: 1, text: "Hello! How can I help you analyze your finances today?", sender: 'ai' }
+        { id: 1, role: 'model', content: "Hello! I'm FinanceFlow, your personal finance assistant. How can I help you understand your finances today?" }
     ]);
     const [input, setInput] = useState('');
+    const [isThinking, setIsThinking] = useState(false);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -65,20 +68,33 @@ export default function VisualizerPage() {
         setInput(prompt);
     }
     
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        if (!input.trim()) return;
+        if (!input.trim() || isThinking) return;
 
-        const userMessage: Message = { id: Date.now(), text: input, sender: 'user' };
-        setMessages(prev => [...prev, userMessage]);
-
-        // Mock AI response
-        setTimeout(() => {
-            const aiResponse: Message = { id: Date.now() + 1, text: `I received your message: "${input}". I'm still learning, but soon I'll be able to generate charts and insights for you.`, sender: 'ai' };
-            setMessages(prev => [...prev, aiResponse]);
-        }, 1000);
-
+        const userMessage: Message = { id: Date.now(), role: 'user', content: input };
+        const newMessages = [...messages, userMessage];
+        setMessages(newMessages);
         setInput('');
+        setIsThinking(true);
+
+        try {
+            const historyForApi = newMessages.slice(0, -1).map(msg => ({
+                role: msg.role,
+                content: [{ text: msg.content }]
+            }));
+
+            const responseText = await financialAssistant({ prompt: input, history: historyForApi });
+
+            const aiResponse: Message = { id: Date.now() + 1, role: 'model', content: responseText };
+            setMessages(prev => [...prev, aiResponse]);
+        } catch (error) {
+            console.error("Error calling financial assistant:", error);
+            const errorMessage: Message = { id: Date.now() + 1, role: 'model', content: "Sorry, I ran into a problem while thinking. Please check the server logs or try again." };
+            setMessages(prev => [...prev, errorMessage]);
+        } finally {
+            setIsThinking(false);
+        }
     };
 
     return (
@@ -91,7 +107,7 @@ export default function VisualizerPage() {
                     </p>
                 </header>
                 <div className="h-[65vh] flex flex-col">
-                    {messages.length <= 1 ? (
+                    {messages.length <= 1 && !isThinking ? (
                         <div className="flex-grow flex items-center justify-center">
                             <WelcomeCard onPromptClick={handlePromptClick} />
                         </div>
@@ -109,19 +125,24 @@ export default function VisualizerPage() {
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, y: -10 }}
                                                 transition={{ duration: 0.3 }}
-                                                className={`flex items-start gap-3 ${message.sender === 'user' ? 'justify-end' : ''}`}
+                                                className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}
                                             >
-                                                {message.sender === 'ai' && (
+                                                {message.role === 'model' && (
                                                     <Avatar>
                                                         <AvatarFallback className="bg-primary/20 text-primary">
                                                             <Bot />
                                                         </AvatarFallback>
                                                     </Avatar>
                                                 )}
-                                                <div className={`max-w-sm p-3 rounded-lg ${message.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-card/80'}`}>
-                                                    <p className="text-sm">{message.text}</p>
+                                                <div className={`max-w-prose p-3 rounded-lg ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-card/80'}`}>
+                                                     <ReactMarkdown
+                                                        className="prose prose-sm dark:prose-invert prose-p:my-0 prose-headings:my-1 prose-table:my-2 prose-td:p-2 prose-th:p-2"
+                                                        remarkPlugins={[remarkGfm]}
+                                                    >
+                                                        {message.content}
+                                                    </ReactMarkdown>
                                                 </div>
-                                                {message.sender === 'user' && (
+                                                {message.role === 'user' && (
                                                      <Avatar>
                                                         <AvatarFallback>
                                                             <User />
@@ -131,6 +152,23 @@ export default function VisualizerPage() {
                                             </motion.div>
                                         ))}
                                         </AnimatePresence>
+                                        {isThinking && (
+                                            <motion.div
+                                                layout
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                className="flex items-start gap-3"
+                                            >
+                                                <Avatar>
+                                                    <AvatarFallback className="bg-primary/20 text-primary"><Bot /></AvatarFallback>
+                                                </Avatar>
+                                                <div className="p-3 rounded-lg bg-card/80 flex items-center gap-2">
+                                                    <div className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.3s]"></div>
+                                                    <div className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.15s]"></div>
+                                                    <div className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse"></div>
+                                                </div>
+                                            </motion.div>
+                                        )}
                                     </div>
                                 </ScrollArea>
                             </CardContent>
@@ -141,10 +179,11 @@ export default function VisualizerPage() {
                             <Input
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
-                                placeholder="Ask about your spending, goals, or request a chart..."
+                                placeholder="e.g., How much did I spend on groceries last month?"
                                 className="pr-12 h-12 rounded-full bg-card/80 backdrop-blur-sm border-white/10 focus-visible:ring-2 focus-visible:ring-primary"
+                                disabled={isThinking}
                             />
-                            <Button type="submit" size="icon" className="absolute top-1.5 right-1.5 h-9 w-9 rounded-full">
+                            <Button type="submit" size="icon" className="absolute top-1.5 right-1.5 h-9 w-9 rounded-full" disabled={isThinking}>
                                 <Send className="h-4 w-4" />
                             </Button>
                         </form>
