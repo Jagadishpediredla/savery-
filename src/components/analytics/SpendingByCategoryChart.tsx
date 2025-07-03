@@ -1,25 +1,19 @@
 'use client';
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
+import { Pie, PieChart, ResponsiveContainer, Cell } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from "@/components/ui/chart";
 import { useMemo } from "react";
 import type { Transaction } from "@/lib/types";
 import { subDays, isWithinInterval, parseISO } from 'date-fns';
 
-const chartConfig = {
-    amount: {
-      label: "Amount",
-      color: "hsl(var(--chart-1))",
-    },
-} satisfies ChartConfig;
-
+const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
 interface SpendingByCategoryChartProps {
     transactions: Transaction[];
 }
 
 export function SpendingByCategoryChart({ transactions }: SpendingByCategoryChartProps) {
-    const chartData = useMemo(() => {
+    const { chartData, chartConfig } = useMemo(() => {
         const categoryMap = new Map<string, number>();
         const thirtyDaysAgo = subDays(new Date(), 30);
         const now = new Date();
@@ -31,12 +25,25 @@ export function SpendingByCategoryChart({ transactions }: SpendingByCategoryChar
                 categoryMap.set(t.category, currentAmount + t.amount);
             }
         });
+        
+        const data = Array.from(categoryMap.entries())
+            .map(([name, value], index) => ({ 
+                name, 
+                value,
+                fill: COLORS[index % COLORS.length] 
+            }))
+            .sort((a, b) => b.value - a.value)
+            .slice(0, 5); // top 5
 
-        return Array.from(categoryMap.entries())
-            .map(([category, amount]) => ({ category, amount }))
-            .sort((a, b) => b.amount - a.amount)
-            .slice(0, 5) // top 5
-            .reverse(); // Bar chart renders from bottom up, so reverse to show highest at top
+        const config: ChartConfig = {};
+        data.forEach(item => {
+            config[item.name] = {
+                label: item.name,
+                color: item.fill,
+            }
+        });
+        
+        return { chartData: data, chartConfig: config };
     }, [transactions]);
     
     if (chartData.length === 0) {
@@ -45,30 +52,34 @@ export function SpendingByCategoryChart({ transactions }: SpendingByCategoryChar
 
     return (
         <ChartContainer config={chartConfig} className="h-80 w-full">
-            <ResponsiveContainer>
-                <BarChart data={chartData} layout="vertical" margin={{ left: 10, right: 10, top: 10, bottom: 10 }}>
-                    <CartesianGrid horizontal={false} strokeDasharray="3 3" />
-                    <XAxis type="number" dataKey="amount" hide />
-                    <YAxis 
-                        dataKey="category" 
-                        type="category" 
-                        tickLine={false} 
-                        axisLine={false}
-                        tickMargin={10}
-                        width={80}
-                        stroke="hsl(var(--muted-foreground))"
-                        fontSize={12}
-                    />
-                        <ChartTooltip
+            <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                    <ChartTooltip
                         cursor={false}
-                        content={<ChartTooltipContent 
-                            formatter={(value) => `₹${Number(value).toLocaleString()}`}
+                        content={<ChartTooltipContent
+                            formatter={(value) => `₹${Number(value).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`}
                             indicator="dot"
-                            nameKey="category"
                         />}
                     />
-                    <Bar dataKey="amount" fill="var(--color-amount)" radius={4} />
-                </BarChart>
+                    <Pie
+                        data={chartData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        innerRadius={60}
+                        paddingAngle={2}
+                    >
+                        {chartData.map((entry) => (
+                            <Cell key={`cell-${entry.name}`} fill={entry.fill} stroke={entry.fill} />
+                        ))}
+                    </Pie>
+                    <ChartLegend
+                        content={<ChartLegendContent nameKey="name" />}
+                        className="flex-wrap gap-2 [&>*]:basis-1/3 [&>*]:justify-center"
+                    />
+                </PieChart>
             </ResponsiveContainer>
         </ChartContainer>
     );
