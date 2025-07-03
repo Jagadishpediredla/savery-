@@ -25,11 +25,11 @@ const LoadingSkeleton = () => (
             <Skeleton className="h-96 lg:col-span-2" />
             <Skeleton className="h-96" />
         </div>
-         <Skeleton className="h-80 w-full" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Skeleton className="h-96 lg:col-span-2" />
             <Skeleton className="h-96" />
         </div>
+         <Skeleton className="h-80 w-full" />
     </div>
 );
 
@@ -59,6 +59,13 @@ export default function DashboardPage() {
                     <BalanceOverview />
                 </div>
 
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2">
+                        <GoalsOverview />
+                    </div>
+                    <MagicCalendar />
+                </div>
+                
                 <Card className="bg-card/60 backdrop-blur-lg">
                     <CardHeader>
                         <CardTitle>Recent Transactions</CardTitle>
@@ -69,12 +76,6 @@ export default function DashboardPage() {
                     </CardContent>
                 </Card>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2">
-                        <GoalsOverview />
-                    </div>
-                    <MagicCalendar />
-                </div>
             </div>
         </PageWrapper>
     );

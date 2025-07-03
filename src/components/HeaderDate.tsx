@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
+import Link from 'next/link';
 
 export function HeaderDate() {
     const [currentDate, setCurrentDate] = useState('');
@@ -17,8 +18,10 @@ export function HeaderDate() {
     }
 
     return (
-        <div className="hidden md:flex items-center gap-2 rounded-full bg-card/60 backdrop-blur-lg px-4 py-2 text-sm font-medium text-muted-foreground border">
-            <span>{currentDate}</span>
-        </div>
+        <Link href="/">
+            <div className="hidden md:flex items-center gap-2 rounded-full bg-card/60 backdrop-blur-lg px-4 py-2 text-sm font-medium text-muted-foreground border cursor-pointer hover:border-primary/50 transition-colors">
+                <span>{currentDate}</span>
+            </div>
+        </Link>
     );
 }

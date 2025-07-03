@@ -90,7 +90,7 @@ export function MagicCalendar() {
                     <CardTitle>Magic Calendar</CardTitle>
                     <CardDescription>Dates with transactions are marked with colored dots.</CardDescription>
                 </CardHeader>
-                <CardContent className="flex-1 flex flex-col p-4">
+                <CardContent className="flex-1 flex flex-col items-center justify-center p-4">
                     <Calendar
                         mode="single"
                         onDayClick={handleDayClick}
@@ -99,7 +99,7 @@ export function MagicCalendar() {
                             Day: DayWithDots,
                         }}
                         classNames={{
-                           day_selected: "bg-primary/20 text-primary-foreground",
+                           day_selected: "bg-primary text-primary-foreground hover:bg-primary/90",
                            day_today: "text-accent-foreground rounded-full bg-accent/50",
                         }}
                     />
