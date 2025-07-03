@@ -1,15 +1,22 @@
 
 'use client';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartTooltipContent } from '@/components/ui/chart';
+import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 
 const data = [
-  { name: 'Sales', value: 400, color: 'hsl(var(--chart-1))' },
-  { name: 'Setup', value: 300, color: 'hsl(var(--chart-2))' },
-  { name: 'Bug', value: 200, color: 'hsl(var(--chart-3))' },
-  { name: 'Features', value: 278, color: 'hsl(var(--chart-4))' },
+  { name: 'Sales', value: 400, fill: 'var(--color-Sales)' },
+  { name: 'Setup', value: 300, fill: 'var(--color-Setup)' },
+  { name: 'Bug', value: 200, fill: 'var(--color-Bug)' },
+  { name: 'Features', value: 278, fill: 'var(--color-Features)' },
 ];
+
+const chartConfig = {
+  Sales: { label: 'Sales', color: 'hsl(var(--chart-1))' },
+  Setup: { label: 'Setup', color: 'hsl(var(--chart-2))' },
+  Bug: { label: 'Bug', color: 'hsl(var(--chart-3))' },
+  Features: { label: 'Features', color: 'hsl(var(--chart-4))' },
+} satisfies ChartConfig;
 
 export function TicketsByTypeChart() {
     return (
@@ -18,9 +25,9 @@ export function TicketsByTypeChart() {
                 <CardTitle>Tickets By Type</CardTitle>
             </CardHeader>
             <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
+                <ChartContainer config={chartConfig} className="w-full h-full">
                     <PieChart>
-                        <Tooltip
+                        <ChartTooltip
                             content={<ChartTooltipContent indicator="dot" nameKey="name" />}
                         />
                         <Pie
@@ -34,12 +41,12 @@ export function TicketsByTypeChart() {
                             strokeWidth={2}
                         >
                             {data.map((entry) => (
-                                <Cell key={entry.name} fill={entry.color} stroke={entry.color} />
+                                <Cell key={entry.name} fill={entry.fill} stroke={entry.fill} />
                             ))}
                         </Pie>
-                        <Legend iconType="circle" iconSize={10} verticalAlign="bottom" align="center" />
+                        <ChartLegend content={<ChartLegendContent iconType="circle" />} />
                     </PieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
             </CardContent>
         </Card>
     );
