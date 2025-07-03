@@ -17,7 +17,7 @@ export function GoalProgress({ goal }: GoalProgressProps) {
             <CardHeader className="flex flex-row items-center justify-between">
                 <div className="space-y-1">
                     <CardTitle>{goal.name}</CardTitle>
-                    <CardDescription>Target: ${goal.targetAmount.toLocaleString()}</CardDescription>
+                    <CardDescription>Target: ₹{goal.targetAmount.toLocaleString()}</CardDescription>
                 </div>
                 <Target className="h-6 w-6 text-primary" />
             </CardHeader>
@@ -25,7 +25,7 @@ export function GoalProgress({ goal }: GoalProgressProps) {
                 <div className="space-y-2">
                     <Progress value={progress} />
                     <div className="flex justify-between text-sm text-muted-foreground">
-                        <span>${goal.currentAmount.toLocaleString()}</span>
+                        <span>₹{goal.currentAmount.toLocaleString()}</span>
                         <span>{Math.round(progress)}%</span>
                     </div>
                 </div>

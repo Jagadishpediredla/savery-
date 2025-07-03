@@ -6,7 +6,7 @@ import { mockAccounts } from '@/data/mock-data';
 import type { Transaction } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
+import { Plus, Minus } from 'lucide-react';
 
 interface TransactionCardProps {
     transaction: Transaction;
@@ -32,7 +32,7 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
                 {/* Icon */}
                 <div className="col-span-1 flex items-center justify-center">
                     <div className={cn("p-2 rounded-full", transaction.type === 'Credit' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400')}>
-                        {transaction.type === 'Credit' ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownLeft className="h-5 w-5" />}
+                        {transaction.type === 'Credit' ? <Plus className="h-5 w-5" /> : <Minus className="h-5 w-5" />}
                     </div>
                 </div>
 
@@ -59,7 +59,7 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
                 {/* Amount */}
                 <div className="col-span-6 md:col-span-3 text-right">
                     <p className={cn("text-xl font-bold", transaction.type === 'Credit' ? 'text-green-400' : 'text-red-400')}>
-                       {transaction.type === 'Credit' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                       {transaction.type === 'Credit' ? '+' : '-'}₹{transaction.amount.toFixed(2)}
                     </p>
                 </div>
             </CardContent>

@@ -1,7 +1,9 @@
 import { PageWrapper } from "@/components/PageWrapper";
 import { GoalProgress } from "@/components/investments/GoalProgress";
+import { PortfolioAllocation } from "@/components/investments/PortfolioAllocation";
 import { RecentTransactions } from "@/components/dashboard/RecentTransactions";
 import { mockGoals, mockTransactions } from "@/data/mock-data";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function InvestmentsPage() {
     const investmentTransactions = mockTransactions.filter(
@@ -18,9 +20,12 @@ export default function InvestmentsPage() {
                     </p>
                 </header>
 
-                <div className="space-y-6">
-                    <h2 className="text-xl font-semibold">Your Goals</h2>
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2">
+                         <PortfolioAllocation />
+                    </div>
+                    <div className="space-y-6">
+                        <h2 className="text-xl font-semibold">Your Goals</h2>
                         {mockGoals.map(goal => (
                             <GoalProgress key={goal.id} goal={goal} />
                         ))}

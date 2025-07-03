@@ -27,7 +27,7 @@ export function SettingsForm() {
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      monthlySalary: 5000,
+      monthlySalary: 50000,
       needsPercentage: 50,
       wantsPercentage: 30,
       investmentsPercentage: 15,
@@ -65,9 +65,9 @@ export function SettingsForm() {
                     name="monthlySalary"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Monthly Salary</FormLabel>
+                        <FormLabel>Monthly Salary (₹)</FormLabel>
                         <FormControl>
-                        <Input type="number" placeholder="5000" {...field} />
+                        <Input type="number" placeholder="50000" {...field} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -174,7 +174,7 @@ export function SettingsForm() {
                                 <span>{entry.name}</span>
                             </div>
                             <span className="font-medium">
-                                ${((watch('monthlySalary') * entry.value) / 100).toLocaleString()}
+                                ₹{((watch('monthlySalary') * entry.value) / 100).toLocaleString()}
                             </span>
                         </div>
                     ))}

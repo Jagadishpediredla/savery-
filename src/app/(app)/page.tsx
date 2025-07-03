@@ -6,7 +6,7 @@ import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import { SpendingChart } from '@/components/dashboard/SpendingChart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { mockAccounts } from '@/data/mock-data';
-import { DollarSign, Wallet } from 'lucide-react';
+import { Wallet } from 'lucide-react';
 import CountUp from 'react-countup';
 
 export default function DashboardPage() {
@@ -26,7 +26,7 @@ export default function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <Wallet className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
@@ -35,7 +35,7 @@ export default function DashboardPage() {
                   end={totalBalance}
                   duration={2}
                   separator=","
-                  prefix="$"
+                  prefix="₹"
                   decimals={2}
                 />
               </div>
@@ -55,7 +55,7 @@ export default function DashboardPage() {
                   end={account.balance}
                   duration={1.5}
                   separator=","
-                  prefix="$"
+                  prefix="₹"
                   decimals={2}
                 />
                </div>
