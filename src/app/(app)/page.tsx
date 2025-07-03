@@ -12,6 +12,7 @@ import { Wallet, Shield, ShoppingBag, PiggyBank, CandlestickChart, ArrowRight } 
 import CountUp from 'react-countup';
 import type { Account } from '@/lib/types';
 import Link from 'next/link';
+import { MagicCalendar } from '@/components/dashboard/MagicCalendar';
 
 const iconMap: { [key in Account['type']]: React.ElementType } = {
     Needs: Shield,
@@ -124,17 +125,24 @@ export default function DashboardPage() {
             </div>
         </div>
 
-        <Card>
-            <CardHeader>
-                <CardTitle>Recent Transactions</CardTitle>
-                <CardDescription>
-                Your latest financial movements.
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <TransactionList transactions={transactions.slice(0, 5)} />
-            </CardContent>
-        </Card>
+        <div className="grid gap-6 lg:grid-cols-5">
+            <div className="lg:col-span-2">
+                <MagicCalendar />
+            </div>
+            <div className="lg:col-span-3">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Recent Transactions</CardTitle>
+                        <CardDescription>
+                        Your latest financial movements.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <TransactionList transactions={transactions.slice(0, 10)} />
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
       </div>
     </PageWrapper>
   );
