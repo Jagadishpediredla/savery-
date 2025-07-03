@@ -1,81 +1,123 @@
+"use client"
 
-'use client';
+import * as React from "react"
+import * as DialogPrimitive from "@radix-ui/react-dialog"
+import { X } from "lucide-react"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { PiggyBank, MoreHorizontal } from "lucide-react";
-import CountUp from "react-countup";
-import { Pie, PieChart, Cell } from "recharts";
-import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils"
 
-const goal = 6000;
-const current = 4200;
-const progress = (current / goal) * 100;
+const Dialog = DialogPrimitive.Root
 
-const pieData = [
-  { name: 'Current', value: current },
-  { name: 'Remaining', value: goal - current },
-];
+const DialogTrigger = DialogPrimitive.Trigger
 
-const COLORS = ['hsl(var(--primary))', 'hsl(var(--muted))'];
+const DialogPortal = DialogPrimitive.Portal
 
-export function GoalStorageCard() {
-    const [isMounted, setIsMounted] = useState(false);
+const DialogClose = DialogPrimitive.Close
 
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
+const DialogOverlay = React.forwardRef<
+  React.ElementRef<typeof DialogPrimitive.Overlay>,
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
+>(({ className, ...props }, ref) => (
+  <DialogPrimitive.Overlay
+    ref={ref}
+    className={cn(
+      "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      className
+    )}
+    {...props}
+  />
+))
+DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
-    return (
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Stored For Goals</CardTitle>
-                 <Button variant="ghost" size="icon" className="w-8 h-8">
-                    <MoreHorizontal className="w-4 h-4" />
-                </Button>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center space-y-4">
-                <div className="relative h-24 w-24">
-                    {isMounted ? (
-                        <PieChart width={96} height={96}>
-                            <Pie
-                                data={pieData}
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={30}
-                                outerRadius={40}
-                                dataKey="value"
-                                stroke="none"
-                                startAngle={90}
-                                endAngle={450}
-                            >
-                                {pieData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                            </Pie>
-                        </PieChart>
-                    ) : (
-                        <div className="h-24 w-24" />
-                    )}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                         <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center">
-                            <PiggyBank className="w-8 h-8" />
-                         </div>
-                    </div>
-                </div>
+const DialogContent = React.forwardRef<
+  React.ElementRef<typeof DialogPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
+>(({ className, children, ...props }, ref) => (
+  <DialogPortal>
+    <DialogOverlay />
+    <DialogPrimitive.Content
+      ref={ref}
+      className={cn(
+        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-2xl",
+        "bg-card/60 backdrop-blur-xl border-white/10",
+        className
+      )}
+      {...props}
+    >
+      {children}
+      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+        <X className="h-4 w-4" />
+        <span className="sr-only">Close</span>
+      </DialogPrimitive.Close>
+    </DialogPrimitive.Content>
+  </DialogPortal>
+))
+DialogContent.displayName = DialogPrimitive.Content.displayName
 
-                <div className="text-center">
-                    <p className="text-2xl font-bold">
-                        <CountUp start={0} end={current} duration={1.5} separator="," prefix="$" /> /
-                        <span className="text-muted-foreground">${goal.toLocaleString()}</span>
-                    </p>
-                </div>
+const DialogHeader = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      "flex flex-col space-y-1.5 text-center sm:text-left",
+      className
+    )}
+    {...props}
+  />
+)
+DialogHeader.displayName = "DialogHeader"
 
-                <Button variant="secondary" className="w-full">
-                    Save more with Round Up
-                </Button>
+const DialogFooter = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      className
+    )}
+    {...props}
+  />
+)
+DialogFooter.displayName = "DialogFooter"
 
-            </CardContent>
-        </Card>
-    )
+const DialogTitle = React.forwardRef<
+  React.ElementRef<typeof DialogPrimitive.Title>,
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
+>(({ className, ...props }, ref) => (
+  <DialogPrimitive.Title
+    ref={ref}
+    className={cn(
+      "text-lg font-semibold leading-none tracking-tight",
+      className
+    )}
+    {...props}
+  />
+))
+DialogTitle.displayName = DialogPrimitive.Title.displayName
+
+const DialogDescription = React.forwardRef<
+  React.ElementRef<typeof DialogPrimitive.Description>,
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
+>(({ className, ...props }, ref) => (
+  <DialogPrimitive.Description
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+))
+DialogDescription.displayName = DialogPrimitive.Description.displayName
+
+export {
+  Dialog,
+  DialogPortal,
+  DialogOverlay,
+  DialogClose,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
 }

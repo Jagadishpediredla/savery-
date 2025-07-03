@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -12,7 +11,8 @@ import {
   Wallet,
   PanelLeft,
   Bell,
-  UserCircle
+  UserCircle,
+  Search
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -22,6 +22,7 @@ import { Button } from './ui/button';
 import { AddTransactionModal } from './transactions/AddTransactionModal';
 import { MobileNav } from './MobileNav';
 import { ThemeToggle } from './ThemeToggle';
+import { Input } from './ui/input';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Dashboard' },
@@ -54,7 +55,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </Sidebar>
 
       <div className="flex flex-col flex-1">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-8 backdrop-blur-sm">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background/60 px-4 md:px-8 backdrop-blur-xl">
             <div className="flex items-center gap-4">
                 <SidebarTrigger className="flex md:hidden" />
                 <h1 className="text-xl font-semibold hidden md:block">
@@ -62,22 +63,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </h1>
             </div>
 
-            <div className="flex items-center gap-4">
+             <div className="w-full max-w-sm lg:max-w-md">
+                <form>
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input placeholder="Search..." className="pl-9 bg-muted/40"/>
+                    </div>
+                </form>
+            </div>
+
+            <div className="flex items-center gap-2">
                 <ThemeToggle />
                 <Button variant="ghost" size="icon" className="rounded-full">
                     <Bell className="h-5 w-5" />
                     <span className="sr-only">Notifications</span>
                 </Button>
-                 <Button variant="ghost" size="icon" className="rounded-full">
-                    <UserCircle className="h-5 w-5" />
-                    <span className="sr-only">Profile</span>
-                </Button>
-                <Link href="/settings">
+                 <Link href="/settings">
                     <Button variant="ghost" size="icon" className="rounded-full">
                         <Settings className="h-5 w-5" />
                         <span className="sr-only">Settings</span>
                     </Button>
                 </Link>
+                 <Button variant="ghost" size="icon" className="rounded-full">
+                    <UserCircle className="h-5 w-5" />
+                    <span className="sr-only">Profile</span>
+                </Button>
             </div>
         </header>
 
