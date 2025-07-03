@@ -10,6 +10,7 @@ import {
   Shield,
   ShoppingBag,
   Wallet,
+  PanelLeft,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -24,11 +25,15 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarProvider,
+  SidebarSeparator,
+  SidebarTrigger,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from './ui/button';
 import { AddTransactionModal } from './transactions/AddTransactionModal';
 import { format } from 'date-fns';
 import { MobileNav } from './MobileNav';
+import { ThemeToggle } from './ThemeToggle';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Dashboard' },
@@ -49,50 +54,63 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, []);
 
 
-  const NavContent = () => (
-    <>
-      <SidebarHeader>
-        <Link href="/" className="flex items-center gap-2">
-          <div className="bg-primary/20 text-primary p-2 rounded-lg">
-            <Wallet className="h-6 w-6" />
-          </div>
-          <span className="font-bold text-lg text-foreground">FinanceFlow</span>
-        </Link>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarMenu>
-          {navItems.map((item) => (
-            <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton
-                asChild
-                isActive={pathname === item.href}
-                tooltip={item.label}
-              >
-                <Link href={item.href}>
-                  <item.icon />
-                  <span>{item.label}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarContent>
-      <SidebarFooter>
-        <div className="text-xs text-muted-foreground p-4">
-          Version 1.0.0
-        </div>
-      </SidebarFooter>
-    </>
-  );
+  const NavContent = () => {
+    const { toggleSidebar } = useSidebar();
+    return (
+        <>
+        <SidebarHeader>
+            <Link href="/" className="flex items-center gap-2">
+            <div className="bg-primary/20 text-primary p-2 rounded-lg">
+                <Wallet className="h-6 w-6" />
+            </div>
+            <span className="font-bold text-lg text-foreground group-data-[collapsible=icon]:hidden">FinanceFlow</span>
+            </Link>
+        </SidebarHeader>
+        <SidebarContent>
+            <SidebarMenu>
+            {navItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                    asChild
+                    isActive={pathname === item.href}
+                    tooltip={item.label}
+                >
+                    <Link href={item.href}>
+                    <item.icon />
+                    <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                    </Link>
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+            ))}
+            </SidebarMenu>
+        </SidebarContent>
+        <SidebarFooter>
+            <div className="flex flex-col items-center gap-2 p-2">
+                <ThemeToggle />
+            </div>
+            <SidebarSeparator />
+            <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton onClick={toggleSidebar} className="w-full">
+                        <PanelLeft className="transform transition-transform duration-300 group-data-[state=expanded]:rotate-180" />
+                        <span className="group-data-[collapsible=icon]:hidden">Collapse</span>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+        </SidebarFooter>
+        </>
+    )
+  };
 
   return (
     <SidebarProvider>
       <div className="relative min-h-screen">
-        <Sidebar>
+        <Sidebar collapsible="icon">
           <NavContent />
         </Sidebar>
         <SidebarInset>
            <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-8">
+            <SidebarTrigger className="flex md:hidden" />
             <Link href="/" className="flex items-center gap-2 font-bold text-lg md:hidden">
                 <Wallet className="h-6 w-6 text-primary" />
                 <span>FinanceFlow</span>
