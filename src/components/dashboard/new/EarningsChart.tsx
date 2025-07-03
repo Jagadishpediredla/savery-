@@ -3,11 +3,12 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useFirebase } from "@/context/FirebaseContext";
 import { format, parseISO, startOfMonth } from 'date-fns';
 import CountUp from "react-countup";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -22,6 +23,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export function EarningsChart() {
     const { transactions } = useFirebase();
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const { chartData, totalEarnings, changeSinceLastWeek } = useMemo(() => {
         const monthlyData: { [key: string]: number } = {};
@@ -57,20 +63,24 @@ export function EarningsChart() {
             </CardHeader>
             <CardContent>
                 <div className="h-48">
-                     <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                             <defs>
-                                <linearGradient id="colorEarnings" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="hsl(var(--chart-3))" stopOpacity={0.4}/>
-                                    <stop offset="95%" stopColor="hsl(var(--chart-3))" stopOpacity={0}/>
-                                </linearGradient>
-                            </defs>
-                            <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value/1000}k`} />
-                            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsla(var(--muted), 0.5)' }}/>
-                            <Area type="monotone" dataKey="earnings" stroke="hsl(var(--chart-3))" fill="url(#colorEarnings)" strokeWidth={2} />
-                        </AreaChart>
-                    </ResponsiveContainer>
+                    {isMounted ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                <defs>
+                                    <linearGradient id="colorEarnings" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="hsl(var(--chart-3))" stopOpacity={0.4}/>
+                                        <stop offset="95%" stopColor="hsl(var(--chart-3))" stopOpacity={0}/>
+                                    </linearGradient>
+                                </defs>
+                                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value/1000}k`} />
+                                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsla(var(--muted), 0.5)' }}/>
+                                <Area type="monotone" dataKey="earnings" stroke="hsl(var(--chart-3))" fill="url(#colorEarnings)" strokeWidth={2} />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <Skeleton className="h-48 w-full" />
+                    )}
                 </div>
 
                 <div className="mt-4 space-y-4">

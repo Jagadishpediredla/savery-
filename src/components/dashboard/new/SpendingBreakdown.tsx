@@ -1,12 +1,12 @@
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { useFirebase } from "@/context/FirebaseContext";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Cell, Pie, PieChart } from "recharts";
 import CountUp from "react-countup";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const chartConfig = {
     Needs: { label: 'Needs', color: 'hsl(var(--chart-3))' },
@@ -16,6 +16,11 @@ const chartConfig = {
 
 export function SpendingBreakdown() {
     const { transactions, settings } = useFirebase();
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const breakdown = useMemo(() => {
         const result = {
@@ -55,26 +60,30 @@ export function SpendingBreakdown() {
             </CardHeader>
             <CardContent className="flex flex-col items-center">
                  <div className="relative w-48 h-48">
-                    <ChartContainer config={chartConfig} className="w-full h-full">
-                        <PieChart>
-                             <ChartTooltip
-                                cursor={false}
-                                content={<ChartTooltipContent hideLabel />}
-                            />
-                            <Pie
-                                data={pieData}
-                                dataKey="value"
-                                nameKey="name"
-                                innerRadius={60}
-                                outerRadius={80}
-                                strokeWidth={2}
-                            >
-                                {pieData.map((entry) => (
-                                    <Cell key={`cell-${entry.name}`} fill={entry.fill} stroke={entry.fill} />
-                                ))}
-                            </Pie>
-                        </PieChart>
-                    </ChartContainer>
+                    {isMounted ? (
+                        <ChartContainer config={chartConfig} className="w-full h-full">
+                            <PieChart>
+                                <ChartTooltip
+                                    cursor={false}
+                                    content={<ChartTooltipContent hideLabel />}
+                                />
+                                <Pie
+                                    data={pieData}
+                                    dataKey="value"
+                                    nameKey="name"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    strokeWidth={2}
+                                >
+                                    {pieData.map((entry) => (
+                                        <Cell key={`cell-${entry.name}`} fill={entry.fill} stroke={entry.fill} />
+                                    ))}
+                                </Pie>
+                            </PieChart>
+                        </ChartContainer>
+                    ) : (
+                        <Skeleton className="w-48 h-48 rounded-full" />
+                    )}
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                         <p className="text-xs text-muted-foreground">Budget Spent</p>
                         <div className="text-3xl font-bold">
