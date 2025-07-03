@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -182,7 +183,6 @@ const Sidebar = React.forwardRef<
       setMounted(true)
     }, [])
 
-
     if (collapsible === "none") {
       return (
         <div
@@ -198,28 +198,8 @@ const Sidebar = React.forwardRef<
       )
     }
 
-    if (mounted && isMobile) {
-      return (
-        <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
-          <SheetContent
-            data-sidebar="sidebar"
-            data-mobile="true"
-            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
-            style={
-              {
-                "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-              } as React.CSSProperties
-            }
-            side={side}
-          >
-            <div className="flex h-full w-full flex-col">{children}</div>
-          </SheetContent>
-        </Sheet>
-      )
-    }
-
-    return (
-      <div
+    const desktopView = (
+       <div
         ref={ref}
         className={cn(
           "group peer fixed inset-y-0 z-30 h-svh text-sidebar-foreground",
@@ -250,7 +230,29 @@ const Sidebar = React.forwardRef<
           {children}
         </div>
       </div>
-    )
+    );
+    
+    if (mounted && isMobile) {
+      return (
+        <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+          <SheetContent
+            data-sidebar="sidebar"
+            data-mobile="true"
+            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+            style={
+              {
+                "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
+              } as React.CSSProperties
+            }
+            side={side}
+          >
+            <div className="flex h-full w-full flex-col">{children}</div>
+          </SheetContent>
+        </Sheet>
+      )
+    }
+
+    return desktopView;
   }
 )
 Sidebar.displayName = "Sidebar"
