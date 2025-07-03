@@ -1,60 +1,32 @@
-# 1️⃣ Savvy Saver v1.0.0
+
+# 1️⃣ Savvy Saver v2.0.0
 
 ## 2️⃣ Overall Objective
-Savvy Saver is a modern, responsive personal finance tracker designed to provide users with a clear and insightful overview of their financial health. It helps users manage their money by summarizing accounts, tracking spending trends, visualizing data through interactive charts, and offering personalized insights via an integrated AI assistant.
+Savvy Saver is a powerful, multi-purpose application designed to provide a comprehensive overview of both personal finances and business support metrics. It combines a robust personal finance tracker with a detailed support analytics dashboard, offering a centralized hub for managing money and monitoring customer service performance.
 
 ---
 
 ## 3️⃣ Feature List
 
+### Finance Module
 -   **Dashboard**: A comprehensive overview of the user's financial status. It summarizes total balance and balances for individual account types (Needs, Wants, Savings, Investments). Features a main spending trend area chart, a balance overview pie chart, a list of recent transactions, a chart for top spending categories, a "Magic Calendar" for drilling down into daily transactions, and an overview of financial goals.
--   **Account Detail Pages (Needs, Wants, Savings)**: Each account page provides a dedicated view with a category breakdown pie chart, a spending trend line chart, and a filterable list of all transactions for that specific account.
--   **Investments Page**: Tracks investment goals and portfolio allocation. Includes transaction history, goal progress bars, an investment growth chart, and a portfolio allocation tool with sliders and a live-updating pie chart.
--   **Visualizer AI**: A chat-based assistant that can answer questions about finances, generate charts, and provide summaries. The interface features a welcome card to guide new users.
+-   **Account Detail Pages (Needs, Wants, Savings, Investments)**: Each account page provides a dedicated view with a category breakdown pie chart, a spending trend line chart, and a filterable list of all transactions for that specific account.
+-   **Visualizer AI**: A chat-based assistant that can answer questions about finances, generate charts, and provide summaries.
 -   **Settings Page**: Allows users to set their monthly salary and define their budget by allocating percentages to Needs, Wants, and Investments. The Savings percentage is calculated automatically, and the allocation is visualized with a live pie chart. Includes data management tools to seed or clear the database.
--   **Add Transaction Modal**: A floating action button (and a button in the sidebar) opens a sleek, multi-step modal for adding new transactions with fields for type, amount, date, account, category, and notes.
+-   **Add Transaction Modal**: A floating action button opens a sleek, multi-step modal for adding new transactions.
+
+### Support Analytics Module
+-   **Dashboard**: A dedicated dashboard for monitoring customer support metrics. It features statistic cards for key performance indicators (KPIs) like average reply time and resolution time. Includes multiple charts visualizing ticket volume, performance over time, and ticket distribution.
+-   **Statistic Cards**: At-a-glance cards for metrics such as Average First Reply Time, Average Resolve Time, New Tickets, and Returning Customers, with trend indicators.
+-   **Tickets Created vs. Solved Chart**: A line chart comparing the number of new tickets to resolved tickets over a given period.
+-   **Response/Resolve Time Chart**: An area chart showing the trends for average first reply and full resolution times.
+-   **Tickets by Day Chart**: A bar chart displaying the volume of tickets for each day of the week, helping to identify peak support days.
+-   **Tickets by Type Chart**: A donut chart breaking down tickets by category (e.g., Bug, Feature Request, Question).
+-   **New vs. Returned Customers Chart**: A donut chart comparing tickets from new versus returning customers.
 
 ---
 
-## 4️⃣ Charts & Visualizations
-
--   **Spending Trend (Dashboard)**
-    -   **Location**: Dashboard Page
-    -   **Type**: Area Chart
-    -   **Data**: Compares monthly spending across Needs, Wants, and Investments categories.
-    -   **Style**: Stacked areas with gradient fills and smooth, curved lines.
--   **Balance Overview (Dashboard)**
-    -   **Location**: Dashboard Page
-    -   **Type**: Pie Chart
-    -   **Data**: Shows the distribution of the total balance across all account types (Needs, Wants, Savings, Investments).
--   **Top Spending Categories (Dashboard)**
-    -   **Location**: Dashboard Page
-    -   **Type**: Vertical Bar Chart
-    -   **Data**: Displays the top 5 spending categories across all accounts.
--   **Category Breakdown (Account Pages)**
-    -   **Location**: Needs, Wants, Savings Pages
-    -   **Type**: Pie Chart
-    -   **Data**: Displays spending distribution by category for the specific account being viewed.
--   **Spending Trend (Account Pages)**
-    -   **Location**: Needs, Wants, Savings Pages
-    -   **Type**: Line Chart
-    -   **Data**: Shows the total monthly spending trend for the specific account.
--   **Investment Growth (Investments Page)**
-    -   **Location**: Investments Page
-    -   **Type**: Line Chart
-    -   **Data**: Shows the cumulative growth of investment contributions over time.
--   **Portfolio Allocation (Investments)**
-    -   **Location**: Investments Page
-    -   **Type**: Pie Chart
-    -   **Data**: Visualizes the user-defined Debt to Equity ratio from the allocation sliders.
--   **Budget Allocation (Settings)**
-    -   **Location**: Settings Page
-    -   **Type**: Pie Chart
-    -   **Data**: Provides a live visualization of the user's defined budget allocation as they adjust the sliders.
-
----
-
-## 5️⃣ Design & UI Language
+## 4️⃣ Design & UI Language
 
 -   **Theme**: A premium, modern dark-mode UI is the primary theme, with a clean light-mode variant. The default is set to the user's system preference.
 -   **Colors**: The palette features a deep, nearly-black background with a subtle radial gradient for depth (`#0d0c12`). High-contrast light text ensures readability. A vibrant gradient from pink (`#e11d48`) to purple (`#9333ea`) is used for primary actions, accents, and highlights.
@@ -66,84 +38,20 @@ Savvy Saver is a modern, responsive personal finance tracker designed to provide
 
 ---
 
-## 6️⃣ Backend & Environments
+## 5️⃣ Backend & Environments
 
--   **Firebase**: The app uses Firebase for backend services. The configuration is stored in `src/lib/firebase.ts`.
--   **Firebase Realtime Database Design**: The database uses a hierarchical structure for efficient querying.
-    ```json
-    {
-      "users": {
-        "userId": {
-          "transactions": {
-            "Needs": { "2025": { "07": { "02": { "txnId1": { "...details" } }}}},
-            "Wants": { "...": {} },
-            "Savings": { "...": {} },
-            "Investments": { "...": {} }
-          },
-          "goals": { "goalId1": { "name": "...", "targetAmount": "...", "currentAmount": "..." } },
-          "settings": { "salary": "...", "needsPercentage": "...", "wantsPercentage": "...", "investmentsPercentage": "..." },
-          "aiHistory": { "promptId1": { "prompt": "...", "response": "..." } }
-        }
-      }
-    }
-    ```
+-   **Firebase**: The app uses Firebase for backend services, specifically the Realtime Database for the finance module.
 -   **Genkit**: AI functionality is powered by Genkit, configured to use Google AI's `gemini-2.0-flash` model.
+-   **Mock Data**: The Support Analytics module currently operates on static mock data for demonstration purposes.
 
 ---
 
-## 7️⃣ AI Assistant Features
+## 6️⃣ Versioning & Changelog
 
--   **Live Data Integration**: The AI Assistant is fully integrated with Firebase Realtime Database, allowing it to fetch and analyze a user's live financial data to provide up-to-date, accurate answers.
--   **Core Capabilities**:
-    -   Can summarize spending, income, and account balances.
-    -   Can analyze transactions by date, category, or account.
-    -   Can track progress towards financial goals.
--   **Natural Language Questions**: Can understand and process complex natural language questions.
--   **Dynamic Responses**: The AI can generate responses in various formats, including clear text summaries and well-formatted Markdown tables.
+-   **v2.0.0 (Current)**
+    -   **Feature Integration**: Re-integrated the Support Analytics dashboard alongside the Finance module into a unified application.
+    -   **New Support Page**: Created a dedicated `/support` route to house all support-related charts and statistics.
+    -   **Unified Navigation**: Updated the main sidebar and mobile navigation to provide access to both Finance and Support dashboards.
+    -   **Consistent Styling**: Re-created all support dashboard components using the modern glassmorphism theme to ensure a consistent and cohesive visual experience across the entire application.
+    -   **New Design Spec**: Updated the project README to reflect the new, combined-feature application architecture.
 
----
-
-## 8️⃣ Add Transaction Flow
-
--   **Modal UI**: A multi-step modal with a semi-transparent glassmorphism background.
--   **Steps**:
-    1.  **Details**: Enter Date, Type (Credit/Debit), and Amount.
-    2.  **Account**: Select an account from a card-based list.
-    3.  **Category & Note**: Add a descriptive note and select a category.
--   **Buttons**: Includes a "Suggest" button for AI-powered category suggestions and a "Manage" button for editing categories.
--   **Validation**: Each step includes validation to ensure data integrity before proceeding.
-
----
-
-## 9️⃣ Filters
-
--   **Functionality**: Robust filtering is available on all account detail pages.
--   **Controls**: Includes a category dropdown, a date range picker with presets, a search input for notes, and a toggle for transaction type (All/Credit/Debit).
--   **UX**: Filters are housed within a collapsible section for a clean interface.
-
----
-
-## 10️⃣ Smart Calendar
-
--   **Functionality**: The `Magic Calendar` on the dashboard allows users to explore their financial history visually.
--   **Behavior**: Days with transactions are visually highlighted. Clicking any date opens a modal displaying a focused list of only that day's transactions.
-
----
-
-## 11️⃣ Errors & Edge Cases
-
--   **Hydration Errors**: Resolved multiple React hydration errors by ensuring chart components render only on the client-side and by correcting component composition issues (`DialogTrigger` outside `Dialog`).
--   **Chart Container Error**: Resolved a `useChart must be used within a <ChartContainer />` error by ensuring all charts using custom tooltips are properly wrapped.
--   **Module Not Found / Reference Errors**: Fixed build-time and runtime errors caused by incorrect import paths or missing imports.
-
----
-
-## 12️⃣ Versioning & Changelog
-
--   **v1.0.0 (Current)**
-    -   **UI Overhaul**: Implemented a new dark theme with a pink/purple gradient accent. Applied glassmorphism effects to all cards, modals, and popups.
-    -   **Dashboard Redesign**: Rebuilt the dashboard to cohesively display all financial widgets: Total Balance, Spending Chart, Balance Overview, Recent Transactions, Top Spending Categories, Magic Calendar, and a new Goals Overview.
-    -   **Navigation Fix**: Corrected sidebar and mobile navigation to use appropriate links for the finance application.
-    -   **Code Refactoring**: Removed all obsolete CRM-related components and consolidated UI logic for a cleaner, more maintainable codebase.
-    -   **Firebase Integration**: Connected the app to Firebase Realtime Database for live data synchronization. Added data seeding and clearing functionality.
-    -   **AI Upgrade**: Transformed the AI into a `financialAssistant` that uses tools to fetch and analyze live data from Firebase, providing conversational and data-rich responses.

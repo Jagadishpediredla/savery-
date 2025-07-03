@@ -10,6 +10,7 @@ import {
   Plus,
   PanelLeft,
   Search,
+  LayoutGrid,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -28,6 +29,7 @@ const navItems = [
   { href: '/accounts', icon: Wallet, label: 'Accounts' },
   { href: '/investments', icon: CandlestickChart, label: 'Investments' },
   { href: '/visualizer', icon: Bot, label: 'Visualizer AI' },
+  { href: '/support', icon: LayoutGrid, label: 'Support' },
   { href: '/settings', icon: Settings, label: 'Settings' },
 ];
 
