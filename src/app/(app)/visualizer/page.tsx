@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ const WelcomeCard = ({ onPromptClick }: { onPromptClick: (prompt: string) => voi
     ];
 
     return (
-        <Card className="w-full max-w-2xl mx-auto">
+        <Card className="w-full max-w-2xl mx-auto border-none shadow-none bg-transparent">
             <CardHeader>
                 <div className="flex justify-center mb-4">
                     <div className="p-3 bg-primary/20 rounded-full text-primary">
@@ -38,9 +39,14 @@ const WelcomeCard = ({ onPromptClick }: { onPromptClick: (prompt: string) => voi
             </CardHeader>
             <CardContent className="text-center">
                 <p className="text-muted-foreground mb-6">I can help you understand your finances. Ask me anything or try one of these prompts to get started:</p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="flex flex-col items-center gap-3">
                     {examplePrompts.map(prompt => (
-                        <Button key={prompt} variant="outline" onClick={() => onPromptClick(prompt)}>
+                        <Button 
+                          key={prompt} 
+                          variant="outline" 
+                          onClick={() => onPromptClick(prompt)}
+                          className="w-full text-left justify-start h-auto py-3 px-4 whitespace-normal text-muted-foreground hover:text-foreground"
+                        >
                             {prompt}
                         </Button>
                     ))}
@@ -57,10 +63,11 @@ export default function VisualizerPage() {
     const [input, setInput] = useState('');
     const [isThinking, setIsThinking] = useState(false);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const viewportRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (scrollAreaRef.current) {
-            scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
+        if (viewportRef.current) {
+            viewportRef.current.scrollTo({ top: viewportRef.current.scrollHeight, behavior: 'smooth' });
         }
     }, [messages]);
 
@@ -99,95 +106,93 @@ export default function VisualizerPage() {
 
     return (
         <PageWrapper>
-             <div className="space-y-8">
-                <header>
+            <div className="flex flex-col h-[calc(100vh-140px)]">
+                <header className="mb-4">
                     <h1 className="text-3xl font-bold tracking-tight">Visualizer AI</h1>
                     <p className="text-muted-foreground">
                         Your personal finance assistant. Ask anything about your data.
                     </p>
                 </header>
-                <div className="h-[65vh] flex flex-col">
-                    {messages.length <= 1 && !isThinking ? (
-                        <div className="flex-grow flex items-center justify-center">
-                            <WelcomeCard onPromptClick={handlePromptClick} />
-                        </div>
-                    ) : (
-                        <Card className="h-full flex flex-col flex-grow">
-                            <CardContent className="flex-grow p-0 flex flex-col">
-                                <ScrollArea className="flex-grow p-6" ref={scrollAreaRef}>
-                                    <div className="space-y-6">
-                                        <AnimatePresence>
-                                        {messages.map(message => (
-                                            <motion.div
-                                                key={message.id}
-                                                layout
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: -10 }}
-                                                transition={{ duration: 0.3 }}
-                                                className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}
-                                            >
-                                                {message.role === 'model' && (
-                                                    <Avatar>
-                                                        <AvatarFallback className="bg-primary/20 text-primary">
-                                                            <Bot />
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                )}
-                                                <div className={`max-w-prose p-3 rounded-lg ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-card/80'}`}>
-                                                     <ReactMarkdown
-                                                        className="prose prose-sm dark:prose-invert prose-p:my-0 prose-headings:my-1 prose-table:my-2 prose-td:p-2 prose-th:p-2"
-                                                        remarkPlugins={[remarkGfm]}
-                                                    >
-                                                        {message.content}
-                                                    </ReactMarkdown>
-                                                </div>
-                                                {message.role === 'user' && (
-                                                     <Avatar>
-                                                        <AvatarFallback>
-                                                            <User />
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                )}
-                                            </motion.div>
-                                        ))}
-                                        </AnimatePresence>
-                                        {isThinking && (
-                                            <motion.div
-                                                layout
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                className="flex items-start gap-3"
-                                            >
-                                                <Avatar>
-                                                    <AvatarFallback className="bg-primary/20 text-primary"><Bot /></AvatarFallback>
-                                                </Avatar>
-                                                <div className="p-3 rounded-lg bg-card/80 flex items-center gap-2">
-                                                    <div className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.3s]"></div>
-                                                    <div className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.15s]"></div>
-                                                    <div className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse"></div>
-                                                </div>
-                                            </motion.div>
+
+                <Card className="flex-1 flex flex-col overflow-hidden">
+                    <ScrollArea className="flex-1 p-6" ref={scrollAreaRef} viewportRef={viewportRef}>
+                        {messages.length <= 1 && !isThinking ? (
+                            <div className="flex h-full items-center justify-center">
+                                <WelcomeCard onPromptClick={handlePromptClick} />
+                            </div>
+                        ) : (
+                            <div className="space-y-6">
+                                <AnimatePresence>
+                                {messages.map(message => (
+                                    <motion.div
+                                        key={message.id}
+                                        layout
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        transition={{ duration: 0.3 }}
+                                        className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}
+                                    >
+                                        {message.role === 'model' && (
+                                            <Avatar>
+                                                <AvatarFallback className="bg-primary/20 text-primary">
+                                                    <Bot />
+                                                </AvatarFallback>
+                                            </Avatar>
                                         )}
-                                    </div>
-                                </ScrollArea>
-                            </CardContent>
-                        </Card>
-                    )}
-                     <div className="p-4 border-t-0 bg-transparent mt-4">
-                        <form onSubmit={handleSubmit} className="relative">
-                            <Input
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                placeholder="e.g., How much did I spend on groceries last month?"
-                                className="pr-12 h-12 rounded-full bg-card/80 backdrop-blur-sm border-white/10 focus-visible:ring-2 focus-visible:ring-primary"
-                                disabled={isThinking}
-                            />
-                            <Button type="submit" size="icon" className="absolute top-1.5 right-1.5 h-9 w-9 rounded-full" disabled={isThinking}>
-                                <Send className="h-4 w-4" />
-                            </Button>
-                        </form>
-                    </div>
+                                        <div className={`max-w-prose p-3 rounded-lg ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-card/80'}`}>
+                                             <ReactMarkdown
+                                                className="prose prose-sm dark:prose-invert prose-p:my-0 prose-headings:my-1 prose-table:my-2 prose-td:p-2 prose-th:p-2"
+                                                remarkPlugins={[remarkGfm]}
+                                            >
+                                                {message.content}
+                                            </ReactMarkdown>
+                                        </div>
+                                        {message.role === 'user' && (
+                                             <Avatar>
+                                                <AvatarFallback>
+                                                    <User />
+                                                </AvatarFallback>
+                                            </Avatar>
+                                        )}
+                                    </motion.div>
+                                ))}
+                                </AnimatePresence>
+                                {isThinking && (
+                                    <motion.div
+                                        layout
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="flex items-start gap-3"
+                                    >
+                                        <Avatar>
+                                            <AvatarFallback className="bg-primary/20 text-primary"><Bot /></AvatarFallback>
+                                        </Avatar>
+                                        <div className="p-3 rounded-lg bg-card/80 flex items-center gap-2">
+                                            <div className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.3s]"></div>
+                                            <div className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.15s]"></div>
+                                            <div className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse"></div>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </div>
+                        )}
+                    </ScrollArea>
+                </Card>
+
+                 <div className="mt-4">
+                    <form onSubmit={handleSubmit} className="relative">
+                        <Input
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            placeholder="e.g., How much did I spend on groceries last month?"
+                            className="pr-12 h-12 rounded-full bg-card/80 backdrop-blur-sm border-white/10 focus-visible:ring-2 focus-visible:ring-primary"
+                            disabled={isThinking}
+                        />
+                        <Button type="submit" size="icon" className="absolute top-1.5 right-1.5 h-9 w-9 rounded-full" disabled={isThinking}>
+                            <Send className="h-4 w-4" />
+                        </Button>
+                    </form>
                 </div>
             </div>
         </PageWrapper>
