@@ -9,9 +9,7 @@ export default function AppLayout({
 }) {
   return (
     <FirebaseProvider>
-      <div className="dark">
-        <AppShell>{children}</AppShell>
-      </div>
+      <AppShell>{children}</AppShell>
     </FirebaseProvider>
   );
 }

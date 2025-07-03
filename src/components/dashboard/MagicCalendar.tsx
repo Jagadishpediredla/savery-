@@ -90,7 +90,7 @@ export function MagicCalendar() {
                     <CardTitle>Magic Calendar</CardTitle>
                     <CardDescription>Dates with transactions are marked with colored dots.</CardDescription>
                 </CardHeader>
-                <CardContent className="flex-1 flex flex-col justify-center items-center">
+                <CardContent className="flex-1 flex flex-col p-4">
                     <Calendar
                         mode="single"
                         onDayClick={handleDayClick}

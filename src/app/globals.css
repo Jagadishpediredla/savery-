@@ -4,58 +4,79 @@
 
 @layer base {
   :root {
-    --background: 220 50% 98%;
-    --foreground: 220 20% 10%;
-    --card: 220 50% 100%;
-    --card-foreground: 220 20% 10%;
-    --popover: 220 50% 100%;
-    --popover-foreground: 220 20% 10%;
-    --primary: 260 85% 65%;
+    /* Light Theme - Clean & Modern with Pink Accent */
+    --background: 0 0% 98%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 330 90% 60%; /* Vibrant Pink */
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 20% 94%;
-    --secondary-foreground: 220 15% 20%;
-    --muted: 220 20% 94%;
-    --muted-foreground: 220 10% 45%;
-    --accent: 220 20% 94%;
-    --accent-foreground: 220 15% 20%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 330 80% 96%;
+    --accent-foreground: 330 90% 30%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 20% 90%;
-    --input: 220 20% 90%;
-    --ring: 260 85% 65%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 330 90% 60%;
+
     --radius: 0.8rem;
-    --chart-1: 260 85% 65%;
-    --chart-2: 180 85% 55%;
-    --chart-3: 330 90% 65%;
-    --chart-4: 240 80% 65%;
-    --chart-5: 20 80% 65%;
+
+    --chart-1: 330 90% 60%;
+    --chart-2: 280 90% 65%;
+    --chart-3: 240 90% 65%;
+    --chart-4: 200 90% 65%;
+    --chart-5: 300 90% 65%;
   }
  
   .dark {
-    --background: 230 25% 12%;
+    /* Dark Theme - Premium & Glassy with Pink Accent */
+    --background: 224 71% 4%;
     --foreground: 210 40% 98%;
-    --card: 230 25% 18%;
+
+    --card: 224 71% 8%;
     --card-foreground: 210 40% 98%;
-    --popover: 230 25% 9%;
+
+    --popover: 224 71% 4%;
     --popover-foreground: 210 40% 98%;
-    --primary: 260 85% 65%;
+
+    --primary: 330 90% 65%; /* Bright Neon/Pinkish Accent */
     --primary-foreground: 0 0% 100%;
-    --secondary: 217.2 32.6% 25.5%;
+
+    --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 230 25% 22%;
+
+    --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 260 85% 65%;
+
+    --accent: 330 90% 65%; /* Bright Neon/Pinkish Accent */
     --accent-foreground: 0 0% 100%;
+
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 230 25% 25%;
-    --input: 217.2 32.6% 25.5%;
-    --ring: 260 85% 65%;
-    --chart-1: 260 85% 65%;
-    --chart-2: 180 85% 55%;
-    --chart-3: 330 90% 65%;
-    --chart-4: 240 80% 65%;
-    --chart-5: 20 80% 65%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 330 90% 65%;
+
+    --chart-1: 330 90% 65%;
+    --chart-2: 280 90% 65%;
+    --chart-3: 240 90% 65%;
+    --chart-4: 200 90% 65%;
+    --chart-5: 300 90% 65%;
   }
 }
  
