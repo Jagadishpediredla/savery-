@@ -70,7 +70,9 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
+      date: new Date(),
       type: 'Debit',
+      amount: '' as any, // Initialize to prevent uncontrolled -> controlled error
       account: '',
       category: '',
       note: ''
@@ -231,7 +233,7 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                                                     </CardHeader>
                                                     <CardContent>
                                                         <div className="text-lg font-bold">
-                                                            ${account.balance.toLocaleString()}
+                                                            ₹{account.balance.toLocaleString()}
                                                         </div>
                                                     </CardContent>
                                                 </Card>
@@ -239,7 +241,7 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                                         </div>
                                     </FormControl>
                                     <FormMessage />
-                                </FormItem>
+                                 </FormItem>
                             )}
                         />
                     </motion.div>
@@ -335,6 +337,3 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
     </Dialog>
   );
 }
-
-    
-    
