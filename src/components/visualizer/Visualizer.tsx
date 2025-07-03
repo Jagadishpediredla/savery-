@@ -82,13 +82,13 @@ export function Visualizer() {
                         </AnimatePresence>
                     </div>
                 </ScrollArea>
-                <div className="p-4 border-t bg-background/50">
+                <div className="p-4 border-t bg-transparent">
                     <form onSubmit={handleSubmit} className="relative">
                         <Input
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             placeholder="Ask about your spending, goals, or request a chart..."
-                            className="pr-12 h-12 rounded-full bg-muted/50 border-0 focus-visible:ring-2 focus-visible:ring-primary/50"
+                            className="pr-12 h-12 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 focus-visible:ring-2 focus-visible:ring-primary"
                         />
                         <Button type="submit" size="icon" className="absolute top-1.5 right-1.5 h-9 w-9 rounded-full">
                             <Send className="h-4 w-4" />

@@ -101,7 +101,7 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-background/80 backdrop-blur-sm">
+      <DialogContent className="sm:max-w-md bg-background/60 backdrop-blur-lg border border-white/10">
         <DialogHeader>
           <DialogTitle>Add Transaction</DialogTitle>
           <DialogDescription>
