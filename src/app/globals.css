@@ -44,7 +44,7 @@
  
   .dark {
     /* Dark Theme - Premium & Glassy */
-    --background: 230 20% 7%; /* even darker */
+    --background: 230 20% 7%; /* Base color for gradient */
     --foreground: 210 40% 98%;
 
     --card: 230 20% 12%; /* slightly lighter than bg */
@@ -88,6 +88,9 @@
     @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+  .dark body {
+    background-image: radial-gradient(circle at top, hsl(230 20% 10%) 0%, hsl(var(--background)) 100%);
   }
   ::-webkit-scrollbar {
     display: none;
