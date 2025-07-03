@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import { Cell, Pie, PieChart } from 'recharts';
 import { useFirebase } from '@/context/FirebaseContext';
 import { Skeleton } from '../ui/skeleton';
 import {
@@ -27,6 +27,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 
 const settingsSchema = z.object({
   monthlySalary: z.coerce.number().min(0, 'Salary must be a positive number'),
@@ -37,7 +38,13 @@ const settingsSchema = z.object({
 
 type SettingsFormValues = z.infer<typeof settingsSchema>;
 
-const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))'];
+const chartConfig = {
+  Needs: { label: 'Needs', color: 'hsl(var(--chart-1))' },
+  Wants: { label: 'Wants', color: 'hsl(var(--chart-2))' },
+  Investments: { label: 'Investments', color: 'hsl(var(--chart-3))' },
+  Savings: { label: 'Savings', color: 'hsl(var(--chart-4))' },
+} satisfies ChartConfig;
+
 
 export function SettingsForm() {
   const { settings, updateSettings, loading, seedDatabase, clearDatabase } = useFirebase();
@@ -76,10 +83,10 @@ export function SettingsForm() {
   const savings = 100 - needs - wants - investments;
 
   const pieData = [
-    { name: 'Needs', value: needs, fill: COLORS[0] },
-    { name: 'Wants', value: wants, fill: COLORS[1] },
-    { name: 'Investments', value: investments, fill: COLORS[2] },
-    { name: 'Savings', value: savings, fill: COLORS[3] },
+    { name: 'Needs', value: needs, fill: 'var(--color-Needs)' },
+    { name: 'Wants', value: wants, fill: 'var(--color-Wants)' },
+    { name: 'Investments', value: investments, fill: 'var(--color-Investments)' },
+    { name: 'Savings', value: savings, fill: 'var(--color-Savings)' },
   ].filter(item => item.value > 0);
   
   if (loading) {
@@ -198,8 +205,12 @@ export function SettingsForm() {
                     <CardDescription>Live visualization of your budget.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <ResponsiveContainer width="100%" height={250}>
+                    <ChartContainer config={chartConfig} className="h-[250px] w-full">
                         <PieChart>
+                            <ChartTooltip
+                                cursor={false}
+                                content={<ChartTooltipContent formatter={(value) => `${value}%`} />}
+                            />
                             <Pie
                                 data={pieData}
                                 cx="50%"
@@ -209,25 +220,22 @@ export function SettingsForm() {
                                 dataKey="value"
                                 label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                             >
-                                {pieData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.fill} stroke={entry.fill} />
+                                {pieData.map((entry) => (
+                                    <Cell key={`cell-${entry.name}`} fill={entry.fill} stroke={entry.fill} />
                                 ))}
                             </Pie>
-                            <Tooltip
-                                contentStyle={{
-                                    background: "hsl(var(--background))",
-                                    border: "1px solid hsl(var(--border))",
-                                    borderRadius: "var(--radius)"
-                                }}
-                                formatter={(value) => `${value}%`}
-                            />
                         </PieChart>
-                    </ResponsiveContainer>
+                    </ChartContainer>
                     <div className="mt-4 space-y-2">
                         {pieData.map(entry => (
                             <div key={entry.name} className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
-                                    <span className="h-2 w-2 rounded-full" style={{backgroundColor: entry.fill}}/>
+                                    <span 
+                                      className="h-2 w-2 rounded-full" 
+                                      style={{
+                                        backgroundColor: chartConfig[entry.name as keyof typeof chartConfig]?.color
+                                      }}
+                                    />
                                     <span>{entry.name}</span>
                                 </div>
                                 <span className="font-medium">

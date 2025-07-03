@@ -3,17 +3,28 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 
-const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))'];
+const chartConfig = {
+    Debt: {
+        label: 'Debt',
+        color: 'hsl(var(--chart-1))',
+    },
+    Equity: {
+        label: 'Equity',
+        color: 'hsl(var(--chart-2))',
+    },
+} satisfies ChartConfig;
+
 
 export function PortfolioAllocation() {
     const [debt, setDebt] = useState(40);
     const equity = 100 - debt;
 
     const pieData = [
-        { name: 'Debt', value: debt },
-        { name: 'Equity', value: equity },
+        { name: 'Debt', value: debt, fill: 'var(--color-Debt)' },
+        { name: 'Equity', value: equity, fill: 'var(--color-Equity)' },
     ];
 
     return (
@@ -45,8 +56,12 @@ export function PortfolioAllocation() {
                         </div>
                     </div>
                     <div>
-                         <ResponsiveContainer width="100%" height={150}>
+                         <ChartContainer config={chartConfig} className="mx-auto aspect-square h-[150px]">
                             <PieChart>
+                                <ChartTooltip
+                                    cursor={false}
+                                    content={<ChartTooltipContent formatter={(value) => `${value}%`} />}
+                                />
                                 <Pie
                                     data={pieData}
                                     cx="50%"
@@ -58,20 +73,12 @@ export function PortfolioAllocation() {
                                     dataKey="value"
                                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                                 >
-                                    {pieData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke={COLORS[index % COLORS.length]} />
+                                    {pieData.map((entry) => (
+                                        <Cell key={`cell-${entry.name}`} fill={entry.fill} stroke={entry.fill}/>
                                     ))}
                                 </Pie>
-                                <Tooltip
-                                    contentStyle={{
-                                        background: "hsl(var(--background))",
-                                        border: "1px solid hsl(var(--border))",
-                                        borderRadius: "var(--radius)"
-                                    }}
-                                    formatter={(value) => `${value}%`}
-                                />
                             </PieChart>
-                        </ResponsiveContainer>
+                        </ChartContainer>
                     </div>
                 </div>
             </CardContent>
