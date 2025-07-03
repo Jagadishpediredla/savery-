@@ -1,3 +1,4 @@
+
 'use client';
 
 import { PageWrapper } from "@/components/PageWrapper";
@@ -8,6 +9,8 @@ import { Shield, ShoppingBag, PiggyBank, CandlestickChart, ArrowRight } from "lu
 import type { Account } from "@/lib/types";
 import CountUp from 'react-countup';
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AccountPageLayout } from "@/components/accounts/AccountPageLayout";
 
 const iconMap: { [key in Account['type']]: React.ElementType } = {
     Needs: Shield,
@@ -47,7 +50,17 @@ const AccountCard = ({ account }: { account: Account }) => {
 }
 
 export default function AccountsPage() {
-    const { accounts, loading } = useFirebase();
+    const { accounts, transactions, loading } = useFirebase();
+
+    const needsAccountNames = accounts.filter(acc => acc.type === 'Needs').map(acc => acc.name);
+    const needsTransactions = transactions.filter(t => needsAccountNames.includes(t.account));
+    
+    const wantsAccountNames = accounts.filter(acc => acc.type === 'Wants').map(acc => acc.name);
+    const wantsTransactions = transactions.filter(t => wantsAccountNames.includes(t.account));
+
+    const savingsAccountNames = accounts.filter(acc => acc.type === 'Savings').map(acc => acc.name);
+    const savingsTransactions = transactions.filter(t => savingsAccountNames.includes(t.account));
+
 
     if (loading) {
         return (
@@ -74,12 +87,44 @@ export default function AccountsPage() {
                 <header>
                     <h1 className="text-3xl font-bold tracking-tight">All Accounts</h1>
                     <p className="text-muted-foreground">
-                        An overview of all your financial accounts. Click a card to see details.
+                        An overview of all your financial accounts. Click a card or tab to see details.
                     </p>
                 </header>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                    {accounts.map(account => <AccountCard key={account.id} account={account} />)}
-                </div>
+
+                <Tabs defaultValue="overview" className="w-full">
+                    <TabsList className="grid w-full grid-cols-4">
+                        <TabsTrigger value="overview">Overview</TabsTrigger>
+                        <TabsTrigger value="needs">Needs</TabsTrigger>
+                        <TabsTrigger value="wants">Wants</TabsTrigger>
+                        <TabsTrigger value="savings">Savings</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="overview" className="mt-6">
+                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                            {accounts.map(account => <AccountCard key={account.id} account={account} />)}
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="needs" className="mt-6">
+                        <AccountPageLayout
+                            title="Needs Account"
+                            description="Transactions related to your essential spending."
+                            transactions={needsTransactions}
+                        />
+                    </TabsContent>
+                    <TabsContent value="wants" className="mt-6">
+                        <AccountPageLayout
+                            title="Wants Account"
+                            description="Transactions related to your discretionary spending."
+                            transactions={wantsTransactions}
+                        />
+                    </TabsContent>
+                    <TabsContent value="savings" className="mt-6">
+                         <AccountPageLayout
+                            title="Savings Account"
+                            description="Transactions related to your savings goals."
+                            transactions={savingsTransactions}
+                        />
+                    </TabsContent>
+                </Tabs>
             </div>
         </PageWrapper>
     );
