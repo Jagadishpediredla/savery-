@@ -21,7 +21,12 @@ interface AccountPageLayoutProps {
 
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
-const chartConfig = {} satisfies ChartConfig;
+const chartConfig = {
+    value: {
+        label: "Spending",
+        color: "hsl(var(--chart-1))",
+    },
+} satisfies ChartConfig;
 
 export function AccountPageLayout({ title, description, transactions }: AccountPageLayoutProps) {
     const [filters, setFilters] = useState({
@@ -60,13 +65,13 @@ export function AccountPageLayout({ title, description, transactions }: AccountP
     }, [transactions, filters]);
     
     const { pieData, lineData } = useMemo(() => {
-        const pieDataMap = new Map<string, number>();
+        const categoryMap = new Map<string, number>();
         const lineDataMap = new Map<string, number>();
 
         filteredTransactions.forEach(t => {
             if (t.type === 'Debit') {
-                const currentCategoryAmount = pieDataMap.get(t.category) || 0;
-                pieDataMap.set(t.category, currentCategoryAmount + t.amount);
+                const currentCategoryAmount = categoryMap.get(t.category) || 0;
+                categoryMap.set(t.category, currentCategoryAmount + t.amount);
 
                 const month = format(startOfMonth(new Date(t.date)), 'MMM yyyy');
                 const currentMonthAmount = lineDataMap.get(month) || 0;
@@ -74,7 +79,7 @@ export function AccountPageLayout({ title, description, transactions }: AccountP
             }
         });
 
-        const pieData = Array.from(pieDataMap.entries()).map(([name, value]) => ({ name, value }));
+        const pieData = Array.from(categoryMap.entries()).map(([name, value]) => ({ name, value }));
         
         const lineData = Array.from(lineDataMap.entries())
             .map(([month, value]) => ({ month, total: value }))
@@ -169,6 +174,36 @@ export function AccountPageLayout({ title, description, transactions }: AccountP
                     </Card>
                 </div>
                 
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Spending by Category</CardTitle>
+                        <CardDescription>A bar chart showing spending per category for the selected period.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {pieData.length > 0 ? (
+                        <ChartContainer config={chartConfig} className="h-80 w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={pieData.slice(0, 10).sort((a,b) => b.value - a.value)} layout="vertical" margin={{ left: 10, right: 10 }}>
+                                    <CartesianGrid horizontal={false} />
+                                    <XAxis type="number" dataKey="value" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${Number(value)/1000}k`} />
+                                    <YAxis 
+                                        dataKey="name" 
+                                        type="category" 
+                                        tickLine={false} 
+                                        axisLine={false}
+                                        tickMargin={10}
+                                        width={80}
+                                        stroke="hsl(var(--muted-foreground))"
+                                    />
+                                    <ChartTooltip cursor={false} content={<ChartTooltipContent formatter={(value) => `₹${Number(value).toLocaleString()}`} indicator="dot" />} />
+                                    <Bar dataKey="value" fill="var(--color-value)" radius={4} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </ChartContainer>
+                        ) : <p className="text-muted-foreground text-center h-[320px] flex items-center justify-center">No data for this period.</p>}
+                    </CardContent>
+                </Card>
+
                 <Card>
                     <CardHeader>
                         <CardTitle>Transactions</CardTitle>

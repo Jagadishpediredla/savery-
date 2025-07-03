@@ -11,8 +11,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AccountPageLayout } from "@/components/accounts/AccountPageLayout";
 import { useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
-import { parseISO } from 'date-fns';
+import { parseISO, format, startOfMonth } from 'date-fns';
 import { TransactionFilters } from "@/components/transactions/TransactionFilters";
+import { LineChart, Line, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
+
+const investmentGrowthChartConfig = {
+    cumulativeAmount: {
+      label: "Cumulative Investment",
+      color: "hsl(var(--chart-2))",
+    },
+} satisfies ChartConfig;
+
 
 export default function InvestmentsPage() {
     const { transactions, goals, accounts } = useFirebase();
@@ -58,6 +68,26 @@ export default function InvestmentsPage() {
         });
     }, [investmentTransactions, investmentFilters]);
 
+     const investmentGrowthData = useMemo(() => {
+        const sortedTransactions = [...investmentTransactions]
+            .filter(t => t.type === 'Debit') // Assuming investments are debits to this account
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        
+        let cumulativeAmount = 0;
+        const dataMap = new Map<string, number>();
+
+        sortedTransactions.forEach(t => {
+            cumulativeAmount += t.amount;
+            const month = format(startOfMonth(parseISO(t.date)), 'MMM yyyy');
+            dataMap.set(month, cumulativeAmount);
+        });
+
+        return Array.from(dataMap.entries()).map(([month, amount]) => ({
+            month,
+            cumulativeAmount: amount,
+        }));
+    }, [investmentTransactions]);
+
     return (
         <PageWrapper>
             <div className="space-y-8">
@@ -76,8 +106,42 @@ export default function InvestmentsPage() {
                     <TabsContent value="investments" className="mt-6">
                         <div className="space-y-8">
                              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                <div className="lg:col-span-2">
+                                <div className="lg:col-span-2 space-y-6">
                                     <PortfolioAllocation />
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle>Investment Growth</CardTitle>
+                                            <CardDescription>Cumulative contributions over time.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                            {investmentGrowthData.length > 0 ? (
+                                                <ChartContainer config={investmentGrowthChartConfig} className="h-[250px] w-full">
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <LineChart data={investmentGrowthData}>
+                                                            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                                                            <XAxis
+                                                                dataKey="month"
+                                                                stroke="hsl(var(--muted-foreground))"
+                                                                fontSize={12}
+                                                                tickLine={false}
+                                                                axisLine={false}
+                                                                tickFormatter={(value) => format(new Date(value), 'MMM')}
+                                                            />
+                                                            <YAxis 
+                                                                stroke="hsl(var(--muted-foreground))" 
+                                                                fontSize={12}
+                                                                tickLine={false}
+                                                                axisLine={false}
+                                                                tickFormatter={(value) => `₹${Number(value)/1000}k`}
+                                                            />
+                                                            <ChartTooltip cursor={false} content={<ChartTooltipContent formatter={(value) => `₹${Number(value).toLocaleString()}`} indicator="dot" />} />
+                                                            <Line type="monotone" dataKey="cumulativeAmount" stroke="var(--color-cumulativeAmount)" strokeWidth={2} />
+                                                        </LineChart>
+                                                    </ResponsiveContainer>
+                                                </ChartContainer>
+                                            ) : <p className="text-muted-foreground text-center h-[250px] flex items-center justify-center">No investment data to display.</p>}
+                                        </CardContent>
+                                    </Card>
                                 </div>
                                 <div className="space-y-6">
                                     <h2 className="text-xl font-semibold">Your Goals</h2>
