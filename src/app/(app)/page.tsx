@@ -8,8 +8,51 @@ import { SpendingChart } from '@/components/dashboard/SpendingChart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFirebase } from '@/context/FirebaseContext';
-import { Wallet } from 'lucide-react';
+import { Wallet, Shield, ShoppingBag, PiggyBank, CandlestickChart, ArrowRight } from 'lucide-react';
 import CountUp from 'react-countup';
+import type { Account } from '@/lib/types';
+import Link from 'next/link';
+
+const iconMap: { [key in Account['type']]: React.ElementType } = {
+    Needs: Shield,
+    Wants: ShoppingBag,
+    Savings: PiggyBank,
+    Investments: CandlestickChart,
+};
+
+const AccountCard = ({ account }: { account: Account }) => {
+    const Icon = iconMap[account.type] || Wallet;
+    const href = `/${account.type.toLowerCase()}`;
+    
+    // The savings page is now part of investments, so we handle the link redirection
+    const finalHref = account.type === 'Savings' ? '/investments' : href;
+
+    return (
+        <Link href={finalHref} passHref>
+             <Card className="hover:border-primary/80 hover:shadow-primary/20 transition-all cursor-pointer">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-base font-medium">{account.name}</CardTitle>
+                    <Icon className="h-5 w-5 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">
+                        <CountUp
+                            start={0}
+                            end={account.balance}
+                            duration={1.5}
+                            separator=","
+                            prefix="₹"
+                            decimals={2}
+                        />
+                    </div>
+                    <p className="text-xs text-muted-foreground flex items-center">
+                        Go to {account.type} <ArrowRight className="ml-1 h-3 w-3" />
+                    </p>
+                </CardContent>
+            </Card>
+        </Link>
+    )
+}
 
 export default function DashboardPage() {
   const { accounts, loading } = useFirebase();
@@ -24,7 +67,7 @@ export default function DashboardPage() {
             <Skeleton className="h-4 w-64 mt-2" />
           </header>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28" />)}
+            {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32" />)}
           </div>
           <div className="grid gap-6 lg:grid-cols-5">
               <div className="lg:col-span-3">
@@ -49,14 +92,12 @@ export default function DashboardPage() {
           </p>
         </header>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
-              <Wallet className="h-4 w-4 text-muted-foreground" />
+        <Card>
+            <CardHeader>
+              <CardTitle>Total Balance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-4xl font-bold">
                 <CountUp
                   start={0}
                   end={totalBalance}
@@ -66,30 +107,12 @@ export default function DashboardPage() {
                   decimals={2}
                 />
               </div>
-              <p className="text-xs text-muted-foreground">Across all accounts</p>
+              <p className="text-xs text-muted-foreground mt-1">Across all accounts</p>
             </CardContent>
           </Card>
-          {accounts.slice(0, 3).map(account => (
-             <Card key={account.id}>
-             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-               <CardTitle className="text-sm font-medium">{account.name}</CardTitle>
-               <Wallet className="h-4 w-4 text-muted-foreground" />
-             </CardHeader>
-             <CardContent>
-               <div className="text-2xl font-bold">
-                <CountUp
-                  start={0}
-                  end={account.balance}
-                  duration={1.5}
-                  separator=","
-                  prefix="₹"
-                  decimals={2}
-                />
-               </div>
-               <p className="text-xs text-muted-foreground">{account.type} Account</p>
-             </CardContent>
-           </Card>
-          ))}
+
+        <div className="grid gap-6 md:grid-cols-2">
+            {accounts.map(account => <AccountCard key={account.id} account={account} />)}
         </div>
 
         <div className="grid gap-6 lg:grid-cols-5">

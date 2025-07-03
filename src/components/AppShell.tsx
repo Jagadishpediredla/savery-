@@ -1,10 +1,10 @@
+
 'use client';
 
 import {
   Bot,
   CandlestickChart,
   Home,
-  PiggyBank,
   Plus,
   Settings,
   Shield,
@@ -32,11 +32,9 @@ import { MobileNav } from './MobileNav';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Dashboard' },
-  { href: '/accounts', icon: Wallet, label: 'All Accounts' },
   { href: '/needs', icon: Shield, label: 'Needs Account' },
   { href: '/wants', icon: ShoppingBag, label: 'Wants Account' },
-  { href: '/savings', icon: PiggyBank, label: 'Savings Account' },
-  { href: '/investments', icon: CandlestickChart, label: 'Investments' },
+  { href: '/investments', icon: CandlestickChart, label: 'Savings & Investments' },
   { href: '/visualizer', icon: Bot, label: 'Visualizer AI' },
   { href: '/settings', icon: Settings, label: 'Settings' },
 ];
@@ -58,7 +56,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="bg-primary/20 text-primary p-2 rounded-lg">
             <Wallet className="h-6 w-6" />
           </div>
-          <span className="font-bold text-lg text-foreground">Savvy Saver</span>
+          <span className="font-bold text-lg text-foreground">FinanceFlow</span>
         </Link>
       </SidebarHeader>
       <SidebarContent>
@@ -97,7 +95,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
            <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-8">
             <Link href="/" className="flex items-center gap-2 font-bold text-lg md:hidden">
                 <Wallet className="h-6 w-6 text-primary" />
-                <span>Savvy Saver</span>
+                <span>FinanceFlow</span>
             </Link>
 
             <div className="ml-auto flex items-center gap-4">
