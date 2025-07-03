@@ -1,3 +1,5 @@
+'use client';
+
 import { PageWrapper } from "@/components/PageWrapper";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mockAccounts } from "@/data/mock-data";

@@ -1,3 +1,5 @@
+'use client';
+
 import { PageWrapper } from '@/components/PageWrapper';
 import { BalanceOverview } from '@/components/dashboard/BalanceOverview';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
