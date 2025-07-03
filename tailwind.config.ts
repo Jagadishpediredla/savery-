@@ -55,6 +55,10 @@ export default {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
+        needs: 'hsl(var(--chart-3))',
+        wants: 'hsl(var(--chart-2))',
+        savings: 'hsl(var(--chart-4))',
+        investments: 'hsl(var(--chart-5))',
         sidebar: {
           DEFAULT: 'hsl(var(--sidebar-background))',
           foreground: 'hsl(var(--sidebar-foreground))',

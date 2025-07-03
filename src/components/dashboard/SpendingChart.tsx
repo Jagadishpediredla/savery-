@@ -22,9 +22,9 @@ import { format, parseISO, startOfMonth } from 'date-fns';
 import { mockAccounts } from '@/data/mock-data';
 
 const chartConfig = {
-  Needs: { label: 'Needs', color: 'hsl(var(--chart-1))' },
-  Wants: { label: 'Wants', color: 'hsl(var(--chart-2))' },
-  Investments: { label: 'Investments', color: 'hsl(var(--chart-3))' },
+  needs: { label: 'Needs', color: 'hsl(var(--chart-3))' },
+  wants: { label: 'Wants', color: 'hsl(var(--chart-2))' },
+  investments: { label: 'Investments', color: 'hsl(var(--chart-5))' },
 };
 
 export function SpendingChart() {
@@ -71,16 +71,16 @@ export function SpendingChart() {
           >
             <defs>
                 <linearGradient id="colorNeeds" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-Needs)" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="var(--color-Needs)" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="var(--color-needs)" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="var(--color-needs)" stopOpacity={0}/>
                 </linearGradient>
                  <linearGradient id="colorWants" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-Wants)" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="var(--color-Wants)" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="var(--color-wants)" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="var(--color-wants)" stopOpacity={0}/>
                 </linearGradient>
                  <linearGradient id="colorInvestments" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-Investments)" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="var(--color-Investments)" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="var(--color-investments)" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="var(--color-investments)" stopOpacity={0}/>
                 </linearGradient>
             </defs>
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
@@ -111,7 +111,7 @@ export function SpendingChart() {
               dataKey="needs"
               name="Needs"
               stackId="1"
-              stroke="var(--color-Needs)"
+              stroke="var(--color-needs)"
               fill="url(#colorNeeds)"
               strokeWidth={2}
             />
@@ -120,7 +120,7 @@ export function SpendingChart() {
               dataKey="wants"
               name="Wants"
               stackId="1"
-              stroke="var(--color-Wants)"
+              stroke="var(--color-wants)"
               fill="url(#colorWants)"
               strokeWidth={2}
             />
@@ -129,7 +129,7 @@ export function SpendingChart() {
               dataKey="investments"
               name="Investments"
               stackId="1"
-              stroke="var(--color-Investments)"
+              stroke="var(--color-investments)"
               fill="url(#colorInvestments)"
               strokeWidth={2}
             />

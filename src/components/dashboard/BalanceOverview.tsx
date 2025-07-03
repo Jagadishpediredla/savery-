@@ -19,10 +19,10 @@ import { useMemo } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 
 const chartConfig = {
-  Needs: { label: 'Needs', color: 'hsl(var(--chart-1))' },
+  Needs: { label: 'Needs', color: 'hsl(var(--chart-3))' },
   Wants: { label: 'Wants', color: 'hsl(var(--chart-2))' },
-  Savings: { label: 'Savings', color: 'hsl(var(--chart-3))' },
-  Investments: { label: 'Investments', color: 'hsl(var(--chart-4))' },
+  Savings: { label: 'Savings', color: 'hsl(var(--chart-4))' },
+  Investments: { label: 'Investments', color: 'hsl(var(--chart-5))' },
 } satisfies ChartConfig;
 
 export function BalanceOverview() {

@@ -4,7 +4,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { mockAccounts } from '@/data/mock-data';
-import type { Transaction } from '@/lib/types';
+import type { Transaction, Account } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Plus, Minus } from 'lucide-react';
@@ -13,21 +13,33 @@ interface TransactionCardProps {
     transaction: Transaction;
 }
 
+const accountTypeColorMap: { [key in Account['type']]: string } = {
+    'Needs': 'border-needs/50 bg-needs/10 hover:border-needs/70 text-needs',
+    'Wants': 'border-wants/50 bg-wants/10 hover:border-wants/70 text-wants',
+    'Savings': 'border-savings/50 bg-savings/10 hover:border-savings/70 text-savings',
+    'Investments': 'border-investments/50 bg-investments/10 hover:border-investments/70 text-investments',
+};
+
+const badgeColorMap: { [key in Account['type']]: string } = {
+    'Needs': 'bg-needs/20 text-needs',
+    'Wants': 'bg-wants/20 text-wants',
+    'Savings': 'bg-savings/20 text-savings',
+    'Investments': 'bg-investments/20 text-investments',
+};
+
+
 export function TransactionCard({ transaction }: TransactionCardProps) {
     const account = mockAccounts.find(a => a.name === transaction.account);
+    const accountType = account ? account.type : 'Needs';
     const accountTypeInitial = account ? account.type.charAt(0) : '?';
 
-    const accountTypeColor = {
-        'N': 'bg-blue-500/20 text-blue-300',
-        'W': 'bg-purple-500/20 text-purple-300',
-        'S': 'bg-yellow-500/20 text-yellow-300',
-        'I': 'bg-indigo-500/20 text-indigo-300',
-        '?': 'bg-gray-500/20 text-gray-300',
-    }
+    const cardColors = accountTypeColorMap[accountType];
+    const badgeColors = badgeColorMap[accountType];
 
     return (
-        <Card className={cn("transition-all hover:shadow-lg hover:border-accent/50", 
-            transaction.type === 'Credit' ? 'bg-green-900/20 border-green-800/50' : 'bg-red-900/20 border-red-800/50'
+        <Card className={cn(
+            "transition-all hover:shadow-lg backdrop-blur-sm", 
+            cardColors
         )}>
             <CardContent className="p-4 grid grid-cols-12 items-center gap-4">
                 {/* Icon */}
@@ -39,7 +51,7 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
 
                 {/* Details */}
                 <div className="col-span-11 md:col-span-5">
-                    <p className="font-bold text-base">{transaction.category}</p>
+                    <p className="font-bold text-base text-foreground">{transaction.category}</p>
                     <p className="text-sm text-muted-foreground">{transaction.note}</p>
                 </div>
 
@@ -48,7 +60,7 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
                      <div className="flex items-center gap-2">
                          <Badge 
                             variant="outline"
-                            className={cn("w-6 h-6 p-0 flex items-center justify-center font-bold", accountTypeColor[accountTypeInitial as keyof typeof accountTypeColor])}
+                            className={cn("w-6 h-6 p-0 flex items-center justify-center font-bold border-none", badgeColors)}
                          >
                             {accountTypeInitial}
                         </Badge>
