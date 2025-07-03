@@ -1,4 +1,3 @@
-
 # 1️⃣ FinanceFlow v1.0.0
 
 ## 2️⃣ Overall Objective
@@ -93,13 +92,29 @@ FinanceFlow is a modern, responsive personal finance tracker designed to provide
 
 ## 7️⃣ AI Assistant Features
 
--   **Integration**: The Visualizer AI is a core feature accessible from the sidebar.
--   **Capabilities**: The AI can analyze financial data and generate visualizations. It is empowered by a conversational flow (`financialAssistantFlow`) that can use the following tools to fetch live data from Firebase:
-    -   `getTransactionsTool`: Retrieves all user transactions.
-    -   `getGoalsTool`: Fetches the user's financial goals.
-    -   `getSettingsTool`: Gets the user's budget settings.
-    -   `getAccountsTool`: Retrieves account balances.
--   **UI**: Features a chat-based interface with a glassmorphism input bar and a welcome card for first-time users. It can render responses as text and formatted Markdown tables.
+-   **Live Data Integration**: The AI Assistant is fully integrated with Firebase Realtime Database, allowing it to fetch and analyze a user's live financial data to provide up-to-date, accurate answers.
+-   **Comprehensive Data Awareness**: The assistant is aware of all user data, including transactions, goals, and budget settings. It can handle a wide range of conversational queries.
+-   **Core Capabilities**:
+    -   **Summaries**: Can summarize total spending, income, net balance, and spending breakdowns by category, account, or time period.
+    -   **Transaction Analysis**: Provides date-wise or month-wise transaction lists and can identify the highest or lowest spending categories.
+    -   **Goal Tracking**: Lists all financial goals, showing target amounts, current saved amounts, and progress percentages.
+    -   **Budget & Savings**: Computes savings allocations based on the user's defined salary and budget percentages.
+-   **Natural Language Questions**: Can understand and process complex natural language questions like:
+    -   *"How much did I spend on Entertainment last month?"*
+    -   *"List my transactions in June."*
+    -   *"What's my Needs balance?"*
+    -   *"How close am I to completing my Emergency Fund goal?"*
+-   **Dynamic Responses**: The AI can generate responses in various formats to best suit the user's query, including:
+    -   Clear text summaries.
+    -   Well-formatted Markdown tables.
+-   **Conversational Context**:
+    -   Maintains chat history to understand follow-up questions and provide contextually relevant answers.
+    -   If a query is ambiguous, it will ask for clarification.
+-   **User Experience**:
+    -   Features a persistent, scrollable chat history.
+    -   Includes friendly, natural language responses.
+    -   Provides graceful error messages if data is missing or a question cannot be answered.
+-   **Underlying Tools**: The AI uses a set of tools to interact with Firebase data, including `getTransactionsTool`, `getGoalsTool`, `getSettingsTool`, and `getAccountsTool`.
 
 ---
 
@@ -124,7 +139,7 @@ FinanceFlow is a modern, responsive personal finance tracker designed to provide
 
 ---
 
-## 🔟 Smart Calendar
+## 10️⃣ Smart Calendar
 
 -   **Functionality (Planned)**: A future feature will include a smart calendar view.
 -   **Behavior**: Days will be visually shaded based on whether spending was over or under a defined daily budget. Users will be able to drag to select date ranges for analysis.
