@@ -9,7 +9,6 @@ import { SpendingChart } from '@/components/dashboard/SpendingChart';
 import { BalanceOverview } from '@/components/dashboard/BalanceOverview';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { TransactionList } from '@/components/dashboard/RecentTransactions';
-import { TopSpendingCategories } from '@/components/dashboard/TopSpendingCategories';
 import { GoalsOverview } from '@/components/dashboard/GoalsOverview';
 import { MagicCalendar } from '@/components/dashboard/MagicCalendar';
 
@@ -26,10 +25,7 @@ const LoadingSkeleton = () => (
             <Skeleton className="h-96 lg:col-span-2" />
             <Skeleton className="h-96" />
         </div>
-         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Skeleton className="h-96 lg:col-span-2" />
-            <Skeleton className="h-96" />
-        </div>
+        <Skeleton className="h-80 w-full" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Skeleton className="h-96 lg:col-span-2" />
             <Skeleton className="h-96" />
@@ -63,18 +59,15 @@ export default function DashboardPage() {
                     <BalanceOverview />
                 </div>
 
-                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <Card className="lg:col-span-2 bg-card/60 backdrop-blur-lg">
-                        <CardHeader>
-                            <CardTitle>Recent Transactions</CardTitle>
-                            <CardDescription>Your last 5 transactions.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <TransactionList transactions={recentTransactions} />
-                        </CardContent>
-                    </Card>
-                    <TopSpendingCategories />
-                </div>
+                <Card className="bg-card/60 backdrop-blur-lg">
+                    <CardHeader>
+                        <CardTitle>Recent Transactions</CardTitle>
+                        <CardDescription>Your last 5 transactions.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <TransactionList transactions={recentTransactions} />
+                    </CardContent>
+                </Card>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2">
