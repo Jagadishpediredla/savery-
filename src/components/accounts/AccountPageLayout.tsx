@@ -8,7 +8,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import type { ChartConfig } from "@/components/ui/chart";
 import type { Transaction } from "@/lib/types";
 import { useMemo, useState } from "react";
-import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Cell, Line, LineChart, Pie, PieChart, XAxis, YAxis } from "recharts";
 import { format, startOfMonth, parseISO } from 'date-fns';
 import { TransactionFilters } from "../transactions/TransactionFilters";
 import type { DateRange } from "react-day-picker";
@@ -170,34 +170,6 @@ export function AccountPageLayout({ title, description, transactions }: AccountP
                     </Card>
                 </div>
                 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Spending by Category</CardTitle>
-                        <CardDescription>A bar chart showing spending per category for the selected period.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        {pieData.length > 0 ? (
-                        <ChartContainer config={chartConfig} className="h-80 w-full">
-                            <BarChart data={pieData.slice(0, 10).sort((a,b) => b.value - a.value)} layout="vertical" margin={{ left: 10, right: 10 }}>
-                                <CartesianGrid horizontal={false} />
-                                <XAxis type="number" dataKey="value" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${Number(value)/1000}k`} />
-                                <YAxis 
-                                    dataKey="name" 
-                                    type="category" 
-                                    tickLine={false} 
-                                    axisLine={false}
-                                    tickMargin={10}
-                                    width={80}
-                                    stroke="hsl(var(--muted-foreground))"
-                                />
-                                <ChartTooltip cursor={false} content={<ChartTooltipContent formatter={(value) => `₹${Number(value).toLocaleString()}`} indicator="dot" />} />
-                                <Bar dataKey="value" fill="var(--color-value)" radius={4} />
-                            </BarChart>
-                        </ChartContainer>
-                        ) : <p className="text-muted-foreground text-center h-[320px] flex items-center justify-center">No data for this period.</p>}
-                    </CardContent>
-                </Card>
-
                 <Card>
                     <CardHeader>
                         <CardTitle>Transactions</CardTitle>

@@ -12,7 +12,6 @@ import { Wallet, Shield, ShoppingBag, PiggyBank, CandlestickChart, ArrowRight } 
 import CountUp from 'react-countup';
 import type { Account } from '@/lib/types';
 import Link from 'next/link';
-import { TopSpendingCategories } from '@/components/dashboard/TopSpendingCategories';
 
 const iconMap: { [key in Account['type']]: React.ElementType } = {
     Needs: Shield,
@@ -124,8 +123,6 @@ export default function DashboardPage() {
                 <BalanceOverview />
             </div>
         </div>
-
-        <TopSpendingCategories />
 
         <Card>
             <CardHeader>
