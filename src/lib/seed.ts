@@ -75,12 +75,27 @@ export const seedDatabase = async () => {
         // Clear existing data first
         await remove(ref(db, `users/${userId}`));
         
-        const transactionsRef = ref(db, `users/${userId}/transactions`);
         const goalsRef = ref(db, `users/${userId}/goals`);
         const settingsRef = ref(db, `users/${userId}/settings`);
 
         // Create promises for setting data
-        const transactionPromises = transactions.map(tx => push(transactionsRef, tx));
+        const transactionPromises = transactions.map(tx => {
+            const account = mockAccounts.find(a => a.name === tx.account);
+            if (!account) {
+                console.warn(`Could not find account for transaction: ${tx.account}`);
+                return Promise.resolve();
+            }
+
+            const txDate = new Date(tx.date);
+            const year = txDate.getFullYear();
+            const month = (txDate.getMonth() + 1).toString().padStart(2, '0');
+            const day = txDate.getDate().toString().padStart(2, '0');
+            
+            const path = `users/${userId}/transactions/${account.type}/${year}/${month}/${day}`;
+            const transactionNodeRef = ref(db, path);
+            return push(transactionNodeRef, tx);
+        });
+
         const goalPromises = goals.map(goal => push(goalsRef, goal));
         
         await Promise.all([

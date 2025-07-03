@@ -44,7 +44,30 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
 
         const unsubscribeTransactions = onValue(transactionsRef, (snapshot) => {
             const data = snapshot.val();
-            const transactionsArray: Transaction[] = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+            const transactionsArray: Transaction[] = [];
+
+            if (data) {
+                // Flatten the new hierarchical data structure
+                for (const accountType in data) {
+                    const years = data[accountType];
+                    for (const year in years) {
+                        const months = years[year];
+                        for (const month in months) {
+                            const days = months[month];
+                            for (const day in days) {
+                                const dailyTransactions = days[day];
+                                for (const txnId in dailyTransactions) {
+                                    transactionsArray.push({
+                                        id: txnId,
+                                        ...dailyTransactions[txnId]
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             setTransactions(transactionsArray.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
             setLoading(false);
         });
@@ -95,8 +118,20 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
 
 
     const addTransaction = async (transaction: Omit<Transaction, 'id'>) => {
-        const transactionsRef = ref(db, `users/${userId}/transactions`);
-        const newTransactionRef = push(transactionsRef);
+        const account = accountDefinitions.find(a => a.name === transaction.account);
+        if (!account) {
+            console.error("Account definition not found for:", transaction.account);
+            return;
+        }
+
+        const txDate = new Date(transaction.date);
+        const year = txDate.getFullYear();
+        const month = (txDate.getMonth() + 1).toString().padStart(2, '0');
+        const day = txDate.getDate().toString().padStart(2, '0');
+
+        const path = `users/${userId}/transactions/${account.type}/${year}/${month}/${day}`;
+        const transactionNodeRef = ref(db, path);
+        const newTransactionRef = push(transactionNodeRef);
         await set(newTransactionRef, transaction);
     };
 

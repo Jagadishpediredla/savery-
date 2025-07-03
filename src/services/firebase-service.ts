@@ -11,8 +11,30 @@ export async function getTransactions(): Promise<Transaction[]> {
     const transactionsRef = ref(db, `users/${userId}/transactions`);
     const snapshot = await get(transactionsRef);
     if (!snapshot.exists()) return [];
+
     const data = snapshot.val();
-    const transactionsArray: Transaction[] = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+    const transactionsArray: Transaction[] = [];
+
+    // Flatten the hierarchical data structure
+    for (const accountType in data) {
+        const years = data[accountType];
+        for (const year in years) {
+            const months = years[year];
+            for (const month in months) {
+                const days = months[month];
+                for (const day in days) {
+                    const dailyTransactions = days[day];
+                    for (const txnId in dailyTransactions) {
+                        transactionsArray.push({
+                            id: txnId,
+                            ...dailyTransactions[txnId]
+                        });
+                    }
+                }
+            }
+        }
+    }
+
     return transactionsArray.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
