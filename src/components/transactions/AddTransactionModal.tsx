@@ -1,11 +1,12 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, CalendarIcon, SlidersHorizontal, Sparkles, Shield, ShoppingBag, PiggyBank, CandlestickChart } from 'lucide-react';
+import { ArrowLeft, CalendarIcon, SlidersHorizontal, Sparkles, Shield, ShoppingBag, PiggyBank, CandlestickChart, ArrowRight, Sun, Moon } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useTheme } from 'next-themes';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -40,7 +41,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardHeader, CardTitle } from '../ui/card';
 import { categories, mockAccounts } from '@/data/mock-data';
 import { useFirebase } from '@/context/FirebaseContext';
 import { useToast } from '@/hooks/use-toast';
@@ -68,10 +69,25 @@ const accountTypes = [
     { name: 'Investments', icon: CandlestickChart },
 ];
 
+const ProgressDots = ({ current, total }: { current: number; total: number }) => (
+    <div className="flex justify-center gap-3 py-2">
+      {Array.from({ length: total }).map((_, i) => (
+        <div
+          key={i}
+          className={cn(
+            "h-2 w-2 rounded-full transition-all duration-300",
+            i < current ? "bg-primary" : "bg-muted"
+          )}
+        />
+      ))}
+    </div>
+  );
+
 export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModalProps) {
   const [step, setStep] = useState(1);
   const { addTransaction } = useFirebase();
   const { toast } = useToast();
+  const { setTheme, theme } = useTheme();
 
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
@@ -108,16 +124,15 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
         if (implement) {
             const amount = transactionData.amount;
             const note = encodeURIComponent(transactionData.note || 'FinanceFlow Transaction');
-            // A generic UPI link. The user must select the payee in their app.
             const upiUrl = `upi://pay?am=${amount}&tn=${note}&cu=INR`;
             window.location.href = upiUrl;
         }
 
         toast({
             title: "Success!",
-            description: `Transaction has been ${implement ? 'implemented' : 'saved'}.`,
+            description: `Transaction has been ${implement ? 'saved and implemented' : 'saved'}.`,
         });
-        onOpenChange(false); // Close modal on success
+        onOpenChange(false);
     } catch (error) {
         console.error("Failed to save transaction", error);
         toast({
@@ -133,9 +148,12 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
     if (isValid) setStep(2);
   };
   
-  const handleNextToStep3 = async () => {
+  const handleAccountSelect = async (accountName: string) => {
+    form.setValue('account', accountName, { shouldValidate: true });
     const isValid = await form.trigger(['account']);
-    if (isValid) setStep(3);
+    if (isValid) {
+      setStep(3);
+    }
   };
 
   const stepVariants = {
@@ -161,15 +179,26 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
         }
         onOpenChange(open);
     }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="absolute top-4 right-14"
+          >
+            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Toggle theme</span>
+          </Button>
           <DialogTitle className="text-2xl font-bold">Add New Transaction</DialogTitle>
-          <DialogDescription>
-            Step {step} of 3: {step === 1 ? 'Enter Details' : step === 2 ? 'Choose Account' : 'Add Category & Note'}
+           <DialogDescription>
+            {step === 1 ? 'Enter transaction details' : step === 2 ? 'Choose an account' : 'Add category & notes'}
           </DialogDescription>
+          <ProgressDots current={step} total={3} />
         </DialogHeader>
         <Form {...form}>
-            <div className="min-h-[320px]">
+            <div className="min-h-[380px]">
                 <AnimatePresence mode="wait">
                 {step === 1 && (
                     <motion.div
@@ -178,7 +207,7 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="space-y-4 pt-4"
+                    className="space-y-6 pt-4"
                     >
                     <FormField
                         control={form.control}
@@ -273,18 +302,25 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                                 <FormItem>
                                     <FormLabel>Account Type</FormLabel>
                                     <FormControl>
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-2 gap-4 pt-2">
                                             {accountTypes.map(typeInfo => {
                                                 const account = mockAccounts.find(a => a.type === typeInfo.name);
-                                                if (!account) return null; // In case no account of this type is defined
+                                                if (!account) return null;
                                                 
                                                 const isSelected = field.value === account.name;
                                                 
                                                 return (
-                                                    <Card key={typeInfo.name} onClick={() => field.onChange(account.name)} className={cn("cursor-pointer transition-all hover:border-primary/50", isSelected ? "ring-2 ring-primary border-primary" : "")}>
-                                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3">
-                                                            <CardTitle className="text-base font-medium">{typeInfo.name}</CardTitle>
-                                                            <typeInfo.icon className="h-5 w-5 text-muted-foreground" />
+                                                    <Card 
+                                                        key={typeInfo.name} 
+                                                        onClick={() => handleAccountSelect(account.name)} 
+                                                        className={cn(
+                                                            "cursor-pointer transition-all hover:border-primary/50 text-center py-6", 
+                                                            isSelected ? "ring-2 ring-primary border-primary" : ""
+                                                        )}
+                                                    >
+                                                        <CardHeader className="flex flex-col items-center justify-center space-y-2 p-0">
+                                                            <typeInfo.icon className="h-8 w-8 text-muted-foreground" />
+                                                            <CardTitle className="text-lg font-semibold">{typeInfo.name}</CardTitle>
                                                         </CardHeader>
                                                     </Card>
                                                 )
@@ -304,7 +340,7 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="space-y-6 pt-4"
+                    className="space-y-8 pt-4"
                     >
                     <FormField
                         control={form.control}
@@ -355,34 +391,30 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                 )}
                 </AnimatePresence>
             </div>
-
-            <div className="flex justify-between items-center pt-6">
+            
+            <div className="flex w-full items-center justify-between pt-8 mt-4 border-t">
                 <div>
                     {step > 1 && (
-                    <Button type="button" variant="outline" onClick={() => setStep(step - 1)}>
-                        <ArrowLeft className="mr-2 h-4 w-4" /> Back
-                    </Button>
+                        <Button type="button" variant="outline" onClick={() => setStep(step - 1)}>
+                            <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                        </Button>
                     )}
                 </div>
                 
-                {step === 1 && (
-                <Button type="button" onClick={handleNext} className="w-full">
-                    Next
-                </Button>
-                )}
+                <div className="flex items-center gap-2">
+                    {step === 1 && (
+                        <Button type="button" onClick={handleNext} className="w-full">
+                            Next <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                    )}
 
-                {step === 2 && (
-                <Button type="button" onClick={handleNextToStep3} className="w-full">
-                    Next
-                </Button>
-                )}
-
-                {step === 3 && (
-                    <div className="flex items-center gap-2">
-                        <Button type="button" variant="secondary" onClick={() => handleFormSubmit(false)}>Save Transaction</Button>
-                        <Button type="button" onClick={() => handleFormSubmit(true)}>Implement Transaction</Button>
-                    </div>
-                )}
+                    {step === 3 && (
+                        <div className="flex flex-col-reverse sm:flex-row items-center gap-3">
+                            <Button type="button" variant="secondary" onClick={() => handleFormSubmit(false)}>Save Transaction</Button>
+                            <Button type="button" onClick={() => handleFormSubmit(true)}>Save & Implement</Button>
+                        </div>
+                    )}
+                </div>
             </div>
         </Form>
       </DialogContent>
