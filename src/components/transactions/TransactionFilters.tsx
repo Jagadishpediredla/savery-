@@ -42,7 +42,7 @@ export function TransactionFilters({ filters, onFilterChange, categories, clearF
                 )}
             </div>
             <CollapsibleContent className="data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up overflow-hidden">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border rounded-lg">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6 border rounded-lg">
                     <DateRangePicker
                         date={filters.dateRange}
                         onDateChange={(value) => onFilterChange('dateRange', value)}
