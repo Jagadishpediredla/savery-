@@ -1,19 +1,25 @@
 'use client';
 
-import { Pie, PieChart, ResponsiveContainer, Cell } from "recharts";
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from "@/components/ui/chart";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { useMemo } from "react";
 import type { Transaction } from "@/lib/types";
 import { subDays, isWithinInterval, parseISO } from 'date-fns';
 
-const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
+const chartConfig = {
+    amount: {
+      label: "Amount",
+      color: "hsl(var(--chart-1))",
+    },
+} satisfies ChartConfig;
+
 
 interface SpendingByCategoryChartProps {
     transactions: Transaction[];
 }
 
 export function SpendingByCategoryChart({ transactions }: SpendingByCategoryChartProps) {
-    const { chartData, chartConfig } = useMemo(() => {
+    const chartData = useMemo(() => {
         const categoryMap = new Map<string, number>();
         const thirtyDaysAgo = subDays(new Date(), 30);
         const now = new Date();
@@ -26,22 +32,11 @@ export function SpendingByCategoryChart({ transactions }: SpendingByCategoryChar
             }
         });
 
-        const sortedCategories = Array.from(categoryMap.entries())
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 5); // top 5 categories
-
-        const chartConfig: ChartConfig = {};
-        const chartData = sortedCategories.map(([name, value], index) => {
-            const sanitizedName = name.replace(/\s/g, '').toLowerCase();
-            chartConfig[sanitizedName] = { label: name, color: COLORS[index % COLORS.length] };
-            return {
-                category: name,
-                amount: value,
-                fill: `var(--color-${sanitizedName})`,
-            }
-        });
-
-        return { chartData, chartConfig };
+        return Array.from(categoryMap.entries())
+            .map(([category, amount]) => ({ category, amount }))
+            .sort((a, b) => b.amount - a.amount)
+            .slice(0, 5) // top 5
+            .reverse(); // Bar chart renders from bottom up, so reverse to show highest at top
     }, [transactions]);
     
     if (chartData.length === 0) {
@@ -49,30 +44,31 @@ export function SpendingByCategoryChart({ transactions }: SpendingByCategoryChar
     }
 
     return (
-        <ChartContainer config={chartConfig} className="mx-auto aspect-square h-80">
-            <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                    <ChartTooltip
-                        cursor={true}
-                        content={<ChartTooltipContent formatter={(value) => `₹${Number(value).toLocaleString()}`} nameKey="category" />}
+        <ChartContainer config={chartConfig} className="h-80 w-full">
+            <ResponsiveContainer>
+                <BarChart data={chartData} layout="vertical" margin={{ left: 10, right: 10, top: 10, bottom: 10 }}>
+                    <CartesianGrid horizontal={false} strokeDasharray="3 3" />
+                    <XAxis type="number" dataKey="amount" hide />
+                    <YAxis 
+                        dataKey="category" 
+                        type="category" 
+                        tickLine={false} 
+                        axisLine={false}
+                        tickMargin={10}
+                        width={80}
+                        stroke="hsl(var(--muted-foreground))"
+                        fontSize={12}
                     />
-                    <Pie
-                        data={chartData}
-                        dataKey="amount"
-                        nameKey="category"
-                        innerRadius={60}
-                        strokeWidth={5}
-                        paddingAngle={5}
-                    >
-                         {chartData.map((entry) => (
-                            <Cell key={entry.category} fill={entry.fill} />
-                        ))}
-                    </Pie>
-                    <ChartLegend
-                        content={<ChartLegendContent nameKey="category" />}
-                        className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/2 [&>*]:justify-center"
+                        <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent 
+                            formatter={(value) => `₹${Number(value).toLocaleString()}`}
+                            indicator="dot"
+                            nameKey="category"
+                        />}
                     />
-                </PieChart>
+                    <Bar dataKey="amount" fill="var(--color-amount)" radius={4} />
+                </BarChart>
             </ResponsiveContainer>
         </ChartContainer>
     );
