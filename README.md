@@ -94,11 +94,12 @@ FinanceFlow is a modern, responsive personal finance tracker designed to provide
 ## 7️⃣ AI Assistant Features
 
 -   **Integration**: The Visualizer AI is a core feature accessible from the sidebar.
--   **Capabilities**: The AI can analyze financial data and generate visualizations. Current capabilities are defined in the following flows:
-    -   `analyze-spending-patterns`: Provides a summary, insights, and suggestions based on transaction history.
-    -   `summarize-transaction-data`: Calculates total income, expenses, and net savings for a given period.
-    -   `visualize-account-data`: Generates charts (e.g., pie charts) from transaction data.
--   **UI**: Features a chat-based interface with a glassmorphism input bar and a welcome card for first-time users.
+-   **Capabilities**: The AI can analyze financial data and generate visualizations. It is empowered by a conversational flow (`financialAssistantFlow`) that can use the following tools to fetch live data from Firebase:
+    -   `getTransactionsTool`: Retrieves all user transactions.
+    -   `getGoalsTool`: Fetches the user's financial goals.
+    -   `getSettingsTool`: Gets the user's budget settings.
+    -   `getAccountsTool`: Retrieves account balances.
+-   **UI**: Features a chat-based interface with a glassmorphism input bar and a welcome card for first-time users. It can render responses as text and formatted Markdown tables.
 
 ---
 
@@ -168,3 +169,5 @@ FinanceFlow is a modern, responsive personal finance tracker designed to provide
     -   **Investments Upgrade**: Added `PortfolioAllocation` and `GoalProgress` components.
     -   **Bug Fixes**: Resolved multiple hydration errors, a chart container error, and a module import error.
     -   **Layout Fix**: Corrected sidebar layout issues to prevent the main content from overlapping with the sidebar.
+    -   **Firebase Integration**: Connected the app to Firebase Realtime Database for live data synchronization. Added data seeding and clearing functionality.
+    -   **AI Upgrade**: Transformed the AI into a `financialAssistant` that uses tools to fetch and analyze live data from Firebase, providing conversational and data-rich responses.
