@@ -21,7 +21,7 @@ const AccountCard = ({ account }: { account: Account }) => {
     const href = `/${account.type.toLowerCase()}`;
     return (
         <Link href={href} passHref>
-             <Card className="hover:border-primary/80 hover:shadow-primary/20 transition-all cursor-pointer">
+             <Card className="hover:border-primary/80 hover:shadow-primary/20 transition-all cursor-pointer bg-card/60 backdrop-blur-lg">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-base font-medium">{account.name}</CardTitle>
                     <Icon className="h-5 w-5 text-muted-foreground" />
@@ -57,7 +57,7 @@ export default function AccountsPage() {
                         <Skeleton className="h-9 w-48" />
                         <Skeleton className="h-4 w-64 mt-2" />
                     </header>
-                    <div className="grid gap-6 md:grid-cols-2">
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                         <Skeleton className="h-32" />
                         <Skeleton className="h-32" />
                         <Skeleton className="h-32" />
@@ -74,10 +74,10 @@ export default function AccountsPage() {
                 <header>
                     <h1 className="text-3xl font-bold tracking-tight">All Accounts</h1>
                     <p className="text-muted-foreground">
-                        An overview of all your financial accounts.
+                        An overview of all your financial accounts. Click a card to see details.
                     </p>
                 </header>
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                     {accounts.map(account => <AccountCard key={account.id} account={account} />)}
                 </div>
             </div>

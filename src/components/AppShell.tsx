@@ -23,6 +23,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ThemeToggle } from './ThemeToggle';
 import { Input } from './ui/input';
+import { HeaderDate } from './HeaderDate';
 
 const navItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
@@ -102,13 +103,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         </SheetContent>
                     </Sheet>
                 )}
+                <HeaderDate />
+            </div>
+
+            <div className="flex items-center gap-4">
                  <div className="relative hidden md:block">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input placeholder="Search..." className="pl-10 w-64 bg-card/60" />
                 </div>
-            </div>
-
-            <div className="flex items-center gap-2">
                 <ThemeToggle />
             </div>
         </header>
