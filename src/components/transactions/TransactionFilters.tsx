@@ -73,7 +73,7 @@ export function TransactionFilters({ filters, onFilterChange, categories, clearF
                         value={filters.transactionType}
                         onValueChange={(value) => onFilterChange('transactionType', value || 'All')}
                     >
-                        <ToggleGroupItem value="All" className="w-full">All</Type>s.ToggleGroupItem>
+                        <ToggleGroupItem value="All" className="w-full">All</ToggleGroupItem>
                         <ToggleGroupItem value="Debit" className="w-full">Debit</ToggleGroupItem>
                         <ToggleGroupItem value="Credit" className="w-full">Credit</ToggleGroupItem>
                     </ToggleGroup>
