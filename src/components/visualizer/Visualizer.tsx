@@ -67,7 +67,7 @@ export function Visualizer() {
                                         </AvatarFallback>
                                     </Avatar>
                                 )}
-                                <div className={`max-w-sm p-3 rounded-lg ${message.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                                <div className={`max-w-sm p-3 rounded-lg ${message.sender === 'user' ? 'bg-primary/80 backdrop-blur-lg border border-white/10 text-primary-foreground' : 'bg-muted/60 backdrop-blur-lg border border-white/10'}`}>
                                     <p className="text-sm">{message.text}</p>
                                 </div>
                                 {message.sender === 'user' && (
