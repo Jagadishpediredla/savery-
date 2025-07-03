@@ -1,19 +1,23 @@
 
 'use client';
 
-import { CandlestickChart, Home, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import type { LucideIcon } from 'lucide-react';
 
-const navItems = [
-  { href: '/', icon: Home, label: 'Dashboard', activeIn: ['/needs', '/wants'] },
-  { href: '/investments', icon: CandlestickChart, label: 'Growth' },
-  { href: '/settings', icon: Settings, label: 'Settings' },
-];
+interface NavItem {
+  href: string;
+  icon: LucideIcon;
+  label: string;
+}
 
-export function MobileNav() {
+interface MobileNavProps {
+  navItems: NavItem[];
+}
+
+export function MobileNav({ navItems }: MobileNavProps) {
   const pathname = usePathname();
   const isMobile = useIsMobile();
   
@@ -22,10 +26,10 @@ export function MobileNav() {
   }
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-background/90 backdrop-blur-lg border-t border-white/10 z-40">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-card border-t z-50">
       <div className="flex justify-around items-center h-full max-w-md mx-auto">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || item.activeIn?.includes(pathname);
+          const isActive = pathname === item.href;
           return (
             <Link
               key={item.href}
@@ -34,7 +38,7 @@ export function MobileNav() {
                 'flex flex-col items-center justify-center text-xs w-full h-full gap-1 transition-colors rounded-lg',
                 isActive
                   ? 'text-primary'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  : 'text-muted-foreground hover:text-foreground'
               )}
             >
               <item.icon className="h-5 w-5" />

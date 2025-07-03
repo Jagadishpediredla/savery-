@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/chart';
 import { useFirebase } from '@/context/FirebaseContext';
 import { useMemo } from 'react';
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { format, parseISO, startOfMonth } from 'date-fns';
 import { mockAccounts } from '@/data/mock-data';
 
@@ -65,75 +65,77 @@ export function SpendingChart() {
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-64 w-full">
-          <AreaChart
-            data={monthlyBreakdown}
-            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-          >
-            <defs>
-                <linearGradient id="colorNeeds" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-needs)" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="var(--color-needs)" stopOpacity={0}/>
-                </linearGradient>
-                 <linearGradient id="colorWants" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-wants)" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="var(--color-wants)" stopOpacity={0}/>
-                </linearGradient>
-                 <linearGradient id="colorInvestments" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-investments)" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="var(--color-investments)" stopOpacity={0}/>
-                </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} strokeDasharray="3 3" />
-            <XAxis
-              dataKey="month"
-              stroke="hsl(var(--muted-foreground))"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-            />
-            <YAxis 
-                stroke="hsl(var(--muted-foreground))" 
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+                data={monthlyBreakdown}
+                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+            >
+                <defs>
+                    <linearGradient id="colorNeeds" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--color-needs)" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="var(--color-needs)" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorWants" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--color-wants)" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="var(--color-wants)" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorInvestments" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--color-investments)" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="var(--color-investments)" stopOpacity={0}/>
+                    </linearGradient>
+                </defs>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                <XAxis
+                dataKey="month"
+                stroke="hsl(var(--muted-foreground))"
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `₹${Number(value)/1000}k`}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent 
-                formatter={(value, name) => `₹${Number(value).toLocaleString()}`}
-                indicator="dot"
-              />}
-            />
-            <ChartLegend content={<ChartLegendContent />} />
-            <Area
-              type="monotone"
-              dataKey="needs"
-              name="Needs"
-              stackId="1"
-              stroke="var(--color-needs)"
-              fill="url(#colorNeeds)"
-              strokeWidth={2}
-            />
-             <Area
-              type="monotone"
-              dataKey="wants"
-              name="Wants"
-              stackId="1"
-              stroke="var(--color-wants)"
-              fill="url(#colorWants)"
-              strokeWidth={2}
-            />
-            <Area
-              type="monotone"
-              dataKey="investments"
-              name="Investments"
-              stackId="1"
-              stroke="var(--color-investments)"
-              fill="url(#colorInvestments)"
-              strokeWidth={2}
-            />
-          </AreaChart>
+                />
+                <YAxis 
+                    stroke="hsl(var(--muted-foreground))" 
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(value) => `₹${Number(value)/1000}k`}
+                />
+                <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent 
+                    formatter={(value, name) => `₹${Number(value).toLocaleString()}`}
+                    indicator="dot"
+                />}
+                />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Area
+                type="monotone"
+                dataKey="needs"
+                name="Needs"
+                stackId="1"
+                stroke="var(--color-needs)"
+                fill="url(#colorNeeds)"
+                strokeWidth={2}
+                />
+                <Area
+                type="monotone"
+                dataKey="wants"
+                name="Wants"
+                stackId="1"
+                stroke="var(--color-wants)"
+                fill="url(#colorWants)"
+                strokeWidth={2}
+                />
+                <Area
+                type="monotone"
+                dataKey="investments"
+                name="Investments"
+                stackId="1"
+                stroke="var(--color-investments)"
+                fill="url(#colorInvestments)"
+                strokeWidth={2}
+                />
+            </AreaChart>
+          </ResponsiveContainer>
         </ChartContainer>
       </CardContent>
     </Card>
