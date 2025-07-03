@@ -1,7 +1,7 @@
-# 1️⃣ FinanceFlow v1.0.0
+# 1️⃣ Savvy Saver v1.0.0
 
 ## 2️⃣ Overall Objective
-FinanceFlow is a modern, responsive personal finance tracker designed to provide users with a clear and insightful overview of their financial health. It helps users manage their money by summarizing accounts, tracking spending trends, visualizing data through interactive charts, and offering personalized insights via an integrated AI assistant.
+Savvy Saver is a modern, responsive personal finance tracker designed to provide users with a clear and insightful overview of their financial health. It helps users manage their money by summarizing accounts, tracking spending trends, visualizing data through interactive charts, and offering personalized insights via an integrated AI assistant.
 
 ---
 
