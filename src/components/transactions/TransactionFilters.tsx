@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Funnel, X } from "lucide-react";
+import { Filter, X } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import { Button } from "../ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
@@ -30,7 +30,7 @@ export function TransactionFilters({ filters, onFilterChange, categories, clearF
             <div className="flex items-center justify-between">
                 <CollapsibleTrigger asChild>
                     <Button variant="outline" size="sm">
-                        <Funnel className="mr-2 h-4 w-4" />
+                        <Filter className="mr-2 h-4 w-4" />
                         Filters
                     </Button>
                 </CollapsibleTrigger>
