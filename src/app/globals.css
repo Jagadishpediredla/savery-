@@ -5,45 +5,45 @@
 @layer base {
   :root {
     /* Light Theme - Clean & Modern with Pink Accent */
-    --background: 0 0% 98%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 240 10% 98%; /* Slightly cooler white */
+    --foreground: 240 10% 3.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 3.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 240 10% 3.9%;
 
     --primary: 330 90% 60%; /* Vibrant Pink */
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 0 0% 100%; /* White text for better contrast on pink */
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 5% 10%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 240 5% 94%;
+    --muted-foreground: 240 4% 46%;
 
-    --accent: 330 80% 96%;
-    --accent-foreground: 330 90% 30%;
+    --accent: 240 5% 90%;
+    --accent-foreground: 240 5% 10%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
     --ring: 330 90% 60%;
 
     --radius: 0.8rem;
 
     --chart-1: 330 90% 60%;
-    --chart-2: 280 90% 65%;
-    --chart-3: 240 90% 65%;
-    --chart-4: 200 90% 65%;
-    --chart-5: 300 90% 65%;
+    --chart-2: 280 80% 55%;
+    --chart-3: 240 80% 60%;
+    --chart-4: 200 80% 60%;
+    --chart-5: 300 80% 55%;
   }
  
   .dark {
-    /* Dark Theme - Premium & Glassy with Pink Accent */
+    /* Dark Theme - Premium & Glassy */
     --background: 224 71% 4%;
     --foreground: 210 40% 98%;
 
@@ -56,20 +56,20 @@
     --primary: 330 90% 65%; /* Bright Neon/Pinkish Accent */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 330 90% 65%; /* Bright Neon/Pinkish Accent */
-    --accent-foreground: 0 0% 100%;
+    --accent: 217 33% 22%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 63% 40%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
     --ring: 330 90% 65%;
 
     --chart-1: 330 90% 65%;
@@ -88,6 +88,10 @@
     @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+  /* Add a subtle gradient for light mode too for consistency */
+  body {
+    background-image: radial-gradient(circle at top, hsl(240 5% 96%) 0%, hsl(var(--background)) 100%);
   }
   .dark body {
     background-image: radial-gradient(circle at top, hsl(230 20% 15%) 0%, hsl(var(--background)) 100%);

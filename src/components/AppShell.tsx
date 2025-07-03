@@ -8,7 +8,6 @@ import {
   Bot,
   Plus,
   PanelLeft,
-  Search,
   LayoutGrid,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -21,7 +20,6 @@ import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ThemeToggle } from './ThemeToggle';
-import { Input } from './ui/input';
 import { HeaderDate } from './HeaderDate';
 
 const mainNavItems = [
@@ -64,8 +62,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isMobile = useIsMobile();
   
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground overflow-y-auto">
-        <div className="flex h-16 items-center border-b border-sidebar-border px-4 shrink-0 sticky top-0 bg-sidebar/80 backdrop-blur-lg">
+    <div className="flex flex-col h-full overflow-y-auto">
+        <div className="flex h-16 items-center border-b px-4 shrink-0 sticky top-0 bg-card/60 backdrop-blur-lg">
           <Link href="/" className="flex items-center gap-2 font-bold text-lg">
             Savvy Saver
           </Link>
@@ -78,7 +76,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <h3 className="px-3 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-2 mt-6">Analytics</h3>
             {analyticsNavItems.map((item) => <NavItem key={item.href} item={item} isExpanded={true} />)}
 
-            <div className="absolute bottom-0 left-0 w-full p-4 space-y-2 border-t border-sidebar-border bg-sidebar/80 backdrop-blur-lg">
+            <div className="absolute bottom-0 left-0 w-full p-4 space-y-2 border-t bg-card/80 backdrop-blur-lg">
               <NavItem item={settingsNavItem} isExpanded={true} />
               <Button variant="gradient" className="w-full" onClick={() => setIsModalOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
@@ -93,7 +91,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen w-full bg-background overflow-hidden">
         {/* Desktop Sidebar */}
         {!isMobile && (
-            <aside className="w-64 border-r bg-card/60 backdrop-blur-lg hidden md:flex flex-col relative">
+            <aside className="w-64 border-r bg-card/60 backdrop-blur-lg hidden md:flex flex-col">
                 {sidebarContent}
             </aside>
         )}
@@ -110,7 +108,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                                 <span className="sr-only">Toggle Menu</span>
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="left" className="w-64 p-0 border-r-0 bg-transparent">
+                        <SheetContent side="left" className="w-64 p-0 border-r-0 bg-card/60 backdrop-blur-lg">
                            {sidebarContent}
                         </SheetContent>
                     </Sheet>
