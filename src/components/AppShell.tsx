@@ -85,9 +85,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
-            <div className="flex flex-col items-center gap-2 p-2">
-                <ThemeToggle />
-            </div>
             <SidebarSeparator />
             <SidebarMenu>
                 <SidebarMenuItem>
@@ -120,6 +117,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <div className="text-sm text-muted-foreground">
                   {currentDate}
               </div>
+              <ThemeToggle />
             </div>
           </header>
           <main className="p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">{children}</main>
