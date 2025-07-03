@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Bot, Send, User, Sparkles } from "lucide-react";
 import { useState, useRef, useEffect, type FormEvent } from "react";
 import { AnimatePresence, motion } from 'framer-motion';
-import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { PageWrapper } from "@/components/PageWrapper";
 
 
