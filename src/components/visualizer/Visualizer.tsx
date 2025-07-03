@@ -67,7 +67,7 @@ export function Visualizer() {
                                         </AvatarFallback>
                                     </Avatar>
                                 )}
-                                <div className={`max-w-sm p-3 rounded-lg ${message.sender === 'user' ? 'bg-primary/80 backdrop-blur-lg border border-white/10 text-primary-foreground' : 'bg-muted/60 backdrop-blur-lg border border-white/10'}`}>
+                                <div className={`max-w-sm p-3 rounded-lg ${message.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
                                     <p className="text-sm">{message.text}</p>
                                 </div>
                                 {message.sender === 'user' && (
@@ -88,7 +88,7 @@ export function Visualizer() {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             placeholder="Ask about your spending, goals, or request a chart..."
-                            className="pr-12 h-12 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 focus-visible:ring-2 focus-visible:ring-primary"
+                            className="pr-12 h-12 rounded-full bg-card/80 backdrop-blur-sm border-white/10 focus-visible:ring-2 focus-visible:ring-primary"
                         />
                         <Button type="submit" size="icon" className="absolute top-1.5 right-1.5 h-9 w-9 rounded-full">
                             <Send className="h-4 w-4" />
