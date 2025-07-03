@@ -177,7 +177,12 @@ const Sidebar = React.forwardRef<
     ref
   ) => {
     const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
-    
+    const [hasMounted, setHasMounted] = React.useState(false)
+
+    React.useEffect(() => {
+      setHasMounted(true)
+    }, [])
+
     if (collapsible === "none") {
       return (
         <div
@@ -226,6 +231,10 @@ const Sidebar = React.forwardRef<
         </div>
       </div>
     );
+    
+    if (!hasMounted) {
+      return desktopView;
+    }
     
     if (isMobile) {
       return (
