@@ -1,21 +1,58 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart';
+import type { ChartConfig } from '@/components/ui/chart';
 import { mockAccounts } from '@/data/mock-data';
 import { useMemo } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 
 const balanceTypes = ['Needs', 'Wants', 'Savings', 'Investments'];
-const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))'];
+
+const chartConfig = {
+  Needs: {
+    label: 'Needs',
+    color: 'hsl(var(--chart-1))',
+  },
+  Wants: {
+    label: 'Wants',
+    color: 'hsl(var(--chart-2))',
+  },
+  Savings: {
+    label: 'Savings',
+    color: 'hsl(var(--chart-3))',
+  },
+  Investments: {
+    label: 'Investments',
+    color: 'hsl(var(--chart-4))',
+  },
+} satisfies ChartConfig;
 
 export function BalanceOverview() {
-    const pieData = useMemo(() => {
-        return balanceTypes.map(type => {
-            const balance = mockAccounts.filter(acc => acc.type === type).reduce((sum, acc) => sum + acc.balance, 0);
-            return { name: type, value: balance };
-        }).filter(item => item.value > 0);
-    }, []);
+  const pieData = useMemo(() => {
+    return balanceTypes
+      .map((type) => {
+        const balance = mockAccounts
+          .filter((acc) => acc.type === type)
+          .reduce((sum, acc) => sum + acc.balance, 0);
+        return {
+          name: type,
+          value: balance,
+          fill: `var(--color-${type})`,
+        };
+      })
+      .filter((item) => item.value > 0);
+  }, []);
 
   return (
     <Card className="h-full">
@@ -24,42 +61,62 @@ export function BalanceOverview() {
         <CardDescription>Your total balance distribution.</CardDescription>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={200}>
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-square h-[200px]"
+        >
+          <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-                <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    dataKey="value"
-                    label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
-                >
-                    {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke={COLORS[index % COLORS.length]} />
-                    ))}
-                </Pie>
-                <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent 
-                        formatter={(value) => `₹${Number(value).toLocaleString()}`}
-                        indicator="dot"
-                    />}
-                />
+              <Pie
+                data={pieData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                outerRadius={80}
+                dataKey="value"
+                label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+              >
+                {pieData.map((entry) => (
+                  <Cell
+                    key={`cell-${entry.name}`}
+                    fill={entry.fill}
+                    stroke={entry.fill}
+                  />
+                ))}
+              </Pie>
+              <ChartTooltip
+                cursor={false}
+                content={
+                  <ChartTooltipContent
+                    formatter={(value) => `₹${Number(value).toLocaleString()}`}
+                    indicator="dot"
+                  />
+                }
+              />
             </PieChart>
-        </ResponsiveContainer>
+          </ResponsiveContainer>
+        </ChartContainer>
         <div className="mt-4 space-y-2">
-            {pieData.map((entry, index) => (
-                <div key={entry.name} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full" style={{backgroundColor: COLORS[index % COLORS.length]}}/>
-                        <span>{entry.name}</span>
-                    </div>
-                    <span className="font-medium">
-                        ₹{entry.value.toLocaleString()}
-                    </span>
-                </div>
-            ))}
+          {pieData.map((entry) => (
+            <div
+              key={entry.name}
+              className="flex items-center justify-between text-sm"
+            >
+              <div className="flex items-center gap-2">
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{
+                    backgroundColor:
+                      chartConfig[entry.name as keyof typeof chartConfig]?.color,
+                  }}
+                />
+                <span>{entry.name}</span>
+              </div>
+              <span className="font-medium">
+                ₹{entry.value.toLocaleString()}
+              </span>
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>
