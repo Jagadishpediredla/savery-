@@ -51,7 +51,7 @@ export function MobileNav({ onAddTransaction }: MobileNavProps) {
 
         <Button
             onClick={onAddTransaction}
-            className="h-14 w-14 rounded-full shadow-2xl z-40 -mt-8"
+            className="h-14 w-14 p-0 rounded-full shadow-2xl z-40 -mt-8"
             size="icon"
             variant="gradient"
         >
