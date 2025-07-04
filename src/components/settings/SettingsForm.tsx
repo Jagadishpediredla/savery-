@@ -205,7 +205,7 @@ export function SettingsForm() {
                     <CardDescription>Live visualization of your budget.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <ChartContainer config={chartConfig} className="h-[250px] w-full">
+                    <ChartContainer config={chartConfig} className="mx-auto aspect-square h-full max-h-[250px]">
                         <PieChart>
                             <ChartTooltip
                                 cursor={false}
@@ -216,9 +216,8 @@ export function SettingsForm() {
                                 cx="50%"
                                 cy="50%"
                                 labelLine={false}
-                                outerRadius={80}
+                                outerRadius={70}
                                 dataKey="value"
-                                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                             >
                                 {pieData.map((entry) => (
                                     <Cell key={`cell-${entry.name}`} fill={entry.fill} stroke={entry.fill} />
@@ -228,7 +227,7 @@ export function SettingsForm() {
                     </ChartContainer>
                     <div className="mt-4 space-y-2">
                         {pieData.map(entry => (
-                            <div key={entry.name} className="flex items-center justify-between text-sm">
+                            <div key={entry.name} className="flex items-center text-sm">
                                 <div className="flex items-center gap-2">
                                     <span 
                                       className="h-2 w-2 rounded-full" 
@@ -238,7 +237,7 @@ export function SettingsForm() {
                                     />
                                     <span>{entry.name}</span>
                                 </div>
-                                <span className="font-medium">
+                                <span className="font-medium ml-auto">
                                     ₹{((watch('monthlySalary') * entry.value) / 100).toLocaleString()}
                                 </span>
                             </div>

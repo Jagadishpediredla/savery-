@@ -104,7 +104,7 @@ export function AccountPageLayout({ title, description, transactions }: AccountP
                         </CardHeader>
                         <CardContent>
                             {pieData.length > 0 ? (
-                                <ChartContainer config={chartConfig} className="mx-auto aspect-square h-[250px]">
+                                <ChartContainer config={chartConfig} className="mx-auto aspect-square h-full max-h-[250px]">
                                     <PieChart>
                                         <Pie
                                             data={pieData}
@@ -113,7 +113,6 @@ export function AccountPageLayout({ title, description, transactions }: AccountP
                                             labelLine={false}
                                             outerRadius={80}
                                             dataKey="value"
-                                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                                         >
                                             {pieData.map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke={COLORS[index % COLORS.length]} />

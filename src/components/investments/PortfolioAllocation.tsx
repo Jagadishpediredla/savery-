@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -56,7 +57,7 @@ export function PortfolioAllocation() {
                         </div>
                     </div>
                     <div>
-                         <ChartContainer config={chartConfig} className="mx-auto aspect-square h-[150px]">
+                         <ChartContainer config={chartConfig} className="mx-auto aspect-square h-full max-h-[150px]">
                             <PieChart>
                                 <ChartTooltip
                                     cursor={false}
@@ -71,7 +72,6 @@ export function PortfolioAllocation() {
                                     outerRadius={60}
                                     paddingAngle={5}
                                     dataKey="value"
-                                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                                 >
                                     {pieData.map((entry) => (
                                         <Cell key={`cell-${entry.name}`} fill={entry.fill} stroke={entry.fill}/>

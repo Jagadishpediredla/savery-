@@ -56,7 +56,7 @@ export function BalanceOverview() {
       <CardContent>
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square h-[200px]"
+          className="mx-auto aspect-square h-full max-h-[200px]"
         >
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -110,7 +110,7 @@ export function BalanceOverview() {
           {pieData.map((entry) => (
             <div
               key={entry.name}
-              className="flex items-center justify-between text-sm"
+              className="flex items-center text-sm"
             >
               <div className="flex items-center gap-2">
                 <span
@@ -122,7 +122,7 @@ export function BalanceOverview() {
                 />
                 <span>{entry.name}</span>
               </div>
-              <span className="font-medium">
+              <span className="font-medium ml-auto">
                 ₹{entry.value.toLocaleString()}
               </span>
             </div>

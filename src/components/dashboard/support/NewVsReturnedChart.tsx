@@ -52,7 +52,7 @@ export function NewVsReturnedChart() {
                             </Pie>
                             <ChartLegend
                                 content={<ChartLegendContent nameKey="type" />}
-                                className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/2 [&>*]:justify-center"
+                                className="-translate-y-2 flex-wrap gap-2 [&>*]:justify-center"
                             />
                         </PieChart>
                     </ResponsiveContainer>
