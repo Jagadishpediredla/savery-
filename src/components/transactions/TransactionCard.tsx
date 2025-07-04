@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { cn } from '@/lib/utils';
@@ -27,7 +26,7 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
             </div>
             <div className="text-right">
                  <p className={cn("font-bold", isCredit ? "text-green-400" : "text-red-400")}>
-                    {isCredit ? '+' : '-'}₹{transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    {isCredit ? '+' : '-'}₹{(transaction.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </p>
                 <p className="text-xs text-muted-foreground">{new Date(transaction.date).toLocaleDateString()}</p>
             </div>
