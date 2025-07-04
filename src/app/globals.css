@@ -55,7 +55,7 @@
     --popover-foreground: 210 40% 98%;
 
     --primary: 330 90% 65%; /* Bright Neon/Pinkish Accent */
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 330 100% 10%;
 
     --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
@@ -75,9 +75,9 @@
 
     --chart-1: 330 90% 65%; /* Pink for Needs */
     --chart-2: 200 90% 65%; /* Blue for Wants */
-    --chart-3: 250 80% 65%; /* Purple for Investments */
-    --chart-4: 140 80% 60%; /* Green for Savings */
-    --chart-5: 30 90% 60%; /* Orange for Other */
+    --chart-3: 240 90% 65%; /* Purple for Investments */
+    --chart-4: 200 90% 65%; /* Green for Savings */
+    --chart-5: 300 90% 65%; /* Orange for Other */
   }
 }
  
@@ -100,7 +100,7 @@
   ::-webkit-scrollbar {
     display: none;
   }
-  .dark-mode-tiles {
+  .dark-mode-tiles .ol-layer canvas {
     filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9);
   }
 }

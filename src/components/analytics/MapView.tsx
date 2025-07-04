@@ -1,6 +1,8 @@
+
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import * as React from 'react';
+import { useEffect, useRef } from 'react';
 import 'ol/ol.css';
 import Map from 'ol/Map';
 import View from 'ol/View';
@@ -16,6 +18,7 @@ import Icon from 'ol/style/Icon';
 import Overlay from 'ol/Overlay';
 import type { Transaction } from '@/lib/types';
 import { useTheme } from 'next-themes';
+import { cn } from '@/lib/utils';
 
 interface MapViewProps {
     transactions: Transaction[];
@@ -115,13 +118,14 @@ const MapViewComponent: React.FC<MapViewProps> = ({ transactions }) => {
         }
     }, [transactions]);
     
-    useEffect(() => {
-        tileLayer.current.setClassName(theme === 'dark' ? 'dark-mode-tiles' : '');
-    }, [theme]);
 
     return (
         <div style={{ position: 'relative', width: '100%', height: '400px' }}>
-            <div ref={mapRef} style={{ width: '100%', height: '100%', borderRadius: 'var(--radius)', overflow: 'hidden' }} />
+            <div 
+                ref={mapRef} 
+                className={cn(theme === 'dark' && 'dark-mode-tiles')} 
+                style={{ width: '100%', height: '100%', borderRadius: 'var(--radius)', overflow: 'hidden' }} 
+            />
             <div ref={popupRef}></div>
         </div>
     );
