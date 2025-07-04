@@ -4,9 +4,8 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
 import { ref, onValue, push, set, remove, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
-import type { Transaction, Bucket, Goal, Settings, AiChatMessage, BucketType, Categories } from '@/lib/types';
+import type { Transaction, Bucket, Goal, Settings, BucketType, Categories } from '@/lib/types';
 import { seedDatabase as seedDb, clearDatabase as clearDb } from '@/lib/seed';
-import { financialAssistant } from '@/ai/flows/financial-assistant-flow';
 import { useToast } from '@/hooks/use-toast';
 import { mockAccounts, defaultCategories } from '@/data/mock-data';
 import * as financialService from '@/services/firebase-service';
@@ -25,12 +24,9 @@ interface FirebaseContextType {
     goals: Goal[];
     settings: Settings;
     loading: boolean;
-    aiHistory: AiChatMessage[];
     allCategories: Categories;
     addTransaction: (transaction: AddTransactionInput) => Promise<void>;
     updateSettings: (newSettings: Omit<Settings, 'savingsPercentage'>) => Promise<void>;
-    sendChatMessage: (prompt: string) => Promise<void>;
-    clearAiHistory: () => Promise<void>;
     seedDatabase: () => Promise<void>;
     clearDatabase: () => Promise<void>;
     addCategory: (bucket: BucketType, newCategory: string) => Promise<void>;
@@ -51,7 +47,6 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         savingsPercentage: 10,
     });
     const [allCategories, setAllCategories] = useState<Categories>(defaultCategories);
-    const [aiHistory, setAiHistory] = useState<AiChatMessage[]>([]);
     const [loading, setLoading] = useState(true);
     const { toast } = useToast();
 
@@ -97,15 +92,12 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
                         }
                     }
                 }
-                setTransactions(allTransactions.sort((a,b) => b.timestamp - a.timestamp));
+                setTransactions(allTransactions.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0)));
+
 
                 // Goals
                 const goalsData = data.goals;
                 setGoals(goalsData ? Object.keys(goalsData).map(key => ({ id: key, ...goalsData[key] })) : []);
-
-                // AI History
-                const historyData = data.aiHistory;
-                setAiHistory(historyData ? Object.values(historyData) : []);
 
                 // Categories
                 setAllCategories(data.categories || defaultCategories);
@@ -114,7 +106,6 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
                 // Handle case where no user data exists
                 setTransactions([]);
                 setGoals([]);
-                setAiHistory([]);
                 setSettings({
                     monthlySalary: 75000,
                     needsPercentage: 50,
@@ -204,43 +195,6 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         await set(ref(db, path), newSettings);
     }, []);
 
-    const sendChatMessage = useCallback(async (prompt: string) => {
-        const userMessage: AiChatMessage = { role: 'user', content: prompt };
-        
-        let latestHistory: AiChatMessage[] = [];
-        setAiHistory(currentHistory => {
-            latestHistory = [...currentHistory, userMessage];
-            return latestHistory;
-        });
-
-        const historyRef = ref(db, `users/${userId}/aiHistory`);
-        const userMessageRef = push(historyRef);
-        await set(userMessageRef, userMessage);
-        
-        const flowHistory = latestHistory.slice(0, -1).map(msg => ({
-            role: msg.role,
-            content: [{ text: msg.content }]
-        }));
-
-        try {
-            const responseText = await financialAssistant({ prompt, history: flowHistory });
-            const modelMessage: AiChatMessage = { role: 'model', content: responseText };
-
-            const modelMessageRef = push(historyRef);
-            await set(modelMessageRef, modelMessage);
-        } catch (error) {
-            console.error("AI Assistant Error:", error);
-            const errorMessage: AiChatMessage = { role: 'model', content: "Sorry, I encountered an error. Please try again." };
-             const errorRef = push(historyRef);
-            await set(errorRef, errorMessage);
-        }
-    }, []);
-
-    const clearAiHistory = useCallback(async () => {
-        const historyRef = ref(db, `users/${userId}/aiHistory`);
-        await remove(historyRef);
-    }, []);
-
     const buckets = useMemo(() => {
         const now = new Date();
         const currentMonth = now.getMonth();
@@ -310,18 +264,15 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         goals,
         settings,
         loading,
-        aiHistory,
         allCategories,
         addTransaction,
         updateSettings,
-        sendChatMessage,
-        clearAiHistory,
         addCategory,
         editCategory,
         deleteCategory,
         seedDatabase: () => seedDb(),
         clearDatabase: () => clearDb(),
-    }), [transactions, buckets, goals, settings, loading, aiHistory, allCategories, addTransaction, updateSettings, sendChatMessage, clearAiHistory, addCategory, editCategory, deleteCategory]);
+    }), [transactions, buckets, goals, settings, loading, allCategories, addTransaction, updateSettings, addCategory, editCategory, deleteCategory]);
 
     return <FirebaseContext.Provider value={value}>{children}</FirebaseContext.Provider>;
 };

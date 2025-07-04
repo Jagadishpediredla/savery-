@@ -38,11 +38,6 @@ export interface Settings {
   savingsPercentage: number; // This will be calculated
 }
 
-export interface AiChatMessage {
-  role: 'user' | 'model';
-  content: string;
-}
-
 export interface Bucket {
   name: BucketType;
   allocated: number;
@@ -51,4 +46,3 @@ export interface Bucket {
 }
 
 export type Categories = Record<BucketType, string[]>;
-

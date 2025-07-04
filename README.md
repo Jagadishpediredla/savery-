@@ -1,7 +1,7 @@
 # Savvy Saver v2.0.0
 
 ## 2️⃣ Overall Objective
-Savvy Saver is a modern, responsive personal finance tracker designed to provide users with a clear and insightful overview of their financial health. It helps users manage their money by summarizing accounts, tracking spending trends, visualizing data through interactive charts, and offering personalized insights via an integrated AI assistant.
+Savvy Saver is a modern, responsive personal finance tracker designed to provide users with a clear and insightful overview of their financial health. It helps users manage their money by summarizing accounts, tracking spending trends, and visualizing data through interactive charts.
 
 ---
 ## Table of Contents
@@ -13,9 +13,9 @@ Savvy Saver offers a comprehensive suite of features to help users manage their 
 *   **Unified Dashboard:** Provides a central hub with a summary of total balance, individual account balances, spending trends, and recent transactions. The redesign includes enhanced charts and a cleaner layout.
 *   **Account Management:** Dedicated pages for "Needs," "Wants," and "Savings" allow users to track spending within specific financial categories. Each page utilizes a standardized layout with relevant charts and a filterable transaction list.
 *   **Investments Tracking:** Manage investment goals and visualize portfolio allocation. The upgraded investments page includes goal progress tracking and an interactive allocation tool.
-*   **Interactive Visualizer AI:** A powerful AI assistant that provides personalized financial insights based on live user data. It can summarize information, analyze transactions, track goals, and understand natural language queries.
+*   **Transaction Map**: A dedicated page to visualize transaction locations on an interactive map.
 *   **Settings Customization:** Configure monthly salary and define budget allocations for "Needs," "Wants," and "Investments" with a real-time visual representation of the budget distribution.
-*   **Streamlined Transaction Entry:** A multi-step modal with a floating action button simplifies adding new transactions. The modal includes fields for date, type, amount, account, category, and notes, with planned features for AI-powered category suggestions.
+*   **Streamlined Transaction Entry:** A multi-step modal with a floating action button simplifies adding new transactions. The modal includes fields for date, type, amount, account, category, and notes.
 *   **Support Page:** A new dedicated page provides resources and tools for user support.
 
 
@@ -34,7 +34,7 @@ Savvy Saver features a modern and consistent user interface:
 -   **Style**: All elements feature soft, rounded corners and subtle drop shadows to create a sense of depth and elevation.
 -   **Typography**: The app uses the 'Inter' sans-serif font for body text and headlines, and 'Source Code Pro' for code snippets, ensuring high readability.
 -   **Style**: All elements feature soft, rounded corners and subtle drop shadows to create a sense of depth and elevation.
--   **Interactivity**: Interactive elements provide clear feedback with a soft glow or border highlight on hover and focus states, with smooth, non-abrupt transitions.
+-   **Interactivity**: Interactive elements provide clear feedback with a soft glow or border highlight on hover and focus states, with smooth, non-abrupt transitions powered by Framer Motion.
 *   **Consistent Styling:** Application of the new design spec ensures a cohesive visual experience throughout the app.
 
 ---
@@ -54,22 +54,9 @@ The app utilizes various charts to visualize financial data:
 
 ---
 
-## 6️⃣ AI Assistant Details
+## 6️⃣ Backend & Environments
 
-The Visualizer AI is a core feature powered by Genkit and integrated with Firebase:
-
-*   **Live Data Integration:** The AI assistant fetches and analyzes live financial data from Firebase Realtime Database to provide accurate and up-to-date responses.
-*   **Comprehensive Data Awareness:** The assistant is aware of user transactions, goals, and budget settings.
-*   **Core Capabilities:** Can summarize spending, analyze transactions, track goals, and compute savings allocations.
-*   **Natural Language Processing:** Understands complex natural language queries about financial data.
-*   **Dynamic Responses:** Generates responses in various formats, including text summaries and Markdown tables.
-*   **Conversational Context:** Maintains chat history for follow-up questions.
-*   **Underlying Tools:** Uses tools like `getTransactionsTool`, `getGoalsTool`, `getSettingsTool`, and `getAccountsTool` to interact with Firebase data.
-
----
-## 7️⃣ Backend & Environments
-
-## 7️⃣ Backend & Environments
+## 6️⃣ Backend & Environments
 
 -   **Firebase**: The app uses Firebase for backend services. The configuration is stored in `src/lib/firebase.ts`.
     ```javascript
@@ -91,44 +78,14 @@ The Visualizer AI is a core feature powered by Genkit and integrated with Fireba
         "userId": {
           "transactions": { "...": { "date": "...", "type": "...", "amount": "...", "account": "...", "category": "...", "note": "..." } },
           "settings": { "salary": "...", "needsPercentage": "...", "wantsPercentage": "...", "investmentsPercentage": "..." },
-          "goals": { "...": { "name": "...", "targetAmount": "...", "savedAmount": "..." } },
-          "aiHistory": { "...": { "prompt": "...", "response": "..." } }
+          "goals": { "...": { "name": "...", "targetAmount": "...", "savedAmount": "..." } }
         }
       }
     }
     ```
--   **Genkit**: AI functionality is powered by Genkit, configured to use Google AI's `gemini-2.0-flash` model.
 
 ---
-## 7️⃣ AI Assistant Features
 
-## 7️⃣ AI Assistant Features
-
--   **Live Data Integration**: The AI Assistant is fully integrated with Firebase Realtime Database, allowing it to fetch and analyze a user's live financial data to provide up-to-date, accurate answers.
--   **Comprehensive Data Awareness**: The assistant is aware of all user data, including transactions, goals, and budget settings. It can handle a wide range of conversational queries.
--   **Core Capabilities**:
-    -   **Summaries**: Can summarize total spending, income, net balance, and spending breakdowns by category, account, or time period.
-    -   **Transaction Analysis**: Provides date-wise or month-wise transaction lists and can identify the highest or lowest spending categories.
-    -   **Goal Tracking**: Lists all financial goals, showing target amounts, current saved amounts, and progress percentages.
-    -   **Budget & Savings**: Computes savings allocations based on the user's defined salary and budget percentages.
--   **Natural Language Questions**: Can understand and process complex natural language questions like:
-    -   *"How much did I spend on Entertainment last month?"*
-    -   *"List my transactions in June."*
-    -   *"What's my Needs balance?"*
-    -   *"How close am I to completing my Emergency Fund goal?"*
--   **Dynamic Responses**: The AI can generate responses in various formats to best suit the user's query, including:
-    -   Clear text summaries.
-    -   Well-formatted Markdown tables.
--   **Conversational Context**:
-    -   Maintains chat history to understand follow-up questions and provide contextually relevant answers.
-    -   If a query is ambiguous, it will ask for clarification.
--   **User Experience**:
-    -   Features a persistent, scrollable chat history.
-    -   Includes friendly, natural language responses.
-    -   Provides graceful error messages if data is missing or a question cannot be answered.
--   **Underlying Tools**: The AI uses a set of tools to interact with Firebase data, including `getTransactionsTool`, `getGoalsTool`, `getSettingsTool`, and `getAccountsTool`.
-
----
 ## 8️⃣ Add Transaction Flow
 
 ## 8️⃣ Add Transaction Flow
@@ -142,24 +99,18 @@ The Visualizer AI is a core feature powered by Genkit and integrated with Fireba
 -   **Validation**: Each step includes validation to ensure data integrity before proceeding.
 
 ---
-## 9️⃣ Filters
 
 ## 9️⃣ Filters
 
--   **Functionality (Planned)**: The UI specification calls for robust filtering on all transaction-based pages.
+## 9️⃣ Filters
+
+-   **Functionality**: The app has robust filtering on all transaction-based pages.
 -   **Category Dropdown**: Allows filtering transactions by one or more categories.
--   **Date Range Picker**: An integrated calendar for selecting custom date ranges.
+-   **Date Range Picker**: An integrated calendar for selecting custom date ranges with presets.
 -   **Clear Filters**: A button to reset all active filters.
 
 ---
-## 10️⃣ Smart Calendar
 
-## 10️⃣ Smart Calendar
-
--   **Functionality (Planned)**: A future feature will include a smart calendar view.
--   **Behavior**: Days will be visually shaded based on whether spending was over or under a defined daily budget. Users will be able to drag to select date ranges for analysis.
-
----
 ## 11️⃣ Errors & Edge Cases
 
 ## 11️⃣ Errors & Edge Cases
@@ -176,13 +127,17 @@ The Visualizer AI is a core feature powered by Genkit and integrated with Fireba
     - **Issue**: A build error occurred (`Module not found: Can't resolve '../ui/avatar'`).
     - **Cause**: An incorrect relative path was used to import the `Avatar` component.
     - **Resolution**: The import path was corrected to use the `@/components/ui/avatar` alias.
+- **Map Initialization Errors**:
+    - **Issue**: The map components (both Leaflet and OpenLayers) were throwing initialization and "window not defined" errors.
+    - **Cause**: These libraries directly manipulate the DOM and are not compatible with Next.js's Server-Side Rendering (SSR).
+    - **Resolution**: The map component is now loaded using `next/dynamic` with `ssr: false` to ensure it only renders on the client-side, completely avoiding SSR-related issues.
 
 ---
 ## 12️⃣ Advice & Notes
 
 ## 12️⃣ Advice & Notes
 
--   **Charting Library**: The application currently uses `recharts`, which is the default for `shadcn/ui` charts. The UI specification mentions `Chart.js`. A decision should be made whether to stick with `recharts` for consistency or migrate to `Chart.js`.
+-   **Charting Library**: The application currently uses `recharts`, which is the default for `shadcn/ui` charts. 
 -   **Component Library**: Continue to use `shadcn/ui` components where possible to maintain a consistent design system.
 -   **Styling**: Use the `cn` utility function from `src/lib/utils.ts` for combining and managing Tailwind CSS classes.
 
@@ -192,15 +147,17 @@ The Visualizer AI is a core feature powered by Genkit and integrated with Fireba
 ## 13️⃣ Versioning & Changelog
 
 -   **v1.0.0 (Initial Version)**
-    -   Initial project setup with Next.js, React, Tailwind CSS, and Genkit.
+    -   Initial project setup with Next.js, React, Tailwind CSS.
     -   Basic app shell with a sidebar and main content area.
-    -   Placeholder pages for Dashboard, Accounts, Investments, Visualizer, and Settings.
+    -   Placeholder pages for Dashboard, Accounts, Investments, and Settings.
 -   **Changelog (Recent Updates)**:
     -   **UI Overhaul**: Implemented a new dark theme with a pinkish-neon accent. Applied glassmorphism effects to all cards, modals, and popups for a consistent, modern look.
     -   **Dashboard Redesign**: Added `BalanceOverview` and `SpendingChart` to the dashboard.
     -   **Account Page Layout**: Created a standardized `AccountPageLayout` with charts, now used by Needs, Wants, and Savings pages.
     -   **Investments Upgrade**: Added `PortfolioAllocation` and `GoalProgress` components.
-    -   **Bug Fixes**: Resolved multiple hydration errors, a chart container error, and a module import error.
+    -   **Map Feature**: Removed Leaflet and replaced it with OpenLayers for a stable, interactive transaction map.
+    -   **AI Removal**: Removed the Visualizer AI feature to streamline the application's focus on core financial tracking.
+    -   **Bug Fixes**: Resolved multiple hydration errors, chart container errors, module import errors, and map initialization errors.
     -   **Layout Fix**: Corrected sidebar layout issues to prevent the main content from overlapping with the sidebar.
     -   **Firebase Integration**: Connected the app to Firebase Realtime Database for live data synchronization. Added data seeding and clearing functionality.
-    -   **AI Upgrade**: Transformed the AI into a `financialAssistant` that uses tools to fetch and analyze live data from Firebase, providing conversational and data-rich responses.
+    

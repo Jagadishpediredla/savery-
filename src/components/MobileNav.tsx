@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { LayoutDashboard, Wallet, Plus, MapPin } from 'lucide-react';
+import { LayoutDashboard, Wallet, Plus, MapPin, CandlestickChart } from 'lucide-react';
 import { Button } from './ui/button';
 
 
