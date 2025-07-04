@@ -1,64 +1,75 @@
-# 1️⃣ Savvy Saver v1.0.0
+# Savvy Saver v2.0.0
 
 ## 2️⃣ Overall Objective
 Savvy Saver is a modern, responsive personal finance tracker designed to provide users with a clear and insightful overview of their financial health. It helps users manage their money by summarizing accounts, tracking spending trends, visualizing data through interactive charts, and offering personalized insights via an integrated AI assistant.
 
 ---
+## Table of Contents
 
-## 3️⃣ Feature List
+## 3️⃣ Features & Functionality
 
--   **Dashboard**: Summarizes total balance and balances for individual account types. Features a spending trend area chart and a balance overview pie chart. Displays a list of recent transactions.
--   **Account Detail Pages (Needs, Wants, Savings)**: Each account page provides a dedicated view with a category breakdown pie chart, a spending trend line chart, and a filterable list of transactions for that specific account.
--   **Investments Page**: Tracks investment goals and portfolio allocation. Includes transaction history, goal progress bars, and a portfolio allocation tool with sliders and a live-updating pie chart.
--   **Visualizer AI**: A chat-based assistant that can answer questions about finances, generate charts, and provide summaries. The interface features a welcome card to guide new users.
--   **Settings Page**: Allows users to set their monthly salary and define their budget by allocating percentages to Needs, Wants, and Investments. The Savings percentage is calculated automatically, and the allocation is visualized with a live pie chart.
--   **Add Transaction Modal**: A floating action button opens a sleek, multi-step modal for adding new transactions with fields for type, amount, date, account, category, and notes.
+Savvy Saver offers a comprehensive suite of features to help users manage their finances effectively:
 
----
+*   **Unified Dashboard:** Provides a central hub with a summary of total balance, individual account balances, spending trends, and recent transactions. The redesign includes enhanced charts and a cleaner layout.
+*   **Account Management:** Dedicated pages for "Needs," "Wants," and "Savings" allow users to track spending within specific financial categories. Each page utilizes a standardized layout with relevant charts and a filterable transaction list.
+*   **Investments Tracking:** Manage investment goals and visualize portfolio allocation. The upgraded investments page includes goal progress tracking and an interactive allocation tool.
+*   **Interactive Visualizer AI:** A powerful AI assistant that provides personalized financial insights based on live user data. It can summarize information, analyze transactions, track goals, and understand natural language queries.
+*   **Settings Customization:** Configure monthly salary and define budget allocations for "Needs," "Wants," and "Investments" with a real-time visual representation of the budget distribution.
+*   **Streamlined Transaction Entry:** A multi-step modal with a floating action button simplifies adding new transactions. The modal includes fields for date, type, amount, account, category, and notes, with planned features for AI-powered category suggestions.
+*   **Support Page:** A new dedicated page provides resources and tools for user support.
 
-## 4️⃣ Charts & Visualizations
 
--   **Spending Trend (Dashboard)**
-    -   **Location**: Dashboard Page
-    -   **Type**: Area Chart
-    -   **Data**: Compares monthly spending across Needs, Wants, and Investments categories.
-    -   **Style**: Stacked areas with gradient fills and smooth, curved lines.
--   **Balance Overview (Dashboard)**
-    -   **Location**: Dashboard Page
-    -   **Type**: Pie Chart
-    -   **Data**: Shows the distribution of the total balance across all account types (Needs, Wants, Savings, Investments).
--   **Category Breakdown (Account Pages)**
-    -   **Location**: Needs, Wants, Savings Pages
-    -   **Type**: Pie Chart
-    -   **Data**: Displays spending distribution by category for the specific account being viewed.
--   **Spending Trend (Account Pages)**
-    -   **Location**: Needs, Wants, Savings Pages
-    -   **Type**: Line Chart
-    -   **Data**: Shows the total monthly spending trend for the specific account.
--   **Portfolio Allocation (Investments)**
-    -   **Location**: Investments Page
-    -   **Type**: Pie Chart
-    -   **Data**: Visualizes the user-defined Debt to Equity ratio from the allocation sliders.
--   **Budget Allocation (Settings)**
-    -   **Location**: Settings Page
-    -   **Type**: Pie Chart
-    -   **Data**: Provides a live visualization of the user's defined budget allocation as they adjust the sliders.
 
 ---
 
-## 5️⃣ Design & UI Language
+## 4️⃣ UI Elements & Design System
+
+Savvy Saver features a modern and consistent user interface:
 
 -   **Theme**: A premium, modern dark-mode UI is the primary theme.
 -   **Colors**: The palette features a deep, nearly-black background (`#0d0c12`), high-contrast light text, and a vibrant neon/pinkish accent (`#e11d48`) for interactive elements, highlights, and active states.
 -   **Glassmorphism**: Key UI elements like modals, cards, and popovers use a semi-transparent, blurred "frosted glass" effect. This is achieved with `bg-card/60`, `backdrop-blur-lg`, and similar Tailwind CSS classes.
 -   **Layout**: The app uses a responsive, grid-based layout with consistent padding and spacing to ensure a clean and organized look on all devices.
+-   **Unified Navigation:** Consistent navigation across the application for improved user experience.
 -   **Style**: All elements feature soft, rounded corners and subtle drop shadows to create a sense of depth and elevation.
 -   **Typography**: The app uses the 'Inter' sans-serif font for body text and headlines, and 'Source Code Pro' for code snippets, ensuring high readability.
+-   **Style**: All elements feature soft, rounded corners and subtle drop shadows to create a sense of depth and elevation.
 -   **Interactivity**: Interactive elements provide clear feedback with a soft glow or border highlight on hover and focus states, with smooth, non-abrupt transitions.
+*   **Consistent Styling:** Application of the new design spec ensures a cohesive visual experience throughout the app.
 
 ---
 
-## 6️⃣ Backend & Environments
+## 5️⃣ Charts & Visualizations
+
+The app utilizes various charts to visualize financial data:
+
+*   **Spending Trend (Dashboard):** An area chart comparing monthly spending across Needs, Wants, and Investments categories. (Stacked areas with gradient fills and smooth, curved lines)
+*   **Balance Overview (Dashboard):** A pie chart showing the distribution of the total balance across all account types.
+*   **Category Breakdown (Account Pages):** Pie charts displaying spending distribution by category for specific accounts.
+*   **Spending Trend (Account Pages):** Line charts showing the total monthly spending trend for individual accounts.
+*   **Portfolio Allocation (Investments):** A pie chart visualizing the user-defined Debt to Equity ratio.
+*   **Budget Allocation (Settings):** A live pie chart showing the user's defined budget allocation.
+*   **Support Page Charts:** Includes charts such as "New vs Returned Users," "Tickets by Day," "Tickets by Type," "Tickets Created," and "Tickets Time."
+
+
+---
+
+## 6️⃣ AI Assistant Details
+
+The Visualizer AI is a core feature powered by Genkit and integrated with Firebase:
+
+*   **Live Data Integration:** The AI assistant fetches and analyzes live financial data from Firebase Realtime Database to provide accurate and up-to-date responses.
+*   **Comprehensive Data Awareness:** The assistant is aware of user transactions, goals, and budget settings.
+*   **Core Capabilities:** Can summarize spending, analyze transactions, track goals, and compute savings allocations.
+*   **Natural Language Processing:** Understands complex natural language queries about financial data.
+*   **Dynamic Responses:** Generates responses in various formats, including text summaries and Markdown tables.
+*   **Conversational Context:** Maintains chat history for follow-up questions.
+*   **Underlying Tools:** Uses tools like `getTransactionsTool`, `getGoalsTool`, `getSettingsTool`, and `getAccountsTool` to interact with Firebase data.
+
+---
+## 7️⃣ Backend & Environments
+
+## 7️⃣ Backend & Environments
 
 -   **Firebase**: The app uses Firebase for backend services. The configuration is stored in `src/lib/firebase.ts`.
     ```javascript
@@ -89,6 +100,7 @@ Savvy Saver is a modern, responsive personal finance tracker designed to provide
 -   **Genkit**: AI functionality is powered by Genkit, configured to use Google AI's `gemini-2.0-flash` model.
 
 ---
+## 7️⃣ AI Assistant Features
 
 ## 7️⃣ AI Assistant Features
 
@@ -117,6 +129,7 @@ Savvy Saver is a modern, responsive personal finance tracker designed to provide
 -   **Underlying Tools**: The AI uses a set of tools to interact with Firebase data, including `getTransactionsTool`, `getGoalsTool`, `getSettingsTool`, and `getAccountsTool`.
 
 ---
+## 8️⃣ Add Transaction Flow
 
 ## 8️⃣ Add Transaction Flow
 
@@ -129,6 +142,7 @@ Savvy Saver is a modern, responsive personal finance tracker designed to provide
 -   **Validation**: Each step includes validation to ensure data integrity before proceeding.
 
 ---
+## 9️⃣ Filters
 
 ## 9️⃣ Filters
 
@@ -138,6 +152,7 @@ Savvy Saver is a modern, responsive personal finance tracker designed to provide
 -   **Clear Filters**: A button to reset all active filters.
 
 ---
+## 10️⃣ Smart Calendar
 
 ## 10️⃣ Smart Calendar
 
@@ -145,6 +160,7 @@ Savvy Saver is a modern, responsive personal finance tracker designed to provide
 -   **Behavior**: Days will be visually shaded based on whether spending was over or under a defined daily budget. Users will be able to drag to select date ranges for analysis.
 
 ---
+## 11️⃣ Errors & Edge Cases
 
 ## 11️⃣ Errors & Edge Cases
 
@@ -162,6 +178,7 @@ Savvy Saver is a modern, responsive personal finance tracker designed to provide
     - **Resolution**: The import path was corrected to use the `@/components/ui/avatar` alias.
 
 ---
+## 12️⃣ Advice & Notes
 
 ## 12️⃣ Advice & Notes
 
@@ -170,6 +187,7 @@ Savvy Saver is a modern, responsive personal finance tracker designed to provide
 -   **Styling**: Use the `cn` utility function from `src/lib/utils.ts` for combining and managing Tailwind CSS classes.
 
 ---
+## 13️⃣ Versioning & Changelog
 
 ## 13️⃣ Versioning & Changelog
 

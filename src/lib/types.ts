@@ -37,3 +37,8 @@ export interface Settings {
   investmentsPercentage: number;
   savingsPercentage: number;
 }
+
+export interface AiChatMessage {
+  role: 'user' | 'model';
+  content: string;
+}

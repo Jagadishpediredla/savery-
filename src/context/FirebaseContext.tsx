@@ -1,12 +1,13 @@
 
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
-import { ref, onValue, push, set } from 'firebase/database';
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
+import { ref, onValue, push, set, remove } from 'firebase/database';
 import { db } from '@/lib/firebase';
-import type { Transaction, Account, Goal, Settings } from '@/lib/types';
+import type { Transaction, Account, Goal, Settings, AiChatMessage } from '@/lib/types';
 import { mockAccounts as accountDefinitions } from '@/data/mock-data';
 import { seedDatabase, clearDatabase } from '@/lib/seed';
+import { financialAssistant } from '@/ai/flows/financial-assistant-flow';
 
 // Hardcoded user ID for now. In a real app, this would come from an auth system.
 const userId = 'user1';
@@ -17,8 +18,11 @@ interface FirebaseContextType {
     goals: Goal[];
     settings: Settings;
     loading: boolean;
+    aiHistory: AiChatMessage[];
     addTransaction: (transaction: Omit<Transaction, 'id'>) => Promise<void>;
     updateSettings: (settings: Omit<Settings, 'savingsPercentage'>) => Promise<void>;
+    sendChatMessage: (prompt: string) => Promise<void>;
+    clearAiHistory: () => Promise<void>;
     seedDatabase: () => Promise<void>;
     clearDatabase: () => Promise<void>;
 }
@@ -35,12 +39,14 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         investmentsPercentage: 15,
         savingsPercentage: 5,
     });
+    const [aiHistory, setAiHistory] = useState<AiChatMessage[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const transactionsRef = ref(db, `users/${userId}/transactions`);
         const goalsRef = ref(db, `users/${userId}/goals`);
         const settingsRef = ref(db, `users/${userId}/settings`);
+        const aiHistoryRef = ref(db, `users/${userId}/aiHistory`);
 
         const unsubscribeTransactions = onValue(transactionsRef, (snapshot) => {
             const data = snapshot.val();
@@ -86,20 +92,25 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
             }
         });
 
+        const unsubscribeAiHistory = onValue(aiHistoryRef, (snapshot) => {
+            const data = snapshot.val();
+            const historyArray: AiChatMessage[] = data ? Object.values(data) : [];
+            setAiHistory(historyArray);
+        });
+
         return () => {
             unsubscribeTransactions();
             unsubscribeGoals();
             unsubscribeSettings();
+            unsubscribeAiHistory();
         };
     }, []);
 
     const accounts = useMemo(() => {
         const balanceMap = new Map<string, number>();
 
-        // Initialize balances from definitions, though transactions are the source of truth
         accountDefinitions.forEach(acc => balanceMap.set(acc.name, 0));
 
-        // Calculate balances from transactions
         transactions.forEach(t => {
             const currentBalance = balanceMap.get(t.account) ?? 0;
             if (t.type === 'Credit') {
@@ -117,7 +128,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
     }, [transactions]);
 
 
-    const addTransaction = async (transaction: Omit<Transaction, 'id'>) => {
+    const addTransaction = useCallback(async (transaction: Omit<Transaction, 'id'>) => {
         const account = accountDefinitions.find(a => a.name === transaction.account);
         if (!account) {
             console.error("Account definition not found for:", transaction.account);
@@ -128,29 +139,76 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         const year = txDate.getFullYear();
         const month = (txDate.getMonth() + 1).toString().padStart(2, '0');
         const day = txDate.getDate().toString().padStart(2, '0');
-
+        
         const path = `users/${userId}/transactions/${account.type}/${year}/${month}/${day}`;
         const transactionNodeRef = ref(db, path);
         const newTransactionRef = push(transactionNodeRef);
         await set(newTransactionRef, transaction);
-    };
+    }, []);
 
-    const updateSettings = async (newSettings: Omit<Settings, 'savingsPercentage'>) => {
+    const updateSettings = useCallback(async (newSettings: Omit<Settings, 'savingsPercentage'>) => {
         const settingsRef = ref(db, `users/${userId}/settings`);
         await set(settingsRef, newSettings);
-    };
+    }, []);
 
-    const value = {
+    const sendChatMessage = useCallback(async (prompt: string) => {
+        const userMessage: AiChatMessage = { role: 'user', content: prompt };
+        
+        // Use a functional update to get the latest history
+        let latestHistory: AiChatMessage[] = [];
+        setAiHistory(currentHistory => {
+            latestHistory = [...currentHistory, userMessage];
+            return latestHistory;
+        });
+
+        // Save user message to Firebase
+        const historyRef = ref(db, `users/${userId}/aiHistory`);
+        const userMessageRef = push(historyRef);
+        await set(userMessageRef, userMessage);
+        
+        // Format for Genkit flow (exclude the message we just added)
+        const flowHistory = latestHistory.slice(0, -1).map(msg => ({
+            role: msg.role,
+            content: [{ text: msg.content }]
+        }));
+
+        try {
+            // Call AI
+            const responseText = await financialAssistant({ prompt, history: flowHistory });
+            const modelMessage: AiChatMessage = { role: 'model', content: responseText };
+
+            // Save model response to Firebase
+            const modelMessageRef = push(historyRef);
+            await set(modelMessageRef, modelMessage);
+            // UI will update via the onValue listener
+        } catch (error) {
+            console.error("AI Assistant Error:", error);
+            const errorMessage: AiChatMessage = { role: 'model', content: "Sorry, I encountered an error. Please try again." };
+             const errorRef = push(historyRef);
+            await set(errorRef, errorMessage);
+        }
+    }, []);
+
+    const clearAiHistory = useCallback(async () => {
+        const historyRef = ref(db, `users/${userId}/aiHistory`);
+        await remove(historyRef);
+    }, []);
+
+
+    const value = useMemo(() => ({
         transactions,
         accounts,
         goals,
         settings,
         loading,
+        aiHistory,
         addTransaction,
         updateSettings,
+        sendChatMessage,
+        clearAiHistory,
         seedDatabase,
         clearDatabase,
-    };
+    }), [transactions, accounts, goals, settings, loading, aiHistory, addTransaction, updateSettings, sendChatMessage, clearAiHistory]);
 
     return <FirebaseContext.Provider value={value}>{children}</FirebaseContext.Provider>;
 };

@@ -6,6 +6,7 @@ import { useFirebase } from "@/context/FirebaseContext";
 import CountUp from "react-countup";
 import { Skeleton } from "../ui/skeleton";
 import { Shield, ShoppingBag, PiggyBank, CandlestickChart } from "lucide-react";
+import AutoSizer from 'react-virtualized-auto-sizer';
 import { DashboardStatCard } from "./DashboardStatCard";
 
 export function TotalBalanceCard() {
@@ -34,17 +35,28 @@ export function TotalBalanceCard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             <Card className="col-span-1 md:col-span-2 lg:col-span-1 p-6 flex flex-col justify-center bg-card/60 backdrop-blur-lg">
                 <CardHeader className="p-0">
-                    <CardDescription>Total Balance</CardDescription>
-                    <CardTitle className="text-4xl font-bold">
-                         <CountUp
-                            start={0}
-                            end={totalBalance}
-                            duration={1.5}
-                            separator=","
-                            prefix="₹"
-                            decimals={2}
-                        />
+                    <CardDescription className="whitespace-nowrap">Total Balance</CardDescription>
+                    <CardTitle className="text-4xl font-bold overflow-hidden" style={{ minHeight: '1em' }}> {/* Added minHeight to prevent collapse */}
+                         <AutoSizer disableHeight>
+                            {({ width }) => {
+                                // Simple dynamic font sizing based on container width.
+                                // You might need a more sophisticated calculation based on text length.
+                                const fontSize = Math.min(48, width / 10); 
+                                return (
+                                    <span style={{ fontSize: `${fontSize}px` }}>
+                                        <CountUp
+                                            start={0}
+                                            end={totalBalance}
+                                            duration={1.5}
+                                            separator=","
+                                            prefix="₹"
+                                            decimals={2} />
+                                    </span>
+                                );
+                            }}
+                         </AutoSizer>
                     </CardTitle>
+
                 </CardHeader>
             </Card>
 

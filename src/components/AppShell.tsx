@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -6,7 +7,6 @@ import {
   Wallet,
   CandlestickChart,
   Bot,
-  Plus,
   PanelLeft,
   LayoutGrid,
 } from 'lucide-react';
@@ -26,10 +26,10 @@ const mainNavItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/accounts', icon: Wallet, label: 'Accounts' },
   { href: '/investments', icon: CandlestickChart, label: 'Investments' },
+  { href: '/visualizer', icon: Bot, label: 'AI' },
 ];
 
 const analyticsNavItems = [
-  { href: '/visualizer', icon: Bot, label: 'Visualizer AI' },
   { href: '/support', icon: LayoutGrid, label: 'Analytics' },
 ];
 
@@ -79,7 +79,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="absolute bottom-0 left-0 w-full p-4 space-y-2 border-t bg-card/80 backdrop-blur-lg">
               <NavItem item={settingsNavItem} isExpanded={true} />
               <Button variant="gradient" className="w-full" onClick={() => setIsModalOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
+                  {/* <Plus className="h-4 w-4 mr-2" /> */}
                   Add Transaction
               </Button>
             </div>

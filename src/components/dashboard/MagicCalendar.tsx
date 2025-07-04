@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type ComponentPropsWithRef } from 'react';
 import type { DayProps, DayPicker } from 'react-day-picker';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Calendar } from '@/components/ui/calendar';
@@ -62,10 +62,9 @@ export function MagicCalendar() {
         : [];
 
     
-    function DayWithDots(props: DayProps) {
+    function DayWithDots(props: ComponentPropsWithRef<'button'> & DayProps & { date: Date }) {
         const dateStr = format(props.date, 'yyyy-MM-dd');
         const transactionTypes = transactionsByDate.get(dateStr);
-        // The default `Day` component is retrieved from the context.
         const { Day } = (props.components || {}) as DayPicker['components'];
         if(!Day) return <></>; // Should not happen with react-day-picker
 
@@ -99,8 +98,9 @@ export function MagicCalendar() {
                             Day: DayWithDots,
                         }}
                         classNames={{
-                           day_selected: "bg-primary text-primary-foreground hover:bg-primary/90",
-                           day_today: "text-accent-foreground rounded-full bg-accent/50",
+                            day: "text-foreground", // Ensure default day text is visible
+                            day_selected: "bg-primary text-primary-foreground hover:bg-primary/90",
+                            day_today: "text-accent-foreground rounded-full bg-accent/50",
                         }}
                     />
                     <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4 text-xs text-muted-foreground">
