@@ -3,7 +3,7 @@
 
 import { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Dot } from 'recharts';
 import type { Transaction } from '@/lib/types';
 import { format, parseISO, eachDayOfInterval, isSameDay, startOfMonth, endOfMonth } from 'date-fns';
@@ -89,9 +89,9 @@ export function DailyTrendDialog({ isOpen, onOpenChange, transactions, displayMo
                     </DialogDescription>
                 </DialogHeader>
                 <div className="h-1/2 flex-shrink-0">
-                    <ScrollArea className="w-full h-full whitespace-nowrap">
-                         <div className="w-full h-full pr-6" style={{ minWidth: '1200px' }}>
-                            <ChartContainer config={{}} className="h-full">
+                    <ScrollArea className="w-full h-full">
+                        <div className="w-full h-full" style={{ minWidth: '1200px' }}>
+                            <ChartContainer config={{}} className="h-full pr-6">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -103,6 +103,7 @@ export function DailyTrendDialog({ isOpen, onOpenChange, transactions, displayMo
                                 </ResponsiveContainer>
                             </ChartContainer>
                         </div>
+                        <ScrollBar orientation="horizontal" />
                     </ScrollArea>
                 </div>
                  <div className="flex-1 flex flex-col overflow-hidden">
