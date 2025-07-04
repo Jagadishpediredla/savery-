@@ -10,6 +10,7 @@ import { TransactionList } from "@/components/dashboard/TransactionList";
 import { GoalsOverview } from "@/components/dashboard/GoalsOverview";
 import { BucketSummaryCard } from "@/components/dashboard/BucketSummaryCard";
 import { SpendingChart } from "@/components/dashboard/SpendingChart";
+import { TopSpendingCategories } from "@/components/dashboard/TopSpendingCategories";
 import { TransactionFilters } from "@/components/transactions/TransactionFilters";
 import type { BucketType } from "@/lib/types";
 import { isWithinInterval, parseISO } from "date-fns";
@@ -31,6 +32,7 @@ const LoadingSkeleton = () => (
             <Skeleton className="lg:col-span-2 h-80" />
             <Skeleton className="h-80" />
         </div>
+        <Skeleton className="h-80 w-full" />
     </div>
 );
 
@@ -97,6 +99,12 @@ export default function DashboardPage() {
         });
     }, [transactions, filters]);
     
+    const recentTransactions = useMemo(() => {
+        return [...transactions]
+            .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+            .slice(0, 5);
+    }, [transactions]);
+    
     if (loading) {
         return (
             <PageWrapper>
@@ -119,6 +127,21 @@ export default function DashboardPage() {
                      <GoalsOverview />
                 </div>
                 
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2">
+                        <Card className="h-full bg-card/60 backdrop-blur-lg">
+                            <CardHeader>
+                                <CardTitle>Recent Transactions</CardTitle>
+                                <CardDescription>Your last 5 transactions.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <TransactionList transactions={recentTransactions} />
+                            </CardContent>
+                        </Card>
+                    </div>
+                    <TopSpendingCategories />
+                </div>
+
                 <Card className="col-span-1 lg:col-span-3 bg-card/60 backdrop-blur-lg">
                     <CardHeader>
                         <CardTitle>Transaction History</CardTitle>
