@@ -3,7 +3,7 @@
 
 import { ref, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
-import type { Transaction, Goal, Settings, Account } from '@/lib/types';
+import type { Transaction, Goal, Settings, Account, BucketType } from '@/lib/types';
 import { mockAccounts } from '@/data/mock-data';
 
 const userId = 'user1'; // Hardcoded for now
@@ -27,8 +27,10 @@ export async function getTransactions(): Promise<Transaction[]> {
                     transactionsArray.push({
                         id: txnId,
                         ...tx,
+                        // Explicitly add the bucket from the DB path
+                        bucket: bucket as BucketType,
                         // Ensure account field is populated for older seed data
-                        account: tx.account || accountTypeMap.get(tx.bucket) || 'Unknown'
+                        account: tx.account || accountTypeMap.get(tx.bucket as BucketType) || 'Unknown'
                     })
                  }
             }

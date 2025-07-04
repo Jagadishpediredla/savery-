@@ -4,11 +4,18 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
 import { ref, onValue, push, set, remove, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
-import type { Transaction, Bucket, Goal, Settings, AiChatMessage } from '@/lib/types';
+import type { Transaction, Bucket, Goal, Settings, AiChatMessage, BucketType } from '@/lib/types';
 import { seedDatabase as seedDb, clearDatabase as clearDb } from '@/lib/seed';
 import { financialAssistant } from '@/ai/flows/financial-assistant-flow';
+import { useToast } from '@/hooks/use-toast';
+import { mockAccounts } from '@/data/mock-data';
 
 const userId = 'user1';
+
+// The form provides the account name, but not the bucket. 
+// We derive the bucket from the account in the addTransaction function.
+type AddTransactionInput = Omit<Transaction, 'id' | 'bucket' | 'monthlySalary' | 'allocationPercentage'> & { account: string };
+
 
 interface FirebaseContextType {
     transactions: Transaction[];
@@ -17,7 +24,7 @@ interface FirebaseContextType {
     settings: Settings;
     loading: boolean;
     aiHistory: AiChatMessage[];
-    addTransaction: (transaction: Omit<Transaction, 'id' | 'monthlySalary' | 'allocationPercentage'>) => Promise<void>;
+    addTransaction: (transaction: AddTransactionInput) => Promise<void>;
     updateSettings: (newSettings: Omit<Settings, 'savingsPercentage'>) => Promise<void>;
     sendChatMessage: (prompt: string) => Promise<void>;
     clearAiHistory: () => Promise<void>;
@@ -39,6 +46,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
     });
     const [aiHistory, setAiHistory] = useState<AiChatMessage[]>([]);
     const [loading, setLoading] = useState(true);
+    const { toast } = useToast();
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -67,6 +75,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
                                 allTransactions.push({
                                     id: txnId,
                                     ...dailyTransactions[txnId],
+                                    bucket: bucket as BucketType,
                                 })
                              }
                         }
@@ -100,7 +109,20 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         fetchData();
     }, [fetchData]);
 
-    const addTransaction = useCallback(async (transaction: Omit<Transaction, 'id'| 'monthlySalary' | 'allocationPercentage'>) => {
+    const addTransaction = useCallback(async (transaction: AddTransactionInput) => {
+        const accountToBucketMap = new Map<string, BucketType>(mockAccounts.map(acc => [acc.name, acc.type]));
+        const bucket = accountToBucketMap.get(transaction.account);
+
+        if (!bucket) {
+            console.error(`Could not find bucket for account: ${transaction.account}`);
+            toast({
+                variant: 'destructive',
+                title: 'Invalid Account',
+                description: `Could not determine the financial bucket for ${transaction.account}.`
+            });
+            return;
+        }
+
         const txDate = new Date(transaction.date);
         const year = txDate.getFullYear();
         const month = (txDate.getMonth() + 1).toString().padStart(2, '0');
@@ -124,21 +146,36 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
             'Wants': currentSettings.wantsPercentage,
             'Investments': currentSettings.investmentsPercentage,
             'Savings': 100 - (currentSettings.needsPercentage + currentSettings.wantsPercentage + currentSettings.investmentsPercentage),
-        }
+        };
 
         const fullTransaction: Omit<Transaction, 'id'> = {
             ...transaction,
+            bucket: bucket,
             monthlySalary: currentSettings.monthlySalary,
-            allocationPercentage: allocationMap[transaction.bucket] || 0
+            allocationPercentage: allocationMap[bucket] || 0
         };
+        
+        const removeUndefined = (obj: any): any => {
+            const newObj: { [key: string]: any } = {};
+            for (const key in obj) {
+                if (obj[key] !== undefined) {
+                    if (obj[key] && typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+                        newObj[key] = removeUndefined(obj[key]);
+                    } else {
+                        newObj[key] = obj[key];
+                    }
+                }
+            }
+            return newObj;
+        };
+        
+        const sanitizedTransaction = removeUndefined(fullTransaction);
 
-        const sanitizedTransaction = JSON.parse(JSON.stringify(fullTransaction));
-
-        const path = `users/${userId}/transactions/${year}/${month}/${transaction.bucket}`;
+        const path = `users/${userId}/transactions/${year}/${month}/${bucket}`;
         const transactionNodeRef = ref(db, path);
         const newTransactionRef = push(transactionNodeRef);
         await set(newTransactionRef, sanitizedTransaction);
-    }, []);
+    }, [toast]);
 
 
     const updateSettings = useCallback(async (newSettings: Omit<Settings, 'savingsPercentage'>) => {
@@ -235,7 +272,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         clearAiHistory,
         seedDatabase: () => seedDb(),
         clearDatabase: () => clearDb(),
-    }), [transactions, buckets, goals, settings, loading, aiHistory, addTransaction, updateSettings, sendChatMessage, clearAiHistory]);
+    }), [transactions, buckets, goals, settings, loading, aiHistory, addTransaction, updateSettings, sendChatMessage, clearAiHistory, toast]);
 
     return <FirebaseContext.Provider value={value}>{children}</FirebaseContext.Provider>;
 };

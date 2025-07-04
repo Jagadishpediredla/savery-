@@ -19,7 +19,6 @@ import { useFirebase } from '@/context/FirebaseContext';
 import { useMemo } from 'react';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { format, parseISO, startOfMonth } from 'date-fns';
-import { mockAccounts } from '@/data/mock-data';
 
 const chartConfig = {
   needs: { label: 'Needs', color: 'hsl(var(--chart-3))' },
@@ -31,8 +30,6 @@ export function SpendingChart() {
   const { transactions } = useFirebase();
 
   const monthlyBreakdown = useMemo(() => {
-    const accountTypeMap = new Map(mockAccounts.map(acc => [acc.name, acc.type]));
-    
     const monthlyData: { [key: string]: { Needs: number, Wants: number, Investments: number, Savings: number } } = {};
 
     transactions.forEach(t => {
@@ -41,7 +38,7 @@ export function SpendingChart() {
         if (!monthlyData[month]) {
           monthlyData[month] = { Needs: 0, Wants: 0, Investments: 0, Savings: 0 };
         }
-        const accountType = accountTypeMap.get(t.account);
+        const accountType = t.bucket;
         if (accountType && (accountType === 'Needs' || accountType === 'Wants' || accountType === 'Investments')) {
           monthlyData[month][accountType] += t.amount;
         }
