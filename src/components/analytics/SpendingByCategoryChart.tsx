@@ -4,7 +4,7 @@
 import { Pie, PieChart, ResponsiveContainer, Cell } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from "@/components/ui/chart";
 import { useMemo } from "react";
-import type { Transaction } from "@/lib/types";
+import type { Transaction, BucketType } from "@/lib/types";
 import { isSameMonth, parseISO } from 'date-fns';
 
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
@@ -12,13 +12,19 @@ const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3
 interface SpendingByCategoryChartProps {
     transactions: Transaction[];
     displayMonth: Date;
+    bucketType?: BucketType; // Optional bucketType
 }
 
-export function SpendingByCategoryChart({ transactions, displayMonth }: SpendingByCategoryChartProps) {
+export function SpendingByCategoryChart({ transactions, displayMonth, bucketType }: SpendingByCategoryChartProps) {
     const { chartData, chartConfig } = useMemo(() => {
         const categoryMap = new Map<string, number>();
 
-        const debitTransactions = transactions.filter(t => t.type === 'Debit' && isSameMonth(parseISO(t.date), displayMonth));
+        const monthTransactions = transactions.filter(t => 
+            isSameMonth(parseISO(t.date), displayMonth) &&
+            (!bucketType || t.bucket === bucketType)
+        );
+
+        const debitTransactions = monthTransactions.filter(t => t.type === 'Debit');
 
         debitTransactions.forEach(t => {
             const category = t.category || 'Other';
@@ -44,7 +50,7 @@ export function SpendingByCategoryChart({ transactions, displayMonth }: Spending
         });
         
         return { chartData: data, chartConfig: config };
-    }, [transactions, displayMonth]);
+    }, [transactions, displayMonth, bucketType]);
     
     if (chartData.length === 0) {
         return <div className="flex h-80 w-full items-center justify-center text-muted-foreground">No spending data for this period.</div>;
@@ -78,7 +84,7 @@ export function SpendingByCategoryChart({ transactions, displayMonth }: Spending
                     </Pie>
                     <ChartLegend
                         content={<ChartLegendContent nameKey="name" />}
-                        className="flex-wrap gap-2 [&>*]:basis-1/3 [&>*]:justify-center"
+                        className="flex-wrap gap-2 [&>*]:justify-center"
                     />
                 </PieChart>
             </ResponsiveContainer>
