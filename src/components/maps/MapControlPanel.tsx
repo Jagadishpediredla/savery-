@@ -25,9 +25,9 @@ export function MapControlPanel({ transactions, onTransactionClick, isVisible }:
                     animate={{ x: 0 }}
                     exit={{ x: '100%' }}
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
-                    className="absolute top-0 right-0 h-full w-full max-w-sm p-4 pointer-events-auto"
+                    className="absolute top-0 right-0 h-full w-full max-w-sm p-4 pointer-events-none"
                 >
-                    <Card className="h-full flex flex-col bg-card/80 backdrop-blur-lg">
+                    <Card className="h-full flex flex-col bg-card/80 backdrop-blur-lg pointer-events-auto">
                         <CardHeader>
                             <CardTitle>Transactions</CardTitle>
                             <CardDescription>Click a transaction to view it on the map.</CardDescription>

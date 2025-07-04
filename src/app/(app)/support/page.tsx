@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
-import { PageWrapper } from "@/components/PageWrapper";
+import { useState, useMemo, useRef } from 'react';
+import type { Map } from 'ol';
 import { useFirebase } from "@/context/FirebaseContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -116,60 +116,55 @@ export default function MapsPage() {
 
     if (loading) {
         return (
-            <PageWrapper>
+            <div className="space-y-8">
                 <MapLoadingSkeleton />
-            </PageWrapper>
+            </div>
         );
     }
     
     return (
-        <PageWrapper>
-            <div className="space-y-8">
-                <header>
-                    <h1 className="text-3xl font-bold tracking-tight">Transaction Map</h1>
-                    <p className="text-muted-foreground">
-                        Visualize where your transactions occur. Use the filters below to refine your view.
-                    </p>
-                </header>
-                
-                <Card className={cn(
-                    "bg-card/60 backdrop-blur-lg h-[400px] transition-all duration-300",
-                     isMapFullscreen && "h-[calc(100vh-220px)]"
-                )}>
-                    <CardContent className="p-2 md:p-4 h-full w-full">
-                        <MapView 
-                          transactions={filteredTransactions}
-                          center={mapCenter}
-                          zoom={mapZoom}
-                          onViewChange={() => { setMapCenter(undefined); setMapZoom(undefined); }}
-                          isFullscreen={isMapFullscreen}
-                          onToggleFullscreen={() => setIsMapFullscreen(!isMapFullscreen)}
+        <div className="space-y-8">
+            <header>
+                <h1 className="text-3xl font-bold tracking-tight">Transaction Map</h1>
+                <p className="text-muted-foreground">
+                    Visualize where your transactions occur. Use the filters below to refine your view.
+                </p>
+            </header>
+            
+            <Card className="bg-card/60 backdrop-blur-lg h-[400px]">
+                <CardContent className="p-2 md:p-4 h-full w-full">
+                    <MapView 
+                        transactions={filteredTransactions}
+                        center={mapCenter}
+                        zoom={mapZoom}
+                        onViewChange={() => { setMapCenter(undefined); setMapZoom(undefined); }}
+                        isFullscreen={isMapFullscreen}
+                        onToggleFullscreen={() => setIsMapFullscreen(!isMapFullscreen)}
+                    />
+                </CardContent>
+            </Card>
+            
+            {!isMapFullscreen && (
+                <Card className="bg-card/60 backdrop-blur-lg">
+                    <CardHeader>
+                        <CardTitle>Transaction History</CardTitle>
+                        <CardDescription>A complete log of your financial activities.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <TransactionFilters
+                            filters={filters}
+                            onFilterChange={handleFilterChange}
+                            categories={allUniqueCategories}
+                            clearFilters={clearFilters}
+                            bucketTypes={['All', 'Needs', 'Wants', 'Savings', 'Investments']}
+                        />
+                        <TransactionList 
+                            transactions={filteredTransactions}
+                            onTransactionClick={handleTransactionClick}
                         />
                     </CardContent>
                 </Card>
-                
-                {!isMapFullscreen && (
-                    <Card className="bg-card/60 backdrop-blur-lg">
-                        <CardHeader>
-                            <CardTitle>Transaction History</CardTitle>
-                            <CardDescription>A complete log of your financial activities.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <TransactionFilters
-                                filters={filters}
-                                onFilterChange={handleFilterChange}
-                                categories={allUniqueCategories}
-                                clearFilters={clearFilters}
-                                bucketTypes={['All', 'Needs', 'Wants', 'Savings', 'Investments']}
-                            />
-                            <TransactionList 
-                                transactions={filteredTransactions}
-                                onTransactionClick={handleTransactionClick}
-                            />
-                        </CardContent>
-                    </Card>
-                )}
-            </div>
-        </PageWrapper>
+            )}
+        </div>
     );
 }

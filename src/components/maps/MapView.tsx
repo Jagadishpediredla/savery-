@@ -170,8 +170,8 @@ const MapViewComponent: React.FC<MapViewProps> = ({ transactions, center, zoom, 
     
     return (
         <div className={cn(
-            "relative w-full h-full transition-all duration-300 ease-in-out",
-            isFullscreen && "fixed inset-0 z-50 bg-background pointer-events-auto"
+            "relative w-full h-full",
+            isFullscreen && "fixed inset-0 z-50 bg-background"
         )}>
             <div 
                 ref={mapRef} 
@@ -182,7 +182,7 @@ const MapViewComponent: React.FC<MapViewProps> = ({ transactions, center, zoom, 
             <Button 
                 variant="secondary" 
                 size="icon" 
-                className="absolute top-4 right-4 z-10"
+                className="absolute top-4 right-4 z-[60]"
                 onClick={onToggleFullscreen}
                 aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
             >
