@@ -1,4 +1,3 @@
-
 'use client';
 
 import { PageWrapper } from "@/components/PageWrapper";
@@ -12,7 +11,12 @@ import { SpendingByCategoryChart } from "@/components/analytics/SpendingByCatego
 import { TrendingUp, TrendingDown, PiggyBank, Scale } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { NetWorthTrendChart } from "@/components/analytics/NetWorthTrendChart";
-import MapView from '@/components/analytics/MapView';
+import dynamic from "next/dynamic";
+
+const MapView = dynamic(() => import('@/components/analytics/MapView'), {
+    ssr: false,
+    loading: () => <Skeleton className="h-[400px] w-full rounded-lg" />
+});
 
 
 const AnalyticsLoadingSkeleton = () => (
