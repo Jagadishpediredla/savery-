@@ -1,6 +1,5 @@
-
-'use server';
 /**
  * @fileOverview This file is intentionally left blank.
- * The Visualizer AI feature has been removed as per user request.
+ * All server-side AI features have been removed to make the app a fully
+ * client-side static application.
  */

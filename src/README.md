@@ -11,7 +11,6 @@ Savvy Saver is a powerful, multi-purpose application designed to provide a compr
 ### Finance Module
 -   **Dashboard**: A comprehensive overview of the user's financial status. It summarizes total balance and balances for individual account types (Needs, Wants, Savings, Investments). Features a main spending trend area chart, a balance overview pie chart, a list of recent transactions, a chart for top spending categories, a "Magic Calendar" for drilling down into daily transactions, and an overview of financial goals.
 -   **Account Detail Pages (Needs, Wants, Savings, Investments)**: Each account page provides a dedicated view with a category breakdown pie chart, a spending trend line chart, and a filterable list of all transactions for that specific account.
--   **Visualizer AI**: A chat-based assistant that can answer questions about finances, generate charts, and provide summaries.
 -   **Settings Page**: Allows users to set their monthly salary and define their budget by allocating percentages to Needs, Wants, and Investments. The Savings percentage is calculated automatically, and the allocation is visualized with a live pie chart. Includes data management tools to seed or clear the database.
 -   **Add Transaction Modal**: A floating action button opens a sleek, multi-step modal for adding new transactions.
 
@@ -41,7 +40,6 @@ Savvy Saver is a powerful, multi-purpose application designed to provide a compr
 ## 5️⃣ Backend & Environments
 
 -   **Firebase**: The app uses Firebase for backend services, specifically the Realtime Database for the finance module.
--   **Genkit**: AI functionality is powered by Genkit, configured to use Google AI's `gemini-2.0-flash` model.
 -   **Mock Data**: The Support Analytics module currently operates on static mock data for demonstration purposes.
 
 ---

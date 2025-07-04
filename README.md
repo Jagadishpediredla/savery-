@@ -142,6 +142,7 @@ The app utilizes various charts to visualize financial data:
 -   **Styling**: Use the `cn` utility function from `src/lib/utils.ts` for combining and managing Tailwind CSS classes.
 
 ---
+
 ## 13️⃣ Versioning & Changelog
 
 ## 13️⃣ Versioning & Changelog
@@ -156,7 +157,6 @@ The app utilizes various charts to visualize financial data:
     -   **Account Page Layout**: Created a standardized `AccountPageLayout` with charts, now used by Needs, Wants, and Savings pages.
     -   **Investments Upgrade**: Added `PortfolioAllocation` and `GoalProgress` components.
     -   **Map Feature**: Removed Leaflet and replaced it with OpenLayers for a stable, interactive transaction map.
-    -   **AI Removal**: Removed the Visualizer AI feature to streamline the application's focus on core financial tracking.
     -   **Bug Fixes**: Resolved multiple hydration errors, chart container errors, module import errors, and map initialization errors.
     -   **Layout Fix**: Corrected sidebar layout issues to prevent the main content from overlapping with the sidebar.
     -   **Firebase Integration**: Connected the app to Firebase Realtime Database for live data synchronization. Added data seeding and clearing functionality.

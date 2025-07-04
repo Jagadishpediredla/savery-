@@ -1,6 +1,4 @@
 
-'use server';
-
 import { ref, get, set } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import type { Transaction, Goal, Settings, Account, BucketType, Categories } from '@/lib/types';
