@@ -160,4 +160,4 @@ The app utilizes various charts to visualize financial data:
     -   **Bug Fixes**: Resolved multiple hydration errors, chart container errors, module import errors, and map initialization errors.
     -   **Layout Fix**: Corrected sidebar layout issues to prevent the main content from overlapping with the sidebar.
     -   **Firebase Integration**: Connected the app to Firebase Realtime Database for live data synchronization. Added data seeding and clearing functionality.
-    
+    -   **Static Conversion**: Converted the app to be fully client-side and deployable as a static site on Firebase Hosting.

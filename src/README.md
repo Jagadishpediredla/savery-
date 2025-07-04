@@ -39,7 +39,7 @@ Savvy Saver is a powerful, multi-purpose application designed to provide a compr
 
 ## 5️⃣ Backend & Environments
 
--   **Firebase**: The app uses Firebase for backend services, specifically the Realtime Database for the finance module.
+-   **Firebase**: The app uses Firebase for backend services, specifically the Realtime Database for the finance module. All data fetching is done on the client-side.
 -   **Mock Data**: The Support Analytics module currently operates on static mock data for demonstration purposes.
 
 ---
@@ -47,6 +47,7 @@ Savvy Saver is a powerful, multi-purpose application designed to provide a compr
 ## 6️⃣ Versioning & Changelog
 
 -   **v2.0.0 (Current)**
+    -   **Static Conversion**: Converted the app to a fully client-side static application. All server-side logic, including AI features, has been removed to ensure compatibility with static hosting platforms like Firebase Hosting's free tier.
     -   **Feature Integration**: Re-integrated the Support Analytics dashboard alongside the Finance module into a unified application.
     -   **New Support Page**: Created a dedicated `/support` route to house all support-related charts and statistics.
     -   **Unified Navigation**: Updated the main sidebar and mobile navigation to provide access to both Finance and Support dashboards.
