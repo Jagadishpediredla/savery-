@@ -40,7 +40,7 @@ interface BucketPageLayoutProps {
 }
 
 export function BucketPageLayout({ bucketType, title, description }: BucketPageLayoutProps) {
-  const { transactions, loading } = useFirebase();
+  const { transactions, loading, allCategories } = useFirebase();
   const [displayMonth, setDisplayMonth] = useState(new Date());
 
   const [filters, setFilters] = useState({
@@ -80,11 +80,11 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
         t.bucket === bucketType && isSameMonth(parseISO(t.date), displayMonth)
     );
   }, [transactions, bucketType, displayMonth]);
-
+  
   const availableCategories = useMemo(() => {
-    const categories = new Set(monthlyTransactions.map(t => t.category || 'Other'));
-    return ['All', ...Array.from(categories)];
-  }, [monthlyTransactions]);
+    return ['All', ...(allCategories[bucketType] || [])];
+  }, [allCategories, bucketType]);
+
 
   const filteredTransactions = useMemo(() => {
     return monthlyTransactions.filter(t => {
@@ -146,18 +146,8 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
         </div>
         
         <Card className="bg-card/60 backdrop-blur-lg">
-            <CardHeader>
-                <CardTitle>Net Balance Trend</CardTitle>
-                <CardDescription>Your net balance (budget - spent) over time.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <NetBalanceTrendChart bucketType={bucketType} />
-            </CardContent>
-        </Card>
-        
-        <Card className="bg-card/60 backdrop-blur-lg">
           <CardHeader>
-            <CardTitle>Transactions</CardTitle>
+            <CardTitle>Transactions for {format(displayMonth, "MMMM yyyy")}</CardTitle>
             <CardDescription>All transactions for {format(displayMonth, "MMMM yyyy")}.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -166,9 +156,20 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
                 onFilterChange={handleFilterChange}
                 categories={availableCategories}
                 clearFilters={clearFilters}
+                bucketType={bucketType}
              />
             <TransactionList transactions={filteredTransactions} />
           </CardContent>
+        </Card>
+        
+        <Card className="bg-card/60 backdrop-blur-lg">
+            <CardHeader>
+                <CardTitle>Net Balance Trend</CardTitle>
+                <CardDescription>Your net balance (budget - spent) over time.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <NetBalanceTrendChart bucketType={bucketType} />
+            </CardContent>
         </Card>
       </div>
     </PageWrapper>

@@ -1,8 +1,9 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, CalendarIcon, SlidersHorizontal, Sparkles, ArrowRight, Sun, Moon, ArrowDown, ArrowUp, MapPin, LocateFixed } from 'lucide-react';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { ArrowLeft, CalendarIcon, SlidersHorizontal, Sparkles, ArrowRight, Sun, Moon, ArrowDown, ArrowUp, MapPin, LocateFixed, Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -43,11 +44,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Card, CardHeader, CardTitle } from '../ui/card';
-import { categories, mockAccounts } from '@/data/mock-data';
 import { useFirebase } from '@/context/FirebaseContext';
 import { useToast } from '@/hooks/use-toast';
 import { Shield, ShoppingBag, PiggyBank, CandlestickChart } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { mockAccounts } from '@/data/mock-data';
+import type { BucketType } from '@/lib/types';
+
 
 const transactionSchema = z.object({
   date: z.date({ required_error: "A date is required." }),
@@ -70,12 +73,8 @@ interface AddTransactionModalProps {
     onOpenChange: (isOpen: boolean) => void;
 }
 
-const accountTypes = [
-    { name: 'Needs', icon: Shield },
-    { name: 'Wants', icon: ShoppingBag },
-    { name: 'Savings', icon: PiggyBank },
-    { name: 'Investments', icon: CandlestickChart },
-];
+const accountToBucketMap = new Map<string, BucketType>(mockAccounts.map(acc => [acc.name, acc.type]));
+
 
 const ProgressDots = ({ current, total }: { current: number; total: number }) => (
     <div className="flex justify-center gap-3 py-2">
@@ -93,7 +92,7 @@ const ProgressDots = ({ current, total }: { current: number; total: number }) =>
 
 export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModalProps) {
   const [step, setStep] = useState(1);
-  const { addTransaction } = useFirebase();
+  const { addTransaction, allCategories } = useFirebase();
   const { toast } = useToast();
   const { setTheme, theme } = useTheme();
   const [isGettingLocation, setIsGettingLocation] = useState(false);
@@ -111,6 +110,29 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
       location: undefined,
     },
   });
+  
+  const transactionType = form.watch('type');
+  const selectedAccount = form.watch('account');
+  const selectedBucket = accountToBucketMap.get(selectedAccount);
+
+  const availableAccounts = useMemo(() => {
+    if (transactionType === 'Credit') {
+      return mockAccounts.filter(acc => acc.type === 'Savings');
+    }
+    return mockAccounts.filter(acc => acc.type !== 'Savings');
+  }, [transactionType]);
+  
+  const availableCategories = useMemo(() => {
+      if (!selectedBucket) return [];
+      return allCategories[selectedBucket] || [];
+  }, [selectedBucket, allCategories]);
+
+  useEffect(() => {
+    // Reset category if the selected account's bucket changes or categories change
+    if (selectedBucket && !availableCategories.includes(form.getValues('category'))) {
+      form.setValue('category', '');
+    }
+  }, [selectedBucket, availableCategories, form]);
 
   const handleGetLocation = useCallback(() => {
     if (!navigator.geolocation) {
@@ -301,7 +323,10 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                             <FormLabel>Type</FormLabel>
                             <FormControl>
                               <RadioGroup
-                                onValueChange={field.onChange}
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                  form.setValue('account', ''); // Reset account on type change
+                                }}
                                 defaultValue={field.value}
                                 className="grid grid-cols-2 gap-4"
                               >
@@ -366,18 +391,18 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                             name="account"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Account Type</FormLabel>
+                                    <FormLabel>Account</FormLabel>
                                     <FormControl>
                                         <div className="grid grid-cols-2 gap-4 pt-2">
-                                            {accountTypes.map(typeInfo => {
-                                                const account = mockAccounts.find(a => a.type === typeInfo.name);
-                                                if (!account) return null;
-                                                
+                                            {availableAccounts.map(account => {
+                                                const Icon = accountToBucketMap.has(account.name) ?
+                                                  { 'Needs': Shield, 'Wants': ShoppingBag, 'Savings': PiggyBank, 'Investments': CandlestickChart }[accountToBucketMap.get(account.name)!]
+                                                  : Shield;
                                                 const isSelected = field.value === account.name;
                                                 
                                                 return (
                                                     <Card 
-                                                        key={typeInfo.name} 
+                                                        key={account.id} 
                                                         onClick={() => handleAccountSelect(account.name)} 
                                                         className={cn(
                                                             "cursor-pointer transition-all hover:border-primary/50 text-center py-6 bg-popover/40", 
@@ -385,8 +410,8 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                                                         )}
                                                     >
                                                         <CardHeader className="flex flex-col items-center justify-center space-y-2 p-0">
-                                                            <typeInfo.icon className="h-8 w-8 text-muted-foreground" />
-                                                            <CardTitle className="text-lg font-semibold">{typeInfo.name}</CardTitle>
+                                                            <Icon className="h-8 w-8 text-muted-foreground" />
+                                                            <CardTitle className="text-lg font-semibold">{account.name}</CardTitle>
                                                         </CardHeader>
                                                     </Card>
                                                 )
@@ -429,24 +454,29 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                                 <div className="flex justify-between items-center">
                                     <FormLabel>Category</FormLabel>
                                     <div className="flex items-center gap-2">
-                                        <Button type="button" size="sm" variant="outline">
-                                            <Sparkles className="mr-2 h-4 w-4" />
-                                            Suggest
-                                        </Button>
-                                        <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                                            <SlidersHorizontal className="mr-2 h-4 w-4" />
-                                            Manage
-                                        </Button>
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button type="button" size="sm" variant="outline" disabled>
+                                                        <Sparkles className="mr-2 h-4 w-4" />
+                                                        Suggest
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>AI-powered suggestions coming soon!</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
                                     </div>
                                 </div>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                                     <FormControl>
                                         <SelectTrigger className="mt-2">
                                         <SelectValue placeholder="Select category" />
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        {categories.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
+                                        {availableCategories.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -471,12 +501,19 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                             </p>
                         </div>
                         
-                        {isGettingLocation && (
-                            <div className="flex items-center gap-2 text-muted-foreground p-4 bg-muted/50 rounded-lg">
-                                <LocateFixed className="h-4 w-4 animate-pulse" />
-                                <span>Getting location automatically...</span>
-                            </div>
-                        )}
+                        <Button type="button" variant="outline" className="w-full" onClick={handleGetLocation} disabled={isGettingLocation}>
+                            {isGettingLocation ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-pulse" />
+                                    Getting Location...
+                                </>
+                            ) : (
+                                <>
+                                    <MapPin className="mr-2 h-4 w-4" />
+                                    Get Current Location
+                                </>
+                            )}
+                        </Button>
 
                         {form.watch('location') && !isGettingLocation && (
                              <div className="p-4 rounded-lg bg-muted/50 text-xs space-y-1">

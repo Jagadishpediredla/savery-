@@ -4,11 +4,13 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
 import { ref, onValue, push, set, remove, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
-import type { Transaction, Bucket, Goal, Settings, AiChatMessage, BucketType } from '@/lib/types';
+import type { Transaction, Bucket, Goal, Settings, AiChatMessage, BucketType, Categories } from '@/lib/types';
 import { seedDatabase as seedDb, clearDatabase as clearDb } from '@/lib/seed';
 import { financialAssistant } from '@/ai/flows/financial-assistant-flow';
 import { useToast } from '@/hooks/use-toast';
-import { mockAccounts } from '@/data/mock-data';
+import { mockAccounts, defaultCategories } from '@/data/mock-data';
+import { getCategories as fetchCategories, updateCategoriesForBucket } from '@/services/firebase-service';
+
 
 const userId = 'user1';
 
@@ -24,12 +26,16 @@ interface FirebaseContextType {
     settings: Settings;
     loading: boolean;
     aiHistory: AiChatMessage[];
+    allCategories: Categories;
     addTransaction: (transaction: AddTransactionInput) => Promise<void>;
     updateSettings: (newSettings: Omit<Settings, 'savingsPercentage'>) => Promise<void>;
     sendChatMessage: (prompt: string) => Promise<void>;
     clearAiHistory: () => Promise<void>;
     seedDatabase: () => Promise<void>;
     clearDatabase: () => Promise<void>;
+    addCategory: (bucket: BucketType, newCategory: string) => Promise<void>;
+    editCategory: (bucket: BucketType, oldCategory: string, newCategory: string) => Promise<void>;
+    deleteCategory: (bucket: BucketType, categoryToDelete: string) => Promise<void>;
 }
 
 const FirebaseContext = createContext<FirebaseContextType | undefined>(undefined);
@@ -44,6 +50,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         investmentsPercentage: 10,
         savingsPercentage: 10,
     });
+    const [allCategories, setAllCategories] = useState<Categories>(defaultCategories);
     const [aiHistory, setAiHistory] = useState<AiChatMessage[]>([]);
     const [loading, setLoading] = useState(true);
     const { toast } = useToast();
@@ -54,6 +61,10 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         const transactionsRef = ref(db, `users/${userId}/transactions`);
         const goalsRef = ref(db, `users/${userId}/goals`);
         const aiHistoryRef = ref(db, `users/${userId}/aiHistory`);
+
+        // Fetch categories once
+        const categories = await fetchCategories();
+        setAllCategories(categories);
 
         const settingsUnsub = onValue(settingsRef, (snapshot) => {
             const data = snapshot.val();
@@ -70,11 +81,11 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
                  for (const year in data) {
                     for (const month in data[year]) {
                         for (const bucket in data[year][month]) {
-                             const dailyTransactions = data[year][month][bucket];
-                             for (const txnId in dailyTransactions) {
+                             const transactionsForBucket = data[year][month][bucket];
+                             for (const txnId in transactionsForBucket) {
                                 allTransactions.push({
                                     id: txnId,
-                                    ...dailyTransactions[txnId],
+                                    ...transactionsForBucket[txnId],
                                     bucket: bucket as BucketType,
                                 })
                              }
@@ -94,6 +105,15 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
             const data = snapshot.val();
             setAiHistory(data ? Object.values(data) : []);
         });
+        
+        // Listen for category changes
+        const categoriesRef = ref(db, `users/${userId}/categories`);
+        const categoriesUnsub = onValue(categoriesRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                setAllCategories(data);
+            }
+        });
 
         setLoading(false);
 
@@ -102,6 +122,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
             transactionsUnsub();
             goalsUnsub();
             aiHistoryUnsub();
+            categoriesUnsub();
         };
     }, []);
 
@@ -259,6 +280,30 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         ];
     }, [transactions, settings]);
 
+    const addCategory = useCallback(async (bucket: BucketType, newCategory: string) => {
+        const currentCategories = allCategories[bucket] || [];
+        if (!currentCategories.includes(newCategory)) {
+            const newCategories = [...currentCategories, newCategory];
+            await updateCategoriesForBucket(bucket, newCategories);
+        }
+    }, [allCategories]);
+
+    const editCategory = useCallback(async (bucket: BucketType, oldCategory: string, newCategory: string) => {
+        const currentCategories = allCategories[bucket] || [];
+        const index = currentCategories.indexOf(oldCategory);
+        if (index > -1) {
+            const newCategories = [...currentCategories];
+            newCategories[index] = newCategory;
+            await updateCategoriesForBucket(bucket, newCategories);
+        }
+    }, [allCategories]);
+
+    const deleteCategory = useCallback(async (bucket: BucketType, categoryToDelete: string) => {
+        const currentCategories = allCategories[bucket] || [];
+        const newCategories = currentCategories.filter(c => c !== categoryToDelete);
+        await updateCategoriesForBucket(bucket, newCategories);
+    }, [allCategories]);
+
     const value = useMemo(() => ({
         transactions,
         buckets,
@@ -266,13 +311,17 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         settings,
         loading,
         aiHistory,
+        allCategories,
         addTransaction,
         updateSettings,
         sendChatMessage,
         clearAiHistory,
+        addCategory,
+        editCategory,
+        deleteCategory,
         seedDatabase: () => seedDb(),
         clearDatabase: () => clearDb(),
-    }), [transactions, buckets, goals, settings, loading, aiHistory, addTransaction, updateSettings, sendChatMessage, clearAiHistory, toast]);
+    }), [transactions, buckets, goals, settings, loading, aiHistory, allCategories, addTransaction, updateSettings, sendChatMessage, clearAiHistory, addCategory, editCategory, deleteCategory, toast]);
 
     return <FirebaseContext.Provider value={value}>{children}</FirebaseContext.Provider>;
 };

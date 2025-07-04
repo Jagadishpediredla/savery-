@@ -2,8 +2,8 @@
 
 import { ref, set, remove, push } from 'firebase/database';
 import { db } from '@/lib/firebase';
-import type { Transaction, Goal, Settings, BucketType } from '@/lib/types';
-import { categories, mockAccounts, mockNotes } from '@/data/mock-data';
+import type { Transaction, Goal, Settings, BucketType, Categories } from '@/lib/types';
+import { defaultCategories, mockAccounts, mockNotes } from '@/data/mock-data';
 
 const userId = 'user1';
 
@@ -19,7 +19,7 @@ const getRandomDateForMonth = (year: number, month: number): string => {
 };
 
 
-const generateRandomTransactions = (year: number, month: number, settings: Omit<Settings, 'savingsPercentage'>): Omit<Transaction, 'id'>[] => {
+const generateRandomTransactions = (year: number, month: number, settings: Omit<Settings, 'savingsPercentage'>, categories: Categories): Omit<Transaction, 'id'>[] => {
   const transactions: Omit<Transaction, 'id'>[] = [];
   const numTransactions = Math.floor(Math.random() * 40) + 20; // 20-60 transactions per month
 
@@ -43,18 +43,10 @@ const generateRandomTransactions = (year: number, month: number, settings: Omit<
 
     if (isCredit) {
         type = 'Credit';
-        const creditBucketRoll = Math.random();
-        if (creditBucketRoll < 0.8) {
-            bucket = 'Savings';
-            category = 'Salary';
-            note = getRandomItem(mockNotes['Salary']);
-            account = accountForBucket(bucket);
-        } else { 
-            bucket = getRandomItem(['Needs', 'Wants', 'Investments']);
-            category = 'Transfer';
-            note = getRandomItem(mockNotes['Transfer']);
-            account = accountForBucket(bucket);
-        }
+        bucket = 'Savings';
+        account = accountForBucket(bucket);
+        category = getRandomItem(categories.Savings);
+        note = getRandomItem(mockNotes[category] || ['Income']);
     } else {
         type = 'Debit';
         const bucketRoll = Math.random() * 100;
@@ -63,7 +55,7 @@ const generateRandomTransactions = (year: number, month: number, settings: Omit<
         else bucket = 'Investments';
         
         account = accountForBucket(bucket);
-        category = getRandomItem(categories.filter(c => c !== 'Salary' && c !== 'Transfer'));
+        category = getRandomItem(categories[bucket]);
         note = getRandomItem(mockNotes[category] || mockNotes['Other']);
     }
 
@@ -105,10 +97,13 @@ export const seedDatabase = async () => {
         const goals = generateRandomGoals();
         const goalsRef = ref(db, `users/${userId}/goals`);
         const settingsRef = ref(db, `users/${userId}/settings/default`);
+        const categoriesRef = ref(db, `users/${userId}/categories`);
+
         
         const promises: Promise<any>[] = [
             ...goals.map(goal => push(goalsRef, goal)),
-            set(settingsRef, defaultSettings)
+            set(settingsRef, defaultSettings),
+            set(categoriesRef, defaultCategories)
         ];
         
         // Generate data for the last 6 months
@@ -120,7 +115,7 @@ export const seedDatabase = async () => {
             const monthStr = (month + 1).toString().padStart(2, '0');
 
             const monthSettings = defaultSettings; // for now, use default for all months
-            const transactions = generateRandomTransactions(year, month, monthSettings);
+            const transactions = generateRandomTransactions(year, month, monthSettings, defaultCategories);
 
             transactions.forEach(tx => {
                 const path = `users/${userId}/transactions/${year}/${monthStr}/${tx.bucket}`;

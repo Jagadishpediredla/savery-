@@ -3,8 +3,8 @@
 
 import { ref, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
-import type { Transaction, Goal, Settings, Account, BucketType } from '@/lib/types';
-import { mockAccounts } from '@/data/mock-data';
+import type { Transaction, Goal, Settings, Account, BucketType, Categories } from '@/lib/types';
+import { defaultCategories, mockAccounts } from '@/data/mock-data';
 
 const userId = 'user1'; // Hardcoded for now
 
@@ -85,4 +85,18 @@ export async function getAccounts(): Promise<(Account & { balance: number })[]> 
         ...acc,
         balance: accountBalances.get(acc.name) ?? 0
     }));
+}
+
+export async function getCategories(): Promise<Categories> {
+    const categoriesRef = ref(db, `users/${userId}/categories`);
+    const snapshot = await get(categoriesRef);
+    if (!snapshot.exists()) {
+        return defaultCategories;
+    }
+    return snapshot.val();
+}
+
+export async function updateCategoriesForBucket(bucketType: BucketType, categories: string[]): Promise<void> {
+    const categoryRef = ref(db, `users/${userId}/categories/${bucketType}`);
+    await set(categoryRef, categories);
 }

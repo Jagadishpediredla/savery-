@@ -14,7 +14,7 @@ export interface Transaction {
   amount: number;
   account: string;
   bucket: BucketType;
-  category?: string;
+  category: string;
   note?: string; 
   location?: LocationData;
   // Contextual data stored with each transaction
@@ -48,3 +48,5 @@ export interface Bucket {
   spent: number;
   balance: number;
 }
+
+export type Categories = Record<BucketType, string[]>;

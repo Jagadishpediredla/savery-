@@ -1,5 +1,5 @@
 
-import type { BucketType, Account } from '@/lib/types';
+import type { BucketType, Account, Categories } from '@/lib/types';
 
 // These are bucket definitions. Balances are calculated dynamically.
 export const mockAccounts: Omit<Account, 'balance'>[] = [
@@ -16,11 +16,16 @@ export const buckets: { name: BucketType; }[] = [
   { name: 'Investments' },
 ];
 
-export const categories = [
-    'Groceries', 'Rent', 'Salary', 'Dining Out', 'Entertainment', 'Transfer', 'Investment', 'Utilities', 'Shopping', 'Other'
-];
+export const defaultCategories: Categories = {
+    Needs: ['Groceries', 'Rent', 'Utilities', 'Transportation', 'Insurance'],
+    Wants: ['Dining Out', 'Entertainment', 'Shopping', 'Hobbies', 'Vacations'],
+    Savings: ['Salary', 'Transfer', 'Freelance Income', 'Bonus'],
+    Investments: ['Stock Purchase', 'Mutual Fund', 'Retirement Contribution']
+};
+
 
 export const mockNotes: Record<string, string[]> = {
+    ...defaultCategories,
     Groceries: ["Weekly groceries", "Supermarket run", "Stocking up pantry"],
     Rent: ["Monthly rent payment"],
     Salary: ["Monthly salary deposit", "Paycheck"],
