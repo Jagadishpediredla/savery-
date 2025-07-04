@@ -23,6 +23,9 @@ const iconMap: Record<BucketType, React.ElementType> = {
 export function BucketSummaryCard({ bucket }: BucketSummaryCardProps) {
     const Icon = iconMap[bucket.name];
     const href = `/${bucket.name.toLowerCase()}`;
+    
+    const isNeedsOrWants = bucket.name === 'Needs' || bucket.name === 'Wants';
+    const isOverspent = isNeedsOrWants && bucket.balance < 0;
 
     return (
         <Link href={href} passHref>
@@ -32,7 +35,14 @@ export function BucketSummaryCard({ bucket }: BucketSummaryCardProps) {
                     {Icon && <Icon className="h-4 w-4 text-muted-foreground md:h-5 md:w-5" />}
                 </CardHeader>
                 <CardContent className="p-3 pt-0 md:p-4 md:pt-0">
-                    <div className="text-xl md:text-2xl font-bold">
+                    <div className={cn(
+                        "text-xl md:text-2xl font-bold",
+                        isOverspent
+                            ? "text-destructive"
+                            : bucket.name === 'Savings' || bucket.name === 'Investments'
+                            ? 'text-green-400'
+                            : 'text-foreground'
+                    )}>
                          <CountUp
                             start={0}
                             end={bucket.balance}

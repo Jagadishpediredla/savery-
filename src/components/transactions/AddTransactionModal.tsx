@@ -96,7 +96,6 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
   const [step, setStep] = useState(1);
   const { addTransaction, allCategories } = useFirebase();
   const { toast } = useToast();
-  const { setTheme, theme } = useTheme();
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [isManageOpen, setIsManageOpen] = useState(false);
 
@@ -245,16 +244,6 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
       <Dialog open={isOpen} onOpenChange={handleModalClose}>
         <DialogContent>
           <DialogHeader>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="absolute top-4 right-14"
-            >
-              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="sr-only">Toggle theme</span>
-            </Button>
             <DialogTitle className="text-2xl font-bold">Add New Transaction</DialogTitle>
             <DialogDescription>
               {step === 1 && 'Enter transaction details'}
@@ -581,7 +570,7 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                       {step === 4 && (
                           <div className="flex flex-col-reverse sm:flex-row items-center gap-3">
                               <Button type="button" variant="secondary" onClick={() => handleFormSubmit(false)}>Save Transaction</Button>
-                              <Button type="button" variant="gradient" onClick={() => handleFormSubmit(true)}>Save &amp; Implement</Button>
+                              <Button type="button" variant="gradient" onClick={() => handleFormSubmit(true)}>Save & Implement</Button>
                           </div>
                       )}
                   </div>
