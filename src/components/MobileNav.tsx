@@ -13,7 +13,7 @@ const navItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/accounts', icon: Wallet, label: 'Accounts' },
   // Add button is special
-  { href: '/support', icon: MapPin, label: 'Maps' },
+  { href: '/maps', icon: MapPin, label: 'Maps' },
   { href: '/investments', icon: CandlestickChart, label: 'Investments' },
 ];
 

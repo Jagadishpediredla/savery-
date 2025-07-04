@@ -28,7 +28,7 @@ const mainNavItems = [
 ];
 
 const toolsNavItems = [
-  { href: '/support', icon: MapPin, label: 'Maps' },
+  { href: '/maps', icon: MapPin, label: 'Maps' },
 ];
 
 const settingsNavItem = { href: '/settings', icon: Settings, label: 'Settings' };

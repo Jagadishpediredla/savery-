@@ -46,3 +46,21 @@ export interface Bucket {
 }
 
 export type Categories = Record<BucketType, string[]>;
+
+export interface FirebaseContextType {
+    transactions: Transaction[];
+    buckets: Bucket[];
+    goals: Goal[];
+    settings: Settings;
+    loading: boolean;
+    allCategories: Categories;
+    isMapFullscreen: boolean;
+    setIsMapFullscreen: (isFS: boolean) => void;
+    addTransaction: (transaction: Omit<Transaction, 'id' | 'bucket' | 'monthlySalary' | 'allocationPercentage' | 'timestamp'> & { account: string }) => Promise<void>;
+    updateSettings: (newSettings: Omit<Settings, 'savingsPercentage'>) => Promise<void>;
+    seedDatabase: () => Promise<void>;
+    clearDatabase: () => Promise<void>;
+    addCategory: (bucket: BucketType, newCategory: string) => Promise<void>;
+    editCategory: (bucket: BucketType, oldCategory: string, newCategory: string) => Promise<void>;
+    deleteCategory: (bucket: BucketType, categoryToDelete: string) => Promise<void>;
+}

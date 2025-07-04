@@ -25,6 +25,8 @@ interface FirebaseContextType {
     settings: Settings;
     loading: boolean;
     allCategories: Categories;
+    isMapFullscreen: boolean;
+    setIsMapFullscreen: (isFS: boolean) => void;
     addTransaction: (transaction: AddTransactionInput) => Promise<void>;
     updateSettings: (newSettings: Omit<Settings, 'savingsPercentage'>) => Promise<void>;
     seedDatabase: () => Promise<void>;
@@ -48,6 +50,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
     });
     const [allCategories, setAllCategories] = useState<Categories>(defaultCategories);
     const [loading, setLoading] = useState(true);
+    const [isMapFullscreen, setIsMapFullscreen] = useState(false);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -77,9 +80,9 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
                 const allTransactions: Transaction[] = [];
                 if (txData) {
                     for (const bucket in txData) {
-                        for (const year in txData[bucket]) {
-                            for (const month in txData[bucket][year]) {
-                                const transactionsForMonth = txData[bucket][year][month];
+                        for (const year in data[bucket]) {
+                            for (const month in data[bucket][year]) {
+                                const transactionsForMonth = data[bucket][year][month];
                                 for (const txnId in transactionsForMonth) {
                                     const tx = transactionsForMonth[txnId];
                                     allTransactions.push({
@@ -265,6 +268,8 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         settings,
         loading,
         allCategories,
+        isMapFullscreen,
+        setIsMapFullscreen,
         addTransaction,
         updateSettings,
         addCategory,
@@ -272,7 +277,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         deleteCategory,
         seedDatabase: () => seedDb(),
         clearDatabase: () => clearDb(),
-    }), [transactions, buckets, goals, settings, loading, allCategories, addTransaction, updateSettings, addCategory, editCategory, deleteCategory]);
+    }), [transactions, buckets, goals, settings, loading, allCategories, isMapFullscreen, addTransaction, updateSettings, addCategory, editCategory, deleteCategory]);
 
     return <FirebaseContext.Provider value={value}>{children}</FirebaseContext.Provider>;
 };

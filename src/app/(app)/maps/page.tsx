@@ -1,8 +1,8 @@
+
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import type { Map } from 'ol';
-import { PageWrapper } from "@/components/PageWrapper";
 import { useFirebase } from "@/context/FirebaseContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,35 +15,11 @@ import dynamic from "next/dynamic";
 
 const MapView = dynamic(() => import('@/components/maps/MapView'), {
     ssr: false,
-    loading: () => <Skeleton className="h-[400px] w-full rounded-lg" />
+    loading: () => <Skeleton className="h-[500px] w-full rounded-lg" />
 });
 
-const MapLoadingSkeleton = () => (
-    <div className="space-y-8">
-        <header>
-            <Skeleton className="h-9 w-48" />
-            <Skeleton className="h-4 w-64 mt-2" />
-        </header>
-        <Skeleton className="h-[400px] w-full rounded-lg" />
-        <Card className="bg-card/60 backdrop-blur-lg">
-            <CardHeader>
-                <Skeleton className="h-6 w-1/3" />
-                <Skeleton className="h-4 w-1/2 mt-2" />
-            </CardHeader>
-            <CardContent>
-                <Skeleton className="h-10 w-full" />
-                <div className="mt-4 space-y-4">
-                    <Skeleton className="h-16 w-full" />
-                    <Skeleton className="h-16 w-full" />
-                    <Skeleton className="h-16 w-full" />
-                </div>
-            </CardContent>
-        </Card>
-    </div>
-);
-
 export default function MapsPage() {
-    const { loading, transactions, allCategories } = useFirebase();
+    const { loading, transactions, allCategories, setIsMapFullscreen } = useFirebase();
     const [mapCenter, setMapCenter] = useState<[number, number] | undefined>(undefined);
     const [mapZoom, setMapZoom] = useState<number | undefined>(undefined);
 
@@ -112,53 +88,71 @@ export default function MapsPage() {
 
     if (loading) {
         return (
-            <PageWrapper>
-                <MapLoadingSkeleton />
-            </PageWrapper>
+            <div className="space-y-8">
+                <header>
+                    <Skeleton className="h-9 w-48" />
+                    <Skeleton className="h-4 w-64 mt-2" />
+                </header>
+                <Skeleton className="h-[500px] w-full rounded-lg" />
+                <Card className="bg-card/60 backdrop-blur-lg">
+                    <CardHeader>
+                        <Skeleton className="h-6 w-1/3" />
+                        <Skeleton className="h-4 w-1/2 mt-2" />
+                    </CardHeader>
+                    <CardContent>
+                        <Skeleton className="h-10 w-full" />
+                        <div className="mt-4 space-y-4">
+                            <Skeleton className="h-16 w-full" />
+                            <Skeleton className="h-16 w-full" />
+                            <Skeleton className="h-16 w-full" />
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
         );
     }
     
     return (
-        <PageWrapper>
-            <div className="space-y-8">
-                <header>
-                    <h1 className="text-3xl font-bold tracking-tight">Transaction Map</h1>
-                    <p className="text-muted-foreground">
-                        Visualize where your transactions occur. Use the filters below to refine your view.
-                    </p>
-                </header>
-                
-                <Card className="bg-card/60 backdrop-blur-lg">
-                    <CardContent className="p-2 md:p-4">
-                        <MapView 
-                          transactions={filteredTransactions}
-                          center={mapCenter}
-                          zoom={mapZoom}
-                          onViewChange={() => { setMapCenter(undefined); setMapZoom(undefined); }}
-                        />
-                    </CardContent>
-                </Card>
-
-                <Card className="bg-card/60 backdrop-blur-lg">
-                    <CardHeader>
-                        <CardTitle>Transaction History</CardTitle>
-                        <CardDescription>A complete log of your financial activities.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                         <TransactionFilters
-                            filters={filters}
-                            onFilterChange={handleFilterChange}
-                            categories={allUniqueCategories}
-                            clearFilters={clearFilters}
-                            bucketTypes={['All', 'Needs', 'Wants', 'Savings', 'Investments']}
-                         />
-                        <TransactionList 
-                            transactions={filteredTransactions}
-                            onTransactionClick={handleTransactionClick}
-                        />
-                    </CardContent>
-                </Card>
-            </div>
-        </PageWrapper>
+        <div className="space-y-8">
+            <header>
+                <h1 className="text-3xl font-bold tracking-tight">Transaction Map</h1>
+                <p className="text-muted-foreground">
+                    Visualize where your transactions occur. Use the filters below to refine your view.
+                </p>
+            </header>
+            
+            <Card className="bg-card/60 backdrop-blur-lg h-[500px]">
+                <CardContent className="p-2 md:p-4 h-full w-full">
+                    <MapView 
+                        transactions={filteredTransactions}
+                        center={mapCenter}
+                        zoom={mapZoom}
+                        onViewChange={() => { setMapCenter(undefined); setMapZoom(undefined); }}
+                        isFullscreen={false}
+                        onToggleFullscreen={() => setIsMapFullscreen(true)}
+                    />
+                </CardContent>
+            </Card>
+            
+            <Card className="bg-card/60 backdrop-blur-lg">
+                <CardHeader>
+                    <CardTitle>Transaction History</CardTitle>
+                    <CardDescription>A complete log of your financial activities.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                     <TransactionFilters
+                        filters={filters}
+                        onFilterChange={handleFilterChange}
+                        categories={allUniqueCategories}
+                        clearFilters={clearFilters}
+                        bucketTypes={['All', 'Needs', 'Wants', 'Savings', 'Investments']}
+                     />
+                    <TransactionList 
+                        transactions={filteredTransactions}
+                        onTransactionClick={handleTransactionClick}
+                    />
+                </CardContent>
+            </Card>
+        </div>
     );
 }
