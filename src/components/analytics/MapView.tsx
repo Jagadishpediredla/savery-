@@ -1,10 +1,11 @@
+
 'use client';
 
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import type { Transaction } from '@/lib/types';
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 
 // Fix for default icon issue with webpack which can occur in some setups
 const defaultIcon = new L.Icon({
@@ -21,7 +22,7 @@ interface MapViewProps {
     transactions: Transaction[];
 }
 
-export function MapView({ transactions }: MapViewProps) {
+function MapViewComponent({ transactions }: MapViewProps) {
     const transactionsWithLocation = useMemo(() => transactions.filter(t => t.location), [transactions]);
 
     // Set a default center if no transactions have location, e.g., New Delhi
@@ -58,3 +59,5 @@ export function MapView({ transactions }: MapViewProps) {
         </MapContainer>
     );
 };
+
+export default memo(MapViewComponent);

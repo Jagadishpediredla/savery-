@@ -1,3 +1,4 @@
+
 'use client';
 
 import dynamic from 'next/dynamic';
@@ -14,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { NetWorthTrendChart } from "@/components/analytics/NetWorthTrendChart";
 
 const MapView = dynamic(
-  () => import('@/components/analytics/MapView').then(mod => mod.MapView),
+  () => import('@/components/analytics/MapView'),
   { 
     ssr: false,
     loading: () => <Skeleton className="h-[400px] w-full rounded-lg" />
