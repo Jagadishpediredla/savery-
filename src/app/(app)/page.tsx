@@ -9,6 +9,7 @@ import { TransactionList } from "@/components/dashboard/RecentTransactions";
 import { GoalsOverview } from "@/components/dashboard/GoalsOverview";
 import { BucketSummaryCard } from "@/components/dashboard/BucketSummaryCard";
 import { SpendingChart } from "@/components/dashboard/SpendingChart";
+import { MiniCalendar } from "@/components/dashboard/MiniCalendar";
 
 
 const LoadingSkeleton = () => (
@@ -23,17 +24,10 @@ const LoadingSkeleton = () => (
             <Skeleton className="h-96 lg:col-span-2" />
             <Skeleton className="h-96" />
         </div>
-        <Card>
-            <CardHeader>
-                <Skeleton className="h-6 w-1/3" />
-                <Skeleton className="h-4 w-1/2" />
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <Skeleton className="h-12" />
-                <Skeleton className="h-12" />
-                <Skeleton className="h-12" />
-            </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Skeleton className="lg:col-span-2 h-80" />
+            <Skeleton className="h-80" />
+        </div>
     </div>
 );
 
@@ -65,15 +59,18 @@ export default function DashboardPage() {
                      <GoalsOverview />
                 </div>
                 
-                <Card className="bg-card/60 backdrop-blur-lg">
-                    <CardHeader>
-                        <CardTitle>Recent Transactions</CardTitle>
-                        <CardDescription>Your last 5 transactions.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <TransactionList transactions={recentTransactions} />
-                    </CardContent>
-                </Card>
+                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <Card className="lg:col-span-2 bg-card/60 backdrop-blur-lg">
+                        <CardHeader>
+                            <CardTitle>Recent Transactions</CardTitle>
+                            <CardDescription>Your last 5 transactions.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <TransactionList transactions={recentTransactions} />
+                        </CardContent>
+                    </Card>
+                    <MiniCalendar />
+                </div>
 
             </div>
         </PageWrapper>

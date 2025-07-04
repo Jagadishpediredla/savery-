@@ -15,16 +15,16 @@ import { Button } from '../ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const bucketColors: Record<BucketType, string> = {
-    Needs: 'bg-chart-1',
+    Needs: 'bg-chart-3',
     Wants: 'bg-chart-2',
-    Investments: 'bg-chart-3',
     Savings: 'bg-chart-4',
+    Investments: 'bg-chart-5',
 };
 
 const categoryLegend: {type: BucketType, color: string}[] = [
-    { type: 'Needs', color: 'bg-chart-1'},
+    { type: 'Needs', color: 'bg-chart-3'},
     { type: 'Wants', color: 'bg-chart-2'},
-    { type: 'Investments', color: 'bg-chart-3'},
+    { type: 'Investments', color: 'bg-chart-5'},
     { type: 'Savings', color: 'bg-chart-4'},
 ];
 
