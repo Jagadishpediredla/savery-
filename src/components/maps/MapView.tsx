@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import 'ol/ol.css';
 import Map from 'ol/Map';
 import View from 'ol/View';
@@ -20,7 +20,7 @@ import type { Transaction, LocationData } from '@/lib/types';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { Expand, Shrink } from 'lucide-react';
+import { Expand, Shrink, PanelRightOpen, PanelRightClose } from 'lucide-react';
 import { MapControlPanel } from './MapControlPanel';
 
 interface MapViewProps {
@@ -41,6 +41,7 @@ const MapViewComponent: React.FC<MapViewProps> = ({ transactions, center, zoom, 
     const tileLayer = useRef(new TileLayer({ source: new OSM() }));
     const popupOverlay = useRef<Overlay | null>(null);
     const { theme } = useTheme();
+    const [isPanelVisible, setIsPanelVisible] = useState(false);
 
     useEffect(() => {
         if (!mapRef.current || mapInstance.current) return;
@@ -101,7 +102,7 @@ const MapViewComponent: React.FC<MapViewProps> = ({ transactions, center, zoom, 
         if(mapInstance.current) {
             mapInstance.current.updateSize();
         }
-    }, [isFullscreen]);
+    }, [isFullscreen, isPanelVisible]);
 
 
     useEffect(() => {
@@ -171,7 +172,7 @@ const MapViewComponent: React.FC<MapViewProps> = ({ transactions, center, zoom, 
     return (
         <div className={cn(
             "relative w-full h-full",
-            isFullscreen && "fixed inset-0 z-50 bg-background"
+            isFullscreen && "fixed inset-0 z-[200] bg-background"
         )}>
             <div 
                 ref={mapRef} 
@@ -179,20 +180,46 @@ const MapViewComponent: React.FC<MapViewProps> = ({ transactions, center, zoom, 
             />
             <div ref={popupRef}></div>
 
-            <Button 
-                variant="secondary" 
-                size="icon" 
-                className="absolute top-4 right-4 z-[60]"
-                onClick={onToggleFullscreen}
-                aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-            >
-                {isFullscreen ? <Shrink className="h-4 w-4" /> : <Expand className="h-4 w-4" />}
-            </Button>
+            {!isFullscreen && (
+                 <Button 
+                    variant="secondary" 
+                    size="icon" 
+                    className="absolute top-4 right-4 z-[60]"
+                    onClick={onToggleFullscreen}
+                    aria-label="Enter fullscreen"
+                >
+                    <Expand className="h-4 w-4" />
+                </Button>
+            )}
+
+            {isFullscreen && (
+                <>
+                    <Button 
+                        variant="secondary" 
+                        size="icon" 
+                        className="absolute top-4 right-4 z-[60]"
+                        onClick={() => setIsPanelVisible(prev => !prev)}
+                        aria-label={isPanelVisible ? "Hide transaction panel" : "Show transaction panel"}
+                    >
+                        {isPanelVisible ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
+                    </Button>
+                    
+                    <Button 
+                        variant="secondary" 
+                        size="icon" 
+                        className="absolute bottom-4 right-4 z-[60]"
+                        onClick={onToggleFullscreen}
+                        aria-label="Exit fullscreen"
+                    >
+                        <Shrink className="h-4 w-4" />
+                    </Button>
+                </>
+            )}
 
             <MapControlPanel 
                 transactions={transactions} 
                 onTransactionClick={handlePanelTransactionClick}
-                isVisible={isFullscreen}
+                isVisible={isFullscreen && isPanelVisible}
             />
         </div>
     );
@@ -200,3 +227,4 @@ const MapViewComponent: React.FC<MapViewProps> = ({ transactions, center, zoom, 
 
 const MapView = React.memo(MapViewComponent);
 export default MapView;
+
