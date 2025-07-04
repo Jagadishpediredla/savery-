@@ -11,11 +11,10 @@ const userId = 'user1';
 const getRandomItem = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
 // Helper to generate random date in the past year
-const getRandomDateForMonth = (year: number, month: number): string => {
+const getRandomDateForMonth = (year: number, month: number): Date => {
   const start = new Date(year, month, 1);
   const end = new Date(year, month + 1, 0);
-  const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-  return date.toISOString().split('T')[0]; // YYYY-MM-DD
+  return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 };
 
 
@@ -59,8 +58,11 @@ const generateRandomTransactions = (year: number, month: number, settings: Omit<
         note = getRandomItem(mockNotes[category] || mockNotes['Other']);
     }
 
+    const transactionDate = getRandomDateForMonth(year, month);
+
     transactions.push({
-      date: getRandomDateForMonth(year, month),
+      date: transactionDate.toISOString().split('T')[0], // YYYY-MM-DD
+      timestamp: transactionDate.getTime(),
       type,
       amount: parseFloat((Math.random() * (type === 'Credit' ? 40000 : 5000) + (type === 'Credit' ? 20000 : 50)).toFixed(2)),
       account,

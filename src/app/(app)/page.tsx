@@ -6,7 +6,7 @@ import { useFirebase } from "@/context/FirebaseContext";
 import { useMemo, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { TransactionList } from "@/components/dashboard/RecentTransactions";
+import { TransactionList } from "@/components/dashboard/TransactionList";
 import { GoalsOverview } from "@/components/dashboard/GoalsOverview";
 import { BucketSummaryCard } from "@/components/dashboard/BucketSummaryCard";
 import { SpendingChart } from "@/components/dashboard/SpendingChart";

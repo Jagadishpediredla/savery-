@@ -16,7 +16,7 @@ const userId = 'user1';
 
 // The form provides the account name, but not the bucket. 
 // We derive the bucket from the account in the addTransaction function.
-type AddTransactionInput = Omit<Transaction, 'id' | 'bucket' | 'monthlySalary' | 'allocationPercentage'> & { account: string };
+type AddTransactionInput = Omit<Transaction, 'id' | 'bucket' | 'monthlySalary' | 'allocationPercentage' | 'timestamp'> & { account: string };
 
 
 interface FirebaseContextType {
@@ -89,15 +89,14 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
                                     const tx = transactionsForMonth[txnId];
                                     allTransactions.push({
                                         id: txnId,
-                                        ...tx,
-                                        bucket: bucket as BucketType,
+                                        ...tx
                                     });
                                  }
                             }
                         }
                     }
                 }
-                setTransactions(allTransactions.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+                setTransactions(allTransactions.sort((a,b) => b.timestamp - a.timestamp));
 
                 // Goals
                 const goalsData = data.goals;
@@ -168,6 +167,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         const fullTransaction: Omit<Transaction, 'id'> = {
             ...transaction,
             bucket: bucket,
+            timestamp: new Date().getTime(),
             monthlySalary: currentSettings.monthlySalary,
             allocationPercentage: allocationMap[bucket] || 0,
             category: transaction.category || 'Other',
@@ -261,7 +261,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
                     .filter(t => t.bucket === name && t.type === 'Debit')
                     .reduce((sum, t) => sum + t.amount, 0);
                 spent = credits - debits; // For savings, "spent" is net saving.
-                 return { name, allocated, spent, balance: allocated + spent };
+                 return { name, allocated, spent, balance: allocated - spent };
             } else {
                  spent = monthlyTransactions
                     .filter(t => t.bucket === name && t.type === 'Debit')

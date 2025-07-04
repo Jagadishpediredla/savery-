@@ -3,7 +3,6 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, CalendarIcon, SlidersHorizontal, Sparkles, ArrowRight, Sun, Moon, ArrowDown, ArrowUp, MapPin, Loader2, Send } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -42,6 +41,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Card, CardHeader, CardTitle } from '../ui/card';

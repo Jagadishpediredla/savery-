@@ -20,6 +20,7 @@ export interface Transaction {
   // Contextual data stored with each transaction
   monthlySalary: number;
   allocationPercentage: number;
+  timestamp: number;
 }
 
 export interface Goal {
@@ -50,3 +51,4 @@ export interface Bucket {
 }
 
 export type Categories = Record<BucketType, string[]>;
+
