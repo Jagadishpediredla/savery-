@@ -1,16 +1,17 @@
 
 'use client';
 
-import { PageWrapper } from '@/components/PageWrapper';
-import { useFirebase } from '@/context/FirebaseContext';
-import { Skeleton } from '@/components/ui/skeleton';
-import { TotalBalanceCard } from '@/components/dashboard/TotalBalanceCard';
-import { SpendingChart } from '@/components/dashboard/SpendingChart';
-import { BalanceOverview } from '@/components/dashboard/BalanceOverview';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { TransactionList } from '@/components/dashboard/RecentTransactions';
-import { GoalsOverview } from '@/components/dashboard/GoalsOverview';
-import { MagicCalendar } from '@/components/dashboard/MagicCalendar';
+import { PageWrapper } from "@/components/PageWrapper";
+import { useFirebase } from "@/context/FirebaseContext";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TotalBalanceCard } from "@/components/dashboard/TotalBalanceCard";
+import { SpendingChart } from "@/components/dashboard/SpendingChart";
+import { BalanceOverview } from "@/components/dashboard/BalanceOverview";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { TransactionList } from "@/components/dashboard/RecentTransactions";
+import { GoalsOverview } from "@/components/dashboard/GoalsOverview";
+import { TopSpendingCategories } from "@/components/dashboard/TopSpendingCategories";
+
 
 const LoadingSkeleton = () => (
     <div className="space-y-6">
@@ -63,7 +64,7 @@ export default function DashboardPage() {
                     <div className="lg:col-span-2">
                         <GoalsOverview />
                     </div>
-                    <MagicCalendar />
+                   <TopSpendingCategories />
                 </div>
                 
                 <Card className="bg-card/60 backdrop-blur-lg">

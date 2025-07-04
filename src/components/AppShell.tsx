@@ -9,6 +9,7 @@ import {
   Bot,
   PanelLeft,
   LayoutGrid,
+  CalendarDays,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -26,11 +27,12 @@ const mainNavItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/accounts', icon: Wallet, label: 'Accounts' },
   { href: '/investments', icon: CandlestickChart, label: 'Investments' },
-  { href: '/visualizer', icon: Bot, label: 'AI' },
+  { href: '/calendar', icon: CalendarDays, label: 'Calendar' },
 ];
 
 const analyticsNavItems = [
   { href: '/support', icon: LayoutGrid, label: 'Analytics' },
+  { href: '/visualizer', icon: Bot, label: 'AI' },
 ];
 
 const settingsNavItem = { href: '/settings', icon: Settings, label: 'Settings' };
@@ -79,7 +81,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="absolute bottom-0 left-0 w-full p-4 space-y-2 border-t bg-card/80 backdrop-blur-lg">
               <NavItem item={settingsNavItem} isExpanded={true} />
               <Button variant="gradient" className="w-full" onClick={() => setIsModalOpen(true)}>
-                  {/* <Plus className="h-4 w-4 mr-2" /> */}
                   Add Transaction
               </Button>
             </div>
