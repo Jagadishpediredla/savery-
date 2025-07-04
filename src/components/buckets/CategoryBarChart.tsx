@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { useFirebase } from "@/context/FirebaseContext";
 import { useMemo } from "react";
@@ -13,53 +13,62 @@ interface CategoryBarChartProps {
     displayMonth: Date;
 }
 
-const chartConfig = {
-    spending: {
-        label: "Spending",
-        color: "hsl(var(--chart-1))",
-    },
-} satisfies ChartConfig;
-
 export function CategoryBarChart({ bucketType, displayMonth }: CategoryBarChartProps) {
-    const { transactions } = useFirebase();
+    const { transactions, settings } = useFirebase();
 
-    const data = useMemo(() => {
-        const categorySpending = new Map<string, number>();
+    const { data, chartConfig } = useMemo(() => {
+        const categoryData = new Map<string, { spent: number; allocated: number }>();
         
         const monthTransactions = transactions.filter(t => 
             t.bucket === bucketType && 
-            t.type === 'Debit' &&
             isSameMonth(parseISO(t.date), displayMonth)
         );
 
+        const bucketAllocation = (settings.monthlySalary * (settings as any)[`${bucketType.toLowerCase()}Percentage`]) / 100;
+
+        const totalSpending = monthTransactions
+          .filter(t => t.type === 'Debit')
+          .reduce((sum, t) => sum + t.amount, 0);
+
+        // For this viz, let's assume allocation is proportional to spending, as we don't have per-category budgets
         monthTransactions.forEach(t => {
-            const category = t.category || 'Other';
-            const currentAmount = categorySpending.get(category) || 0;
-            categorySpending.set(category, currentAmount + t.amount);
+            if (t.type === 'Debit') {
+                const category = t.category || 'Other';
+                const categoryInfo = categoryData.get(category) || { spent: 0, allocated: 0 };
+                
+                categoryInfo.spent += t.amount;
+                // Pro-rate allocation based on this category's share of total spending
+                if(totalSpending > 0) {
+                    categoryInfo.allocated = (categoryInfo.spent / totalSpending) * bucketAllocation;
+                }
+
+                categoryData.set(category, categoryInfo);
+            }
         });
         
-        if (categorySpending.size === 0) return [];
+        if (categoryData.size === 0) return { data: [], chartConfig: {} };
         
-        return Array.from(categorySpending.entries())
-            .map(([name, spending]) => ({ name, spending }))
-            .sort((a,b) => b.spending - a.spending); // Sort by highest spending
+        const chartData = Array.from(categoryData.entries())
+            .map(([name, values]) => ({ name, ...values }))
+            .sort((a,b) => b.spent - a.spent);
 
-    }, [transactions, bucketType, displayMonth]);
+        const config: ChartConfig = {
+            allocated: { label: "Budget", color: "hsl(var(--chart-2))" },
+            spent: { label: "Spent", color: "hsl(var(--chart-1))" },
+        };
+
+        return { data: chartData, chartConfig: config };
+
+    }, [transactions, bucketType, displayMonth, settings]);
     
     if (data.length === 0) {
         return <div className="flex h-64 w-full items-center justify-center text-muted-foreground">No spending data for this month.</div>;
     }
     
-    // Create a dynamic config for the chart based on the data
-    const dynamicChartConfig: ChartConfig = {
-        ...chartConfig,
-        ...Object.fromEntries(data.map(item => [item.name, { label: item.name, color: "hsl(var(--chart-1))" }]))
-    };
-
     return (
-        <ChartContainer config={dynamicChartConfig} className="h-64 w-full">
+        <ChartContainer config={chartConfig} className="h-64 w-full">
             <ResponsiveContainer>
-                <BarChart data={data} layout="vertical" margin={{ left: 10 }}>
+                <BarChart data={data} layout="vertical" margin={{ left: 10, right: 20 }}>
                     <CartesianGrid horizontal={false} strokeDasharray="3 3" />
                     <XAxis
                         type="number"
@@ -79,14 +88,16 @@ export function CategoryBarChart({ bucketType, displayMonth }: CategoryBarChartP
                         stroke="hsl(var(--muted-foreground))"
                         width={80}
                     />
-                    <ChartTooltip
-                        cursor={false}
+                    <Tooltip
+                        cursor={{fill: 'hsl(var(--muted)/0.3)'}}
                         content={<ChartTooltipContent 
                             formatter={(value) => `₹${Number(value).toLocaleString()}`}
                             indicator="dot" 
                         />}
                     />
-                    <Bar dataKey="spending" layout="vertical" fill="var(--color-spending)" radius={4} />
+                    <Legend />
+                    <Bar dataKey="allocated" layout="vertical" fill="var(--color-allocated)" radius={4} />
+                    <Bar dataKey="spent" layout="vertical" fill="var(--color-spent)" radius={4} />
                 </BarChart>
             </ResponsiveContainer>
         </ChartContainer>

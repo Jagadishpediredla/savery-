@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, type ComponentPropsWithRef } from 'react';
+import { useState, useMemo } from 'react';
 import { PageWrapper } from '@/components/PageWrapper';
 import { useFirebase } from '@/context/FirebaseContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -92,13 +92,13 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
                     <CardDescription>Top 5 spending categories for {format(displayMonth, "MMMM")}.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <SpendingByCategoryChart transactions={filteredTransactions} />
+                    <SpendingByCategoryChart transactions={transactions} displayMonth={displayMonth} />
                 </CardContent>
             </Card>
             <Card className="lg:col-span-3 bg-card/60 backdrop-blur-lg">
                  <CardHeader>
-                    <CardTitle>Category Spending</CardTitle>
-                    <CardDescription>Breakdown of spending by category for {format(displayMonth, "MMMM")}.</CardDescription>
+                    <CardTitle>Budget vs. Spending</CardTitle>
+                    <CardDescription>Comparison of your budget and spending for {format(displayMonth, "MMMM")}.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <CategoryBarChart bucketType={bucketType} displayMonth={displayMonth} />
