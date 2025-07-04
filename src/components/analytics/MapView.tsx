@@ -15,28 +15,76 @@ import Style from 'ol/style/Style';
 import Icon from 'ol/style/Icon';
 import Overlay from 'ol/Overlay';
 import type { Transaction } from '@/lib/types';
+import { useTheme } from 'next-themes';
 
 interface MapViewProps {
     transactions: Transaction[];
 }
 
-const MapView: React.FC<MapViewProps> = ({ transactions }) => {
+const MapViewComponent: React.FC<MapViewProps> = ({ transactions }) => {
     const mapRef = useRef<HTMLDivElement>(null);
     const popupRef = useRef<HTMLDivElement>(null);
+    
     const mapInstance = useRef<Map | null>(null);
+    const vectorSource = useRef(new VectorSource());
+    const tileLayer = useRef(new TileLayer({ source: new OSM() }));
+    const popupOverlay = useRef<Overlay | null>(null);
+    const { theme } = useTheme();
 
     useEffect(() => {
-        if (!mapRef.current || mapInstance.current) {
-            return;
-        }
+        if (!mapRef.current || mapInstance.current) return;
 
+        popupOverlay.current = new Overlay({
+            element: popupRef.current!,
+            autoPan: { animation: { duration: 250 } }
+        });
+        
+        const vectorLayer = new VectorLayer({ source: vectorSource.current });
+
+        const map = new Map({
+            target: mapRef.current,
+            layers: [tileLayer.current, vectorLayer],
+            view: new View({
+                center: fromLonLat([78.9629, 20.5937]),
+                zoom: 5,
+            }),
+            overlays: [popupOverlay.current]
+        });
+        
+        map.on('click', (event) => {
+            popupOverlay.current?.setPosition(undefined);
+            const feature = map.forEachFeatureAtPixel(event.pixel, (feature) => feature as Feature<Point>);
+            if (feature) {
+                const transaction = feature.get('transaction') as Transaction;
+                const coordinate = feature.getGeometry()!.getCoordinates();
+                
+                if (popupRef.current) {
+                    popupRef.current.innerHTML = `
+                        <div class="p-3 rounded-xl shadow-lg bg-popover/80 backdrop-blur-lg border border-border/20 text-popover-foreground text-sm">
+                            <p class="font-bold">${transaction.category}</p>
+                            ${transaction.note ? `<p class="text-muted-foreground">${transaction.note}</p>` : ''}
+                            <p class="font-semibold mt-1">₹${transaction.amount.toLocaleString()}</p>
+                            <p class="text-xs text-muted-foreground/80">${new Date(transaction.date).toLocaleDateString()}</p>
+                        </div>
+                    `;
+                    popupOverlay.current?.setPosition(coordinate);
+                }
+            }
+        });
+        
+        mapInstance.current = map;
+        
+        return () => {
+            if (mapInstance.current) {
+                mapInstance.current.setTarget(undefined);
+                mapInstance.current = null;
+            }
+        };
+    }, []);
+
+    useEffect(() => {
         const transactionsWithLocation = transactions.filter(t => t.location);
         
-        const defaultCenter: [number, number] = [77.2090, 28.6139]; // Default to Delhi, India
-        const center = transactionsWithLocation.length > 0
-            ? [transactionsWithLocation[0].location!.longitude, transactionsWithLocation[0].location!.latitude]
-            : defaultCenter;
-
         const markers = transactionsWithLocation.map(t => {
             const marker = new Feature({
                 geometry: new Point(fromLonLat([t.location!.longitude, t.location!.latitude])),
@@ -52,60 +100,24 @@ const MapView: React.FC<MapViewProps> = ({ transactions }) => {
             return marker;
         });
 
-        const vectorSource = new VectorSource({ features: markers });
-        const vectorLayer = new VectorLayer({ source: vectorSource });
+        vectorSource.current.clear();
+        vectorSource.current.addFeatures(markers);
 
-        const popupOverlay = new Overlay({
-            element: popupRef.current!,
-            autoPan: {
-                animation: {
-                    duration: 250
-                }
-            }
-        });
-
-        const map = new Map({
-            target: mapRef.current,
-            layers: [
-                new TileLayer({ source: new OSM() }),
-                vectorLayer
-            ],
-            view: new View({
-                center: fromLonLat(center),
-                zoom: 10
-            }),
-            overlays: [popupOverlay]
-        });
-
-        map.on('click', (event) => {
-            const feature = map.forEachFeatureAtPixel(event.pixel, (feature) => feature as Feature<Point>);
-            if (feature) {
-                const transaction = feature.get('transaction') as Transaction;
-                const coordinate = feature.getGeometry()!.getCoordinates();
-                
-                if (popupRef.current) {
-                    popupRef.current.innerHTML = `
-                        <div class="p-2 rounded-md shadow-lg bg-popover text-popover-foreground text-sm">
-                            <p class="font-bold">${transaction.category}</p>
-                            <p>${transaction.note}</p>
-                            <p class="font-semibold">₹${transaction.amount.toLocaleString()}</p>
-                            <p class="text-xs text-muted-foreground">${new Date(transaction.date).toLocaleDateString()}</p>
-                        </div>
-                    `;
-                    popupOverlay.setPosition(coordinate);
-                }
-            } else {
-                 popupOverlay.setPosition(undefined);
-            }
-        });
-
-        mapInstance.current = map;
-        
-        return () => {
-            map.setTarget(undefined);
-        };
-
+        if (mapInstance.current && transactionsWithLocation.length > 0) {
+            const extent = vectorSource.current.getExtent();
+            mapInstance.current.getView().fit(extent, { padding: [50, 50, 50, 50], maxZoom: 15, duration: 500 });
+        } else if(mapInstance.current) {
+            mapInstance.current.getView().animate({
+                center: fromLonLat([78.9629, 20.5937]),
+                zoom: 5,
+                duration: 500
+            });
+        }
     }, [transactions]);
+    
+    useEffect(() => {
+        tileLayer.current.setClassName(theme === 'dark' ? 'dark-mode-tiles' : '');
+    }, [theme]);
 
     return (
         <div style={{ position: 'relative', width: '100%', height: '400px' }}>
@@ -115,4 +127,6 @@ const MapView: React.FC<MapViewProps> = ({ transactions }) => {
     );
 };
 
+
+const MapView = React.memo(MapViewComponent);
 export default MapView;
