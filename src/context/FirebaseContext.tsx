@@ -80,14 +80,15 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
                 const allTransactions: Transaction[] = [];
                 if (txData) {
                     for (const bucket in txData) {
-                        for (const year in data[bucket]) {
-                            for (const month in data[bucket][year]) {
-                                const transactionsForMonth = data[bucket][year][month];
+                        for (const year in txData[bucket]) {
+                            for (const month in txData[bucket][year]) {
+                                const transactionsForMonth = txData[bucket][year][month];
                                 for (const txnId in transactionsForMonth) {
                                     const tx = transactionsForMonth[txnId];
                                     allTransactions.push({
                                         id: txnId,
                                         ...tx,
+                                        bucket: bucket as BucketType,
                                         amount: Number(tx.amount || 0), // Ensure amount is a number
                                     });
                                  }
