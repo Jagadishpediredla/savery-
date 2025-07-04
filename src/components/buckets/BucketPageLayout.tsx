@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type ComponentPropsWithRef } from 'react';
 import { PageWrapper } from '@/components/PageWrapper';
 import { useFirebase } from '@/context/FirebaseContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,10 +10,10 @@ import { TransactionList } from '@/components/dashboard/RecentTransactions';
 import { parseISO, isSameMonth, format, subMonths, addMonths } from 'date-fns';
 import type { BucketType } from '@/lib/types';
 import { SpendingByCategoryChart } from '../analytics/SpendingByCategoryChart';
-import { MonthlyBucketTrendChart } from './MonthlyBucketTrendChart';
 import { Button } from '../ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { NetBalanceTrendChart } from './NetBalanceTrendChart';
+import { CategoryBarChart } from './CategoryBarChart';
 
 const LoadingSkeleton = () => (
   <div className="space-y-8">
@@ -89,7 +89,7 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
             <Card className="lg:col-span-2 bg-card/60 backdrop-blur-lg">
                 <CardHeader>
                     <CardTitle>Category Breakdown</CardTitle>
-                    <CardDescription>Spending by category for {format(displayMonth, "MMMM")}.</CardDescription>
+                    <CardDescription>Top 5 spending categories for {format(displayMonth, "MMMM")}.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <SpendingByCategoryChart transactions={filteredTransactions} />
@@ -97,11 +97,11 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
             </Card>
             <Card className="lg:col-span-3 bg-card/60 backdrop-blur-lg">
                  <CardHeader>
-                    <CardTitle>Budget vs. Spending</CardTitle>
-                    <CardDescription>Allocated budget vs. actual spending for {format(displayMonth, "MMMM")}.</CardDescription>
+                    <CardTitle>Category Spending</CardTitle>
+                    <CardDescription>Breakdown of spending by category for {format(displayMonth, "MMMM")}.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <MonthlyBucketTrendChart bucketType={bucketType} displayMonth={displayMonth} />
+                    <CategoryBarChart bucketType={bucketType} displayMonth={displayMonth} />
                 </CardContent>
             </Card>
         </div>

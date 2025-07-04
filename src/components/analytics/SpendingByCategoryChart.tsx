@@ -1,10 +1,10 @@
+
 'use client';
 
 import { Pie, PieChart, ResponsiveContainer, Cell } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from "@/components/ui/chart";
 import { useMemo } from "react";
 import type { Transaction } from "@/lib/types";
-import { subDays, isWithinInterval, parseISO } from 'date-fns';
 
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
@@ -15,15 +15,13 @@ interface SpendingByCategoryChartProps {
 export function SpendingByCategoryChart({ transactions }: SpendingByCategoryChartProps) {
     const { chartData, chartConfig } = useMemo(() => {
         const categoryMap = new Map<string, number>();
-        const thirtyDaysAgo = subDays(new Date(), 30);
-        const now = new Date();
 
-        transactions.forEach(t => {
-            const txDate = parseISO(t.date);
-            if (t.type === 'Debit' && isWithinInterval(txDate, { start: thirtyDaysAgo, end: now })) {
-                const currentAmount = categoryMap.get(t.category) || 0;
-                categoryMap.set(t.category, currentAmount + t.amount);
-            }
+        const debitTransactions = transactions.filter(t => t.type === 'Debit');
+
+        debitTransactions.forEach(t => {
+            const category = t.category || 'Other';
+            const currentAmount = categoryMap.get(category) || 0;
+            categoryMap.set(category, currentAmount + t.amount);
         });
         
         const data = Array.from(categoryMap.entries())
@@ -47,7 +45,7 @@ export function SpendingByCategoryChart({ transactions }: SpendingByCategoryChar
     }, [transactions]);
     
     if (chartData.length === 0) {
-        return <div className="flex h-80 w-full items-center justify-center text-muted-foreground">No spending data for last 30 days.</div>;
+        return <div className="flex h-80 w-full items-center justify-center text-muted-foreground">No spending data for this period.</div>;
     }
 
     return (
