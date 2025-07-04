@@ -35,11 +35,10 @@ export default function AccountsPage() {
                     </p>
                 </header>
                 <Tabs defaultValue="needs" className="w-full">
-                    <TabsList className="grid w-full grid-cols-4">
+                    <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="needs">Needs</TabsTrigger>
                         <TabsTrigger value="wants">Wants</TabsTrigger>
                         <TabsTrigger value="savings">Savings</TabsTrigger>
-                        <TabsTrigger value="investments">Investments</TabsTrigger>
                     </TabsList>
                     <TabsContent value="needs" className="mt-6">
                         <BucketPageLayout
@@ -60,13 +59,6 @@ export default function AccountsPage() {
                             bucketType="Savings"
                             title="Savings Bucket"
                             description="Transactions related to your savings and financial goals."
-                        />
-                    </TabsContent>
-                    <TabsContent value="investments" className="mt-6">
-                         <BucketPageLayout
-                            bucketType="Investments"
-                            title="Investments Bucket"
-                            description="Transactions related to your investments and financial goals."
                         />
                     </TabsContent>
                 </Tabs>
