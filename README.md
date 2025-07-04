@@ -11,14 +11,11 @@ Savvy Saver is a modern, responsive personal finance tracker designed to provide
 Savvy Saver offers a comprehensive suite of features to help users manage their finances effectively:
 
 *   **Unified Dashboard:** Provides a central hub with a summary of total balance, individual account balances, spending trends, and recent transactions. The redesign includes enhanced charts and a cleaner layout.
-*   **Account Management:** Dedicated pages for "Needs," "Wants," and "Savings" allow users to track spending within specific financial categories. Each page utilizes a standardized layout with relevant charts and a filterable transaction list.
+*   **Account Management:** Dedicated pages for "Needs," "Wants", "Savings", and "Investments" allow users to track spending within specific financial categories. Each page utilizes a standardized layout with relevant charts and a filterable transaction list.
 *   **Investments Tracking:** Manage investment goals and visualize portfolio allocation. The upgraded investments page includes goal progress tracking and an interactive allocation tool.
 *   **Transaction Map**: A dedicated page to visualize transaction locations on an interactive map.
 *   **Settings Customization:** Configure monthly salary and define budget allocations for "Needs," "Wants," and "Investments" with a real-time visual representation of the budget distribution.
-*   **Streamlined Transaction Entry:** A multi-step modal with a floating action button simplifies adding new transactions. The modal includes fields for date, type, amount, account, category, and notes.
-*   **Support Page:** A new dedicated page provides resources and tools for user support.
-
-
+*   **Streamlined Transaction Entry:** A multi-step modal simplifies adding new transactions. The modal includes fields for date, type, amount, account, category, and notes.
 
 ---
 
@@ -33,7 +30,6 @@ Savvy Saver features a modern and consistent user interface:
 -   **Unified Navigation:** Consistent navigation across the application for improved user experience.
 -   **Style**: All elements feature soft, rounded corners and subtle drop shadows to create a sense of depth and elevation.
 -   **Typography**: The app uses the 'Inter' sans-serif font for body text and headlines, and 'Source Code Pro' for code snippets, ensuring high readability.
--   **Style**: All elements feature soft, rounded corners and subtle drop shadows to create a sense of depth and elevation.
 -   **Interactivity**: Interactive elements provide clear feedback with a soft glow or border highlight on hover and focus states, with smooth, non-abrupt transitions powered by Framer Motion.
 *   **Consistent Styling:** Application of the new design spec ensures a cohesive visual experience throughout the app.
 
@@ -43,18 +39,14 @@ Savvy Saver features a modern and consistent user interface:
 
 The app utilizes various charts to visualize financial data:
 
-*   **Spending Trend (Dashboard):** An area chart comparing monthly spending across Needs, Wants, and Investments categories. (Stacked areas with gradient fills and smooth, curved lines)
+*   **Spending Trend (Dashboard):** An area chart comparing monthly spending across Needs, Wants, and Investments categories.
 *   **Balance Overview (Dashboard):** A pie chart showing the distribution of the total balance across all account types.
 *   **Category Breakdown (Account Pages):** Pie charts displaying spending distribution by category for specific accounts.
 *   **Spending Trend (Account Pages):** Line charts showing the total monthly spending trend for individual accounts.
 *   **Portfolio Allocation (Investments):** A pie chart visualizing the user-defined Debt to Equity ratio.
 *   **Budget Allocation (Settings):** A live pie chart showing the user's defined budget allocation.
-*   **Support Page Charts:** Includes charts such as "New vs Returned Users," "Tickets by Day," "Tickets by Type," "Tickets Created," and "Tickets Time."
-
 
 ---
-
-## 6️⃣ Backend & Environments
 
 ## 6️⃣ Backend & Environments
 
@@ -76,9 +68,10 @@ The app utilizes various charts to visualize financial data:
     {
       "users": {
         "userId": {
-          "transactions": { "...": { "date": "...", "type": "...", "amount": "...", "account": "...", "category": "...", "note": "..." } },
-          "settings": { "salary": "...", "needsPercentage": "...", "wantsPercentage": "...", "investmentsPercentage": "..." },
-          "goals": { "...": { "name": "...", "targetAmount": "...", "savedAmount": "..." } }
+          "transactions": { "bucket": { "year": { "month": { "txId": { "date": "...", "type": "...", "amount": "...", "account": "...", "category": "...", "note": "..." } } } } },
+          "settings": { "default": { "monthlySalary": "...", "needsPercentage": "...", "wantsPercentage": "...", "investmentsPercentage": "..." } },
+          "goals": { "goalId": { "name": "...", "targetAmount": "...", "currentAmount": "..." } },
+          "categories": { "Needs": [], "Wants": [], "Savings": [], "Investments": [] }
         }
       }
     }
@@ -88,19 +81,14 @@ The app utilizes various charts to visualize financial data:
 
 ## 8️⃣ Add Transaction Flow
 
-## 8️⃣ Add Transaction Flow
-
 -   **Modal UI**: A multi-step modal with a semi-transparent glassmorphism background.
 -   **Steps**:
     1.  **Details**: Enter Date, Type (Credit/Debit), and Amount.
     2.  **Account**: Select an account from a card-based list.
     3.  **Category & Note**: Add a descriptive note and select a category.
--   **Buttons**: Includes a "Suggest" button for AI-powered category suggestions and a "Manage" button for editing categories.
 -   **Validation**: Each step includes validation to ensure data integrity before proceeding.
 
 ---
-
-## 9️⃣ Filters
 
 ## 9️⃣ Filters
 
@@ -113,28 +101,20 @@ The app utilizes various charts to visualize financial data:
 
 ## 11️⃣ Errors & Edge Cases
 
-## 11️⃣ Errors & Edge Cases
-
 -   **Hydration Errors**:
     -   **Issue**: The app experienced several React hydration errors (`Error: Hydration failed because the server rendered HTML didn't match the client.`).
-    -   **Cause**: This was caused by components like the `Sidebar` that relied on the `useIsMobile` hook. The server, having no concept of screen size, would render a different initial HTML than the client, causing a mismatch.
-    -   **Resolution**: The issue was resolved by refactoring the components to be "client-aware." They now render a default (desktop) state on the server and only render the mobile-specific view after the component has safely mounted on the client, thus preventing the mismatch.
+    -   **Cause**: This was caused by components that relied on client-side state or browser APIs (like `window.matchMedia`) before hydration was complete.
+    -   **Resolution**: Issues were resolved by refactoring components to be "client-aware," ensuring they only render client-specific views after mounting, thus preventing the mismatch.
 -   **Chart Container Error**:
     -   **Issue**: Charts were throwing a `useChart must be used within a <ChartContainer />` error.
     -   **Cause**: The custom `ChartTooltip` was being used on charts that were not wrapped by the required `ChartContainer` component.
     -   **Resolution**: The charts on the Dashboard and Account pages were wrapped in a `ChartContainer` with the appropriate configuration, resolving the error.
-- **Module Not Found Error**:
-    - **Issue**: A build error occurred (`Module not found: Can't resolve '../ui/avatar'`).
-    - **Cause**: An incorrect relative path was used to import the `Avatar` component.
-    - **Resolution**: The import path was corrected to use the `@/components/ui/avatar` alias.
 - **Map Initialization Errors**:
-    - **Issue**: The map components (both Leaflet and OpenLayers) were throwing initialization and "window not defined" errors.
+    - **Issue**: The map components were throwing initialization and "window not defined" errors.
     - **Cause**: These libraries directly manipulate the DOM and are not compatible with Next.js's Server-Side Rendering (SSR).
     - **Resolution**: The map component is now loaded using `next/dynamic` with `ssr: false` to ensure it only renders on the client-side, completely avoiding SSR-related issues.
 
 ---
-## 12️⃣ Advice & Notes
-
 ## 12️⃣ Advice & Notes
 
 -   **Charting Library**: The application currently uses `recharts`, which is the default for `shadcn/ui` charts. 
@@ -145,19 +125,14 @@ The app utilizes various charts to visualize financial data:
 
 ## 13️⃣ Versioning & Changelog
 
-## 13️⃣ Versioning & Changelog
-
 -   **v1.0.0 (Initial Version)**
     -   Initial project setup with Next.js, React, Tailwind CSS.
     -   Basic app shell with a sidebar and main content area.
     -   Placeholder pages for Dashboard, Accounts, Investments, and Settings.
--   **Changelog (Recent Updates)**:
-    -   **UI Overhaul**: Implemented a new dark theme with a pinkish-neon accent. Applied glassmorphism effects to all cards, modals, and popups for a consistent, modern look.
-    -   **Dashboard Redesign**: Added `BalanceOverview` and `SpendingChart` to the dashboard.
-    -   **Account Page Layout**: Created a standardized `AccountPageLayout` with charts, now used by Needs, Wants, and Savings pages.
-    -   **Investments Upgrade**: Added `PortfolioAllocation` and `GoalProgress` components.
-    -   **Map Feature**: Removed Leaflet and replaced it with OpenLayers for a stable, interactive transaction map.
-    -   **Bug Fixes**: Resolved multiple hydration errors, chart container errors, module import errors, and map initialization errors.
-    -   **Layout Fix**: Corrected sidebar layout issues to prevent the main content from overlapping with the sidebar.
+-   **v2.0.0 (Static Conversion)**:
+    -   **Static Conversion**: Converted the app to a fully client-side static application. All server-side logic, including AI features, has been removed to ensure compatibility with static hosting platforms.
+    -   **New Map Feature**: Replaced the previous Support/Analytics page with an interactive `/maps` page to visualize transaction locations.
     -   **Firebase Integration**: Connected the app to Firebase Realtime Database for live data synchronization. Added data seeding and clearing functionality.
-    -   **Static Conversion**: Converted the app to be fully client-side and deployable as a static site on Firebase Hosting.
+    -   **UI Overhaul**: Implemented a new dark theme with a pinkish-neon accent and applied glassmorphism effects.
+    -   **Dashboard Redesign**: Added `BucketSummaryCard`, `SpendingChart`, `GoalsOverview`, and `TopSpendingCategories` to the dashboard.
+    -   **Bug Fixes**: Resolved multiple hydration errors, chart container errors, module import errors, and map initialization errors.
