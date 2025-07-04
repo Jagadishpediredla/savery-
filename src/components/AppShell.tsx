@@ -8,7 +8,6 @@ import {
   CandlestickChart,
   PanelLeft,
   MapPin,
-  Bot,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -29,8 +28,7 @@ const mainNavItems = [
 ];
 
 const toolsNavItems = [
-  { href: '/maps', icon: MapPin, label: 'Maps' },
-  { href: '/visualizer', icon: Bot, label: 'AI Visualizer' },
+  { href: '/support', icon: MapPin, label: 'Maps' },
 ];
 
 const settingsNavItem = { href: '/settings', icon: Settings, label: 'Settings' };
@@ -72,7 +70,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <h3 className="px-3 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-2 mt-4">Main</h3>
             {mainNavItems.map((item) => <NavItem key={item.href} item={item} isExpanded={true} />)}
 
-            <h3 className="px-3 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-2 mt-6">Tools</h3>
+            <h3 className="px-3 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-2 mt-6">Analytics</h3>
             {toolsNavItems.map((item) => <NavItem key={item.href} item={item} isExpanded={true} />)}
 
             <div className="absolute bottom-0 left-0 w-full p-4 space-y-2 border-t bg-card/80 backdrop-blur-lg">
