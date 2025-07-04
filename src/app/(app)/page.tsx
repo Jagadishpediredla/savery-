@@ -10,7 +10,6 @@ import { BalanceOverview } from "@/components/dashboard/BalanceOverview";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TransactionList } from "@/components/dashboard/RecentTransactions";
 import { GoalsOverview } from "@/components/dashboard/GoalsOverview";
-import { TopSpendingCategories } from "@/components/dashboard/TopSpendingCategories";
 
 
 const LoadingSkeleton = () => (
@@ -60,12 +59,7 @@ export default function DashboardPage() {
                     <BalanceOverview />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2">
-                        <GoalsOverview />
-                    </div>
-                   <TopSpendingCategories />
-                </div>
+                <GoalsOverview />
                 
                 <Card className="bg-card/60 backdrop-blur-lg">
                     <CardHeader>
