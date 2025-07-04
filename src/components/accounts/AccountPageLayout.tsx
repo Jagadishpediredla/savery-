@@ -122,7 +122,7 @@ export function AccountPageLayout({ title, description, transactions }: AccountP
                                         <ChartTooltip
                                             cursor={false}
                                             content={<ChartTooltipContent 
-                                                formatter={(value) => `₹${Number(value).toLocaleString()}`}
+                                                formatter={(value) => `₹${Number(value).toLocaleString('en-IN')}`}
                                                 indicator="dot"
                                             />}
                                         />
@@ -153,12 +153,12 @@ export function AccountPageLayout({ title, description, transactions }: AccountP
                                             fontSize={12}
                                             tickLine={false}
                                             axisLine={false}
-                                            tickFormatter={(value) => `₹${value/1000}k`}
+                                            tickFormatter={(value) => `₹${Number(value)/1000}k`}
                                         />
                                         <ChartTooltip
                                             cursor={false}
                                             content={<ChartTooltipContent 
-                                                formatter={(value) => `₹${Number(value).toLocaleString()}`}
+                                                formatter={(value) => `₹${Number(value).toLocaleString('en-IN')}`}
                                                 indicator="dot"
                                             />}
                                         />

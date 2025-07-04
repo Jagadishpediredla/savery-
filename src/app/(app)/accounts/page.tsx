@@ -38,6 +38,7 @@ const AccountCard = ({ account }: { account: Account }) => {
                             separator=","
                             prefix="₹"
                             decimals={2}
+                            formattingFn={(n) => `₹${n.toLocaleString('en-IN')}`}
                         />
                     </div>
                     <p className="text-xs text-muted-foreground flex items-center">
