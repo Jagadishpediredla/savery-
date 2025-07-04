@@ -55,7 +55,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(true);
     const { toast } = useToast();
 
-    const fetchData = useCallback(async () => {
+    useEffect(() => {
         setLoading(true);
         const userRef = ref(db, `users/${userId}`);
         
@@ -67,6 +67,14 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
                 if (dbSettings) {
                     const savingsPercentage = 100 - (dbSettings.needsPercentage + dbSettings.wantsPercentage + dbSettings.investmentsPercentage);
                     setSettings({ ...dbSettings, savingsPercentage });
+                } else {
+                     setSettings({
+                        monthlySalary: 75000,
+                        needsPercentage: 50,
+                        wantsPercentage: 30,
+                        investmentsPercentage: 10,
+                        savingsPercentage: 10,
+                    });
                 }
 
                 // Transactions
@@ -78,12 +86,13 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
                             for (const month in txData[bucket][year]) {
                                 const transactionsForMonth = txData[bucket][year][month];
                                 for (const txnId in transactionsForMonth) {
+                                    const tx = transactionsForMonth[txnId];
                                     allTransactions.push({
                                         id: txnId,
-                                        ...transactionsForMonth[txnId],
+                                        ...tx,
                                         bucket: bucket as BucketType,
                                     });
-                                }
+                                 }
                             }
                         }
                     }
@@ -117,14 +126,9 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
             }
             setLoading(false);
         });
-        
 
         return () => unsub();
     }, []);
-
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
 
     const addTransaction = useCallback(async (transaction: AddTransactionInput) => {
         const accountToBucketMap = new Map<string, BucketType>(mockAccounts.map(acc => [acc.name, acc.type]));
@@ -144,12 +148,8 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         const year = txDate.getFullYear();
         const month = (txDate.getMonth() + 1).toString().padStart(2, '0');
         
-        const settingsForMonthRef = ref(db, `users/${userId}/settings/${year}/${month}`);
-        let settingsSnapshot = await get(settingsForMonthRef);
-        if (!settingsSnapshot.exists()) {
-             const defaultSettingsRef = ref(db, `users/${userId}/settings/default`);
-             settingsSnapshot = await get(defaultSettingsRef);
-        }
+        const settingsForMonthRef = ref(db, `users/${userId}/settings/default`);
+        const settingsSnapshot = await get(settingsForMonthRef);
         
         const currentSettings = settingsSnapshot.val() || {
             monthlySalary: 0,
