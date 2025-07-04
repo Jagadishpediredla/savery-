@@ -1,9 +1,8 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, CalendarIcon, SlidersHorizontal, Sparkles, ArrowRight, Sun, Moon, ArrowDown, ArrowUp, MapPin, LocateFixed } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -113,6 +112,35 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
     },
   });
 
+  const handleGetLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      toast({ variant: 'destructive', title: 'Geolocation is not supported by your browser.' });
+      return;
+    }
+
+    setIsGettingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        form.setValue('location', {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        setIsGettingLocation(false);
+        toast({ title: 'Location captured successfully!' });
+      },
+      () => {
+        setIsGettingLocation(false);
+        toast({ variant: 'destructive', title: 'Unable to retrieve location. Please grant permission.' });
+      }
+    );
+  }, [form, toast]);
+
+  useEffect(() => {
+    if (step === 4) {
+      handleGetLocation();
+    }
+  }, [step, handleGetLocation]);
+
   const handleFormSubmit = async (implement: boolean) => {
     const isValid = await form.trigger();
     if (!isValid) {
@@ -155,29 +183,6 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
     }
   };
   
-  const handleGetLocation = () => {
-    if (!navigator.geolocation) {
-      toast({ variant: 'destructive', title: 'Geolocation is not supported by your browser.' });
-      return;
-    }
-
-    setIsGettingLocation(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        form.setValue('location', {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-        setIsGettingLocation(false);
-        toast({ title: 'Location captured successfully!' });
-      },
-      () => {
-        setIsGettingLocation(false);
-        toast({ variant: 'destructive', title: 'Unable to retrieve location. Please grant permission.' });
-      }
-    );
-  };
-
   const nextStep = async (fieldsToValidate: (keyof TransactionFormValues)[]) => {
       const isValid = await form.trigger(fieldsToValidate);
       if(isValid) setStep(prev => prev + 1);
@@ -465,28 +470,15 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                                 Add a location to this transaction to see it on your map.
                             </p>
                         </div>
+                        
+                        {isGettingLocation && (
+                            <div className="flex items-center gap-2 text-muted-foreground p-4 bg-muted/50 rounded-lg">
+                                <LocateFixed className="h-4 w-4 animate-pulse" />
+                                <span>Getting location automatically...</span>
+                            </div>
+                        )}
 
-                         <Button 
-                            type="button" 
-                            variant="outline" 
-                            className="w-full" 
-                            onClick={handleGetLocation}
-                            disabled={isGettingLocation}
-                         >
-                            {isGettingLocation ? (
-                                <>
-                                    <LocateFixed className="mr-2 h-4 w-4 animate-pulse" />
-                                    Getting Location...
-                                </>
-                            ) : (
-                                 <>
-                                    <MapPin className="mr-2 h-4 w-4" />
-                                    Get Current Location
-                                </>
-                            )}
-                         </Button>
-
-                         {form.watch('location') && (
+                        {form.watch('location') && !isGettingLocation && (
                              <div className="p-4 rounded-lg bg-muted/50 text-xs space-y-1">
                                 <p>Lat: {form.watch('location.latitude')}</p>
                                 <p>Lon: {form.watch('location.longitude')}</p>
