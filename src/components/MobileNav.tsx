@@ -5,14 +5,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { LayoutDashboard, Wallet, Plus, Bot, LayoutGrid } from 'lucide-react';
+import { LayoutDashboard, Wallet, Plus, Bot, LayoutGrid, Shield, ShoppingBag, PiggyBank, CandlestickChart } from 'lucide-react';
 import { Button } from './ui/button';
 
 const navItems = [
-  { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/accounts', icon: Wallet, label: 'Accounts' },
-  { href: '/support', icon: LayoutGrid, label: 'Analytics' },
-  { href: '/visualizer', icon: Bot, label: 'AI' },
+  { href: '/', icon: Shield, label: 'Needs' },
+  { href: '/wants', icon: ShoppingBag, label: 'Wants' },
+  { href: '/savings', icon: PiggyBank, label: 'Savings' },
+  { href: '/investments', icon: CandlestickChart, label: 'Investments' },
 ];
 
 interface MobileNavProps {
@@ -51,7 +51,7 @@ export function MobileNav({ onAddTransaction }: MobileNavProps) {
 
         <Button
             onClick={onAddTransaction}
-            className="h-14 w-14 p-0 rounded-full shadow-2xl z-40 -mt-8"
+            className="h-14 w-14 rounded-full shadow-2xl z-40 -mt-8 p-0"
             size="icon"
             variant="gradient"
         >

@@ -9,6 +9,10 @@ import {
   Bot,
   PanelLeft,
   LayoutGrid,
+  Calendar,
+  Shield,
+  ShoppingBag,
+  PiggyBank,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -24,9 +28,14 @@ import { HeaderDate } from './HeaderDate';
 
 const mainNavItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/accounts', icon: Wallet, label: 'Accounts' },
-  { href: '/investments', icon: CandlestickChart, label: 'Investments' },
 ];
+
+const bucketNavItems = [
+    { href: '/needs', icon: Shield, label: 'Needs' },
+    { href: '/wants', icon: ShoppingBag, label: 'Wants' },
+    { href: '/savings', icon: PiggyBank, label: 'Savings' },
+    { href: '/investments', icon: CandlestickChart, label: 'Investments' },
+]
 
 const analyticsNavItems = [
   { href: '/support', icon: LayoutGrid, label: 'Analytics' },
@@ -73,6 +82,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <h3 className="px-3 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-2 mt-4">Main</h3>
             {mainNavItems.map((item) => <NavItem key={item.href} item={item} isExpanded={true} />)}
 
+            <h3 className="px-3 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-2 mt-4">Buckets</h3>
+            {bucketNavItems.map((item) => <NavItem key={item.href} item={item} isExpanded={true} />)}
+
             <h3 className="px-3 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-2 mt-6">Analytics</h3>
             {analyticsNavItems.map((item) => <NavItem key={item.href} item={item} isExpanded={true} />)}
 
@@ -88,7 +100,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen w-full bg-background overflow-hidden">
-        {/* Desktop Sidebar */}
+      
         {!isMobile && (
             <aside className="w-64 border-r bg-card/60 backdrop-blur-lg hidden md:flex flex-col">
                 {sidebarContent}
@@ -98,7 +110,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex flex-col flex-1 min-w-0">
         <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-8 backdrop-blur-xl">
             <div className="flex items-center gap-4">
-                {/* Mobile Sidebar Toggle */}
+              
                 {isMobile && (
                     <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
                         <SheetTrigger asChild>

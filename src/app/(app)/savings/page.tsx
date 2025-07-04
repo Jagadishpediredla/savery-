@@ -1,19 +1,14 @@
 
-'use client';
-import { AccountPageLayout } from "@/components/accounts/AccountPageLayout";
-import { useFirebase } from "@/context/FirebaseContext";
+'use client'
 
-export default function SavingsAccountPage() {
-    const { accounts, transactions } = useFirebase();
+import { BucketPageLayout } from "@/components/buckets/BucketPageLayout";
 
-    const accountNames = accounts.filter(acc => acc.type === 'Savings').map(acc => acc.name);
-    const savingsTransactions = transactions.filter(t => accountNames.includes(t.account));
-
+export default function SavingsPage() {
     return (
-        <AccountPageLayout
-            title="Savings Account"
-            description="Transactions related to your savings goals."
-            transactions={savingsTransactions}
+        <BucketPageLayout
+            bucketType="Savings"
+            title="Savings Bucket"
+            description="Transactions related to your savings and financial goals."
         />
     );
 }

@@ -1,4 +1,6 @@
 
+export type BucketType = 'Needs' | 'Wants' | 'Savings' | 'Investments';
+
 export interface LocationData {
   latitude: number;
   longitude: number;
@@ -7,20 +9,15 @@ export interface LocationData {
 
 export interface Transaction {
   id: string;
-  date: string;
+  date: string; // YYYY-MM-DD
   type: 'Credit' | 'Debit';
   amount: number;
-  account: string;
-  category: string;
-  note?: string;
+  bucket: BucketType;
+  note?: string; 
   location?: LocationData;
-}
-
-export interface Account {
-  id: string;
-  name: string;
-  balance: number;
-  type: 'Needs' | 'Wants' | 'Savings' | 'Investments';
+  // Contextual data stored with each transaction
+  monthlySalary: number;
+  allocationPercentage: number;
 }
 
 export interface Goal {
@@ -35,10 +32,17 @@ export interface Settings {
   needsPercentage: number;
   wantsPercentage: number;
   investmentsPercentage: number;
-  savingsPercentage: number;
+  savingsPercentage: number; // This will be calculated
 }
 
 export interface AiChatMessage {
   role: 'user' | 'model';
   content: string;
+}
+
+export interface Bucket {
+  name: BucketType;
+  allocated: number;
+  spent: number;
+  balance: number;
 }

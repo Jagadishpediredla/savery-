@@ -1,8 +1,9 @@
 
+
 import { ref, set, remove, push } from 'firebase/database';
 import { db } from '@/lib/firebase';
-import type { Transaction, Goal, Settings, LocationData } from '@/lib/types';
-import { mockAccounts, categories } from '@/data/mock-data';
+import type { Transaction, Goal, Settings, BucketType } from '@/lib/types';
+import { categories } from '@/data/mock-data';
 
 const userId = 'user1';
 
@@ -10,77 +11,53 @@ const userId = 'user1';
 const getRandomItem = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
 // Helper to generate random date in the past year
-const getRandomDate = (): string => {
-  const end = new Date();
-  const start = new Date();
-  start.setFullYear(start.getFullYear() - 1);
+const getRandomDateForMonth = (year: number, month: number): string => {
+  const start = new Date(year, month, 1);
+  const end = new Date(year, month + 1, 0);
   const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
   return date.toISOString().split('T')[0]; // YYYY-MM-DD
 };
 
-// Helper to generate a random location around a central point (e.g., Delhi, India)
-const getRandomLocation = (): LocationData => {
-    const centerLat = 28.6139;
-    const centerLng = 77.2090;
-    const radius = 0.5; // Approx 55km radius
 
-    const y0 = centerLat;
-    const x0 = centerLng;
-    const rd = radius / 111.32; // ~111.32 km per degree
-
-    const u = Math.random();
-    const v = Math.random();
-
-    const w = rd * Math.sqrt(u);
-    const t = 2 * Math.PI * v;
-    const x = w * Math.cos(t);
-    const y = w * Math.sin(t);
-
-    const newLat = y + y0;
-    const newLng = x + x0;
-
-    return {
-        latitude: parseFloat(newLat.toFixed(6)),
-        longitude: parseFloat(newLng.toFixed(6)),
-    };
-};
-
-
-const generateRandomTransactions = (count: number): Omit<Transaction, 'id'>[] => {
+const generateRandomTransactions = (year: number, month: number, settings: Omit<Settings, 'savingsPercentage'>): Omit<Transaction, 'id'>[] => {
   const transactions: Omit<Transaction, 'id'>[] = [];
-  const transactionNotes: { [key: string]: string[] } = {
-    Groceries: ['Weekly groceries', 'Supermarket run', 'Stocking up pantry'],
-    Rent: ['Monthly rent payment'],
-    Salary: ['Monthly salary deposit', 'Paycheck'],
-    'Dining Out': ['Dinner with friends', 'Lunch meeting', 'Coffee break'],
-    Entertainment: ['Movie tickets', 'Concert', 'Streaming service subscription'],
-    Transfer: ['Transfer to savings', 'Sending money to a friend'],
-    Investment: ['Stock purchase', 'Mutual fund investment'],
-    Utilities: ['Electricity bill', 'Internet bill', 'Water bill'],
-    Shopping: ['New clothes', 'Electronics purchase', 'Online shopping'],
-    Other: ['Miscellaneous expense', 'Cash withdrawal'],
+  const numTransactions = Math.floor(Math.random() * 40) + 20; // 20-60 transactions per month
+
+  const allocationMap: Record<string, number> = {
+      'Needs': settings.needsPercentage,
+      'Wants': settings.wantsPercentage,
+      'Investments': settings.investmentsPercentage,
+      'Savings': 100 - (settings.needsPercentage + settings.wantsPercentage + settings.investmentsPercentage),
   };
 
-  for (let i = 0; i < count; i++) {
-    const type = Math.random() > 0.8 ? 'Credit' : 'Debit'; // 20% credit, 80% debit
-    const category = type === 'Credit' ? 'Salary' : getRandomItem(categories.filter(c => c !== 'Salary'));
-    const account = getRandomItem(mockAccounts).name;
-    const note = getRandomItem(transactionNotes[category] || ['Misc note']);
+  for (let i = 0; i < numTransactions; i++) {
+    const isCredit = Math.random() < 0.05; // 5% chance of credit
     
-    // Add location to about 70% of debit transactions
-    const location = type === 'Debit' && Math.random() < 0.7 ? getRandomLocation() : undefined;
-    if (location) {
-        location.label = `Purchase near ${location.latitude.toFixed(2)}, ${location.longitude.toFixed(2)}`;
+    let bucket: BucketType;
+    let type: 'Credit' | 'Debit';
+    let note: string;
+
+    if (isCredit) {
+        type = 'Credit';
+        bucket = 'Savings';
+        note = 'Monthly salary deposit';
+    } else {
+        type = 'Debit';
+        const bucketRoll = Math.random() * 100;
+        if (bucketRoll < settings.needsPercentage) bucket = 'Needs';
+        else if (bucketRoll < settings.needsPercentage + settings.wantsPercentage) bucket = 'Wants';
+        else bucket = 'Investments';
+        note = `Spent on ${bucket}`;
     }
 
     transactions.push({
-      date: getRandomDate(),
+      date: getRandomDateForMonth(year, month),
       type,
       amount: parseFloat((Math.random() * (type === 'Credit' ? 40000 : 5000) + (type === 'Credit' ? 20000 : 50)).toFixed(2)),
-      account,
-      category,
+      bucket,
       note,
-      location
+      monthlySalary: settings.monthlySalary,
+      allocationPercentage: allocationMap[bucket] || 0
     });
   }
   return transactions;
@@ -103,41 +80,37 @@ export const seedDatabase = async () => {
     try {
         console.log('Seeding database...');
         
-        // Generate data
-        const transactions = generateRandomTransactions(150);
-        const goals = generateRandomGoals();
-
         // Clear existing data first
         await remove(ref(db, `users/${userId}`));
         
+        const goals = generateRandomGoals();
         const goalsRef = ref(db, `users/${userId}/goals`);
-        const settingsRef = ref(db, `users/${userId}/settings`);
-
-        // Create promises for setting data
-        const transactionPromises = transactions.map(tx => {
-            const account = mockAccounts.find(a => a.name === tx.account);
-            if (!account) {
-                console.warn(`Could not find account for transaction: ${tx.account}`);
-                return Promise.resolve();
-            }
-
-            const txDate = new Date(tx.date);
-            const year = txDate.getFullYear();
-            const month = (txDate.getMonth() + 1).toString().padStart(2, '0');
-            const day = txDate.getDate().toString().padStart(2, '0');
-            
-            const path = `users/${userId}/transactions/${account.type}/${year}/${month}/${day}`;
-            const transactionNodeRef = ref(db, path);
-            return push(transactionNodeRef, tx);
-        });
-
-        const goalPromises = goals.map(goal => push(goalsRef, goal));
+        const settingsRef = ref(db, `users/${userId}/settings/default`);
         
-        await Promise.all([
-            ...transactionPromises,
-            ...goalPromises,
-            set(settingsRef, defaultSettings),
-        ]);
+        const promises: Promise<any>[] = [
+            ...goals.map(goal => push(goalsRef, goal)),
+            set(settingsRef, defaultSettings)
+        ];
+        
+        // Generate data for the last 6 months
+        const today = new Date();
+        for (let i = 5; i >= 0; i--) {
+            const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+            const year = date.getFullYear();
+            const month = date.getMonth(); // 0-11
+            const monthStr = (month + 1).toString().padStart(2, '0');
+
+            const monthSettings = defaultSettings; // for now, use default for all months
+            const transactions = generateRandomTransactions(year, month, monthSettings);
+
+            transactions.forEach(tx => {
+                const path = `users/${userId}/transactions/${year}/${monthStr}/${tx.bucket}`;
+                const transactionNodeRef = ref(db, path);
+                promises.push(push(transactionNodeRef, tx));
+            });
+        }
+        
+        await Promise.all(promises);
 
         console.log('Database seeded successfully!');
     } catch (error) {

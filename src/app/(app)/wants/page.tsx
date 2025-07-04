@@ -1,19 +1,14 @@
 
-'use client';
-import { AccountPageLayout } from "@/components/accounts/AccountPageLayout";
-import { useFirebase } from "@/context/FirebaseContext";
+'use client'
 
-export default function WantsAccountPage() {
-    const { accounts, transactions } = useFirebase();
-    
-    const accountNames = accounts.filter(acc => acc.type === 'Wants').map(acc => acc.name);
-    const wantsTransactions = transactions.filter(t => accountNames.includes(t.account));
+import { BucketPageLayout } from "@/components/buckets/BucketPageLayout";
 
+export default function WantsPage() {
     return (
-        <AccountPageLayout
-            title="Wants Account"
+        <BucketPageLayout
+            bucketType="Wants"
+            title="Wants Bucket"
             description="Transactions related to your discretionary spending."
-            transactions={wantsTransactions}
         />
     );
 }
