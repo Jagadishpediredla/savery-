@@ -43,9 +43,9 @@ export function TopSpendingCategories() {
             }
         });
         
-        return { chartData, chartConfig };
+        return { chartData: data, chartConfig: config };
     }, [transactions]);
-
+    
     if (chartData.length === 0) {
         return (
              <Card className="h-full bg-card/60 backdrop-blur-lg">
