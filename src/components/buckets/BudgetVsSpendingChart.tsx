@@ -36,15 +36,15 @@ export function BudgetVsSpendingChart({ bucketType, displayMonth }: BudgetVsSpen
         if (bucketType === 'Savings') {
             const credits = monthTransactions
                 .filter(t => t.type === 'Credit')
-                .reduce((sum, t) => sum + t.amount, 0);
+                .reduce((sum, t) => sum + Number(t.amount || 0), 0);
             const debits = monthTransactions
                 .filter(t => t.type === 'Debit')
-                .reduce((sum, t) => sum + t.amount, 0);
+                .reduce((sum, t) => sum + Number(t.amount || 0), 0);
             spent = credits - debits;
         } else {
-            spent = monthTransactions
+             spent = monthTransactions
                 .filter(t => t.type === 'Debit')
-                .reduce((sum, t) => sum + t.amount, 0);
+                .reduce((sum, t) => sum + Number(t.amount || 0), 0);
         }
 
         return [{
