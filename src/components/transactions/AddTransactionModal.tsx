@@ -187,9 +187,7 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
         await addTransaction(transactionData);
 
         if (implement) {
-            const amount = transactionData.amount;
-            const note = encodeURIComponent(transactionData.note || 'FinanceFlow Transaction');
-            const upiUrl = `upi://pay?am=${amount}&tn=${note}&cu=INR`;
+            const upiUrl = `upi://pay`;
             window.location.href = upiUrl;
         }
 
@@ -583,7 +581,7 @@ export function AddTransactionModal({ isOpen, onOpenChange }: AddTransactionModa
                       {step === 4 && (
                           <div className="flex flex-col-reverse sm:flex-row items-center gap-3">
                               <Button type="button" variant="secondary" onClick={() => handleFormSubmit(false)}>Save Transaction</Button>
-                              <Button type="button" variant="gradient" onClick={() => handleFormSubmit(true)}>Save & Implement</Button>
+                              <Button type="button" variant="gradient" onClick={() => handleFormSubmit(true)}>Save &amp; Implement</Button>
                           </div>
                       )}
                   </div>
