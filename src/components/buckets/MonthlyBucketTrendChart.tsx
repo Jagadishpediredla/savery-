@@ -6,13 +6,14 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } f
 import { useFirebase } from "@/context/FirebaseContext";
 import { useMemo } from "react";
 import type { Transaction, BucketType } from "@/lib/types";
-import { format, parseISO, startOfMonth } from 'date-fns';
+import { parseISO, isSameMonth } from 'date-fns';
 
-interface MonthlyBucketTrendChartProps {
+interface MonthlyBucketChartProps {
     bucketType: BucketType;
+    displayMonth: Date;
 }
 
-export function MonthlyBucketTrendChart({ bucketType }: MonthlyBucketTrendChartProps) {
+export function MonthlyBucketTrendChart({ bucketType, displayMonth }: MonthlyBucketChartProps) {
     const { transactions, settings } = useFirebase();
 
     const chartConfig = useMemo(() => ({
@@ -21,59 +22,65 @@ export function MonthlyBucketTrendChart({ bucketType }: MonthlyBucketTrendChartP
     } satisfies ChartConfig), [bucketType]);
     
     const data = useMemo(() => {
-        const monthlyData: { [key: string]: { actual: number, allocated: number } } = {};
-        
         const allocationPercentage = (settings as any)[`${bucketType.toLowerCase()}Percentage`] || 0;
         const allocatedAmount = (settings.monthlySalary * allocationPercentage) / 100;
-
-        transactions.filter(t => t.bucket === bucketType).forEach(t => {
-            const month = format(startOfMonth(parseISO(t.date)), 'MMM yyyy');
-            if (!monthlyData[month]) {
-                monthlyData[month] = { actual: 0, allocated: allocatedAmount };
-            }
-
-            if (bucketType === 'Savings') {
-                if (t.type === 'Credit') monthlyData[month].actual += t.amount;
-                else monthlyData[month].actual -= t.amount;
-            } else {
-                 if (t.type === 'Debit') monthlyData[month].actual += t.amount;
-            }
-        });
         
-        return Object.entries(monthlyData)
-            .map(([month, values]) => ({ month: month.split(' ')[0], ...values }))
-            .sort((a, b) => new Date(a.month + " 1, 2024").getTime() - new Date(b.month + " 1, 2024").getTime());
+        const monthTransactions = transactions.filter(t => 
+            t.bucket === bucketType && isSameMonth(parseISO(t.date), displayMonth)
+        );
 
-    }, [transactions, bucketType, settings]);
+        let actualAmount = 0;
+        if (bucketType === 'Savings') {
+            const credits = monthTransactions
+                .filter(t => t.type === 'Credit')
+                .reduce((sum, t) => sum + t.amount, 0);
+            const debits = monthTransactions
+                .filter(t => t.type === 'Debit')
+                .reduce((sum, t) => sum + t.amount, 0);
+            actualAmount = credits - debits;
+        } else {
+             actualAmount = monthTransactions
+                .filter(t => t.type === 'Debit')
+                .reduce((sum, t) => sum + t.amount, 0);
+        }
+        
+        return [
+            { name: bucketType, allocated: allocatedAmount, actual: actualAmount }
+        ];
+
+    }, [transactions, bucketType, settings, displayMonth]);
 
     return (
         <ChartContainer config={chartConfig} className="h-64 w-full">
             <ResponsiveContainer>
-                <BarChart data={data}>
-                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                <BarChart data={data} layout="vertical">
+                    <CartesianGrid horizontal={false} strokeDasharray="3 3" />
                     <XAxis
-                        dataKey="month"
-                        tickLine={false}
-                        axisLine={false}
-                        tickMargin={8}
-                        stroke="hsl(var(--muted-foreground))"
-                    />
-                    <YAxis
+                        type="number"
                         tickLine={false}
                         axisLine={false}
                         tickMargin={8}
                         stroke="hsl(var(--muted-foreground))"
                         tickFormatter={(value) => `₹${Number(value) / 1000}k`}
                     />
+                    <YAxis
+                        dataKey="name"
+                        type="category"
+                        tickLine={false}
+                        axisLine={false}
+                        tickMargin={8}
+                        stroke="hsl(var(--muted-foreground))"
+                        tick={false}
+                    />
                     <ChartTooltip
                         cursor={false}
                         content={<ChartTooltipContent 
-                            formatter={(value, name) => [`₹${Number(value).toLocaleString()}`, name === 'actual' ? 'Actual' : 'Allocated']}
+                            formatter={(value) => `₹${Number(value).toLocaleString()}`}
                             indicator="dot" 
                         />}
                     />
-                    <Bar dataKey="allocated" fill="var(--color-allocated)" radius={4} />
-                    <Bar dataKey="actual" fill="var(--color-actual)" radius={4} />
+                    <Bar dataKey="allocated" fill="var(--color-allocated)" radius={4} barSize={32} name="Allocated" />
+                    <Bar dataKey="actual" fill="var(--color-actual)" radius={4} barSize={32} name="Actual Spending" />
                 </BarChart>
             </ResponsiveContainer>
         </ChartContainer>

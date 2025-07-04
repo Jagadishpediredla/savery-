@@ -2,17 +2,17 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import type { DateRange } from 'react-day-picker';
 import { PageWrapper } from '@/components/PageWrapper';
 import { useFirebase } from '@/context/FirebaseContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TransactionList } from '@/components/dashboard/RecentTransactions';
-import { TransactionFilters } from '@/components/transactions/TransactionFilters';
-import { parseISO, isWithinInterval } from 'date-fns';
-import type { Transaction, BucketType } from '@/lib/types';
+import { parseISO, isSameMonth, format, subMonths, addMonths } from 'date-fns';
+import type { BucketType } from '@/lib/types';
 import { SpendingByCategoryChart } from '../analytics/SpendingByCategoryChart';
 import { MonthlyBucketTrendChart } from './MonthlyBucketTrendChart';
+import { Button } from '../ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const LoadingSkeleton = () => (
   <div className="space-y-8">
@@ -21,8 +21,8 @@ const LoadingSkeleton = () => (
       <Skeleton className="h-4 w-64 mt-2" />
     </header>
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-      <Skeleton className="lg:col-span-2 h-[250px]" />
-      <Skeleton className="lg:col-span-3 h-[250px]" />
+      <Skeleton className="lg:col-span-2 h-[350px]" />
+      <Skeleton className="lg:col-span-3 h-[350px]" />
     </div>
     <Skeleton className="h-96" />
   </div>
@@ -36,42 +36,22 @@ interface BucketPageLayoutProps {
 
 export function BucketPageLayout({ bucketType, title, description }: BucketPageLayoutProps) {
   const { transactions, loading } = useFirebase();
+  const [displayMonth, setDisplayMonth] = useState(new Date());
 
-  const [filters, setFilters] = useState<{
-    dateRange: DateRange | undefined;
-    searchTerm: string;
-    category: string;
-    transactionType: 'All' | 'Credit' | 'Debit';
-  }>({
-    dateRange: undefined,
-    searchTerm: '',
-    category: 'All',
-    transactionType: 'All',
-  });
-  
-  const bucketTransactions = useMemo(() => {
-    return transactions.filter(t => t.bucket === bucketType);
-  }, [transactions, bucketType]);
+  const handlePrevMonth = () => {
+    setDisplayMonth(prev => subMonths(prev, 1));
+  };
 
+  const handleNextMonth = () => {
+    setDisplayMonth(prev => addMonths(prev, 1));
+  };
 
   const filteredTransactions = useMemo(() => {
-    const { dateRange, searchTerm, category, transactionType } = filters;
-    return bucketTransactions.filter((t: Transaction) => {
-      const txDate = parseISO(t.date);
-      const isDateMatch = !dateRange?.from || isWithinInterval(txDate, {
-        start: dateRange.from,
-        end: dateRange.to ? new Date(dateRange.to.setHours(23, 59, 59, 999)) : dateRange.from,
-      });
-      const isSearchMatch = !searchTerm || (t.note && t.note.toLowerCase().includes(searchTerm.toLowerCase()));
-      const isTypeMatch = transactionType === 'All' || t.type === transactionType;
-      const isCategoryMatch = category === 'All' || t.category === category;
-      
-      return isDateMatch && isSearchMatch && isTypeMatch && isCategoryMatch;
-    });
-  }, [bucketTransactions, filters]);
+    return transactions.filter(t => 
+        t.bucket === bucketType && isSameMonth(parseISO(t.date), displayMonth)
+    );
+  }, [transactions, bucketType, displayMonth]);
   
-  const categories = useMemo(() => ['All', ...Array.from(new Set(bucketTransactions.map(t => t.category || 'Other')))], [bucketTransactions]);
-
   if (loading) {
     return (
       <PageWrapper>
@@ -84,46 +64,50 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
     <PageWrapper>
       <div className="space-y-8">
         <header>
-          <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-          <p className="text-muted-foreground">{description}</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+              <p className="text-muted-foreground">{description}</p>
+            </div>
+            <div className="flex items-center gap-2">
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={handlePrevMonth}>
+                    <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-lg font-semibold w-32 text-center">{format(displayMonth, "MMMM yyyy")}</span>
+                 <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleNextMonth} disabled={isSameMonth(displayMonth, new Date())}>
+                    <ChevronRight className="h-4 w-4" />
+                </Button>
+            </div>
+          </div>
         </header>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-            <Card className="lg:col-span-2">
+            <Card className="lg:col-span-2 bg-card/60 backdrop-blur-lg">
                 <CardHeader>
                     <CardTitle>Category Breakdown</CardTitle>
+                    <CardDescription>Spending by category for {format(displayMonth, "MMMM")}.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <SpendingByCategoryChart transactions={filteredTransactions} />
                 </CardContent>
             </Card>
-            <Card className="lg:col-span-3">
+            <Card className="lg:col-span-3 bg-card/60 backdrop-blur-lg">
                  <CardHeader>
-                    <CardTitle>Spending Trend</CardTitle>
+                    <CardTitle>Budget vs. Spending</CardTitle>
+                    <CardDescription>Allocated budget vs. actual spending for {format(displayMonth, "MMMM")}.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <MonthlyBucketTrendChart bucketType={bucketType} />
+                    <MonthlyBucketTrendChart bucketType={bucketType} displayMonth={displayMonth} />
                 </CardContent>
             </Card>
         </div>
 
-        <Card>
+        <Card className="bg-card/60 backdrop-blur-lg">
           <CardHeader>
             <CardTitle>Transactions</CardTitle>
-            <CardDescription>Review and filter your transactions below.</CardDescription>
+            <CardDescription>All transactions for {format(displayMonth, "MMMM yyyy")}.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <TransactionFilters
-              filters={filters}
-              onFilterChange={(key, value) => setFilters(prev => ({ ...prev, [key]: value }))}
-              categories={categories}
-              clearFilters={() => setFilters({
-                dateRange: undefined,
-                searchTerm: '',
-                category: 'All',
-                transactionType: 'All',
-              })}
-            />
             <TransactionList transactions={filteredTransactions} />
           </CardContent>
         </Card>
