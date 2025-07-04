@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { PageWrapper } from "@/components/PageWrapper";
 import { useFirebase } from "@/context/FirebaseContext";
 import { useMemo } from "react";
@@ -11,6 +12,15 @@ import { SpendingByCategoryChart } from "@/components/analytics/SpendingByCatego
 import { TrendingUp, TrendingDown, PiggyBank, Scale } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { NetWorthTrendChart } from "@/components/analytics/NetWorthTrendChart";
+
+const MapView = dynamic(
+  () => import('@/components/analytics/MapView').then(mod => mod.MapView),
+  { 
+    ssr: false,
+    loading: () => <Skeleton className="h-[400px] w-full rounded-lg" />
+  }
+);
+
 
 const AnalyticsLoadingSkeleton = () => (
     <div className="space-y-8">
@@ -136,7 +146,7 @@ export default function AnalyticsPage() {
                             <CardDescription>Breakdown of your expenses in the last 30 days.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <SpendingByCategoryChart transactions={transactions} />
+                            <SpendingByCategoryChart transactions={transactions} displayMonth={new Date()} />
                         </CardContent>
                     </Card>
                 </div>
@@ -148,6 +158,16 @@ export default function AnalyticsPage() {
                     </CardHeader>
                     <CardContent>
                         <NetWorthTrendChart transactions={transactions} />
+                    </CardContent>
+                </Card>
+                
+                <Card className="bg-card/60 backdrop-blur-lg">
+                    <CardHeader>
+                        <CardTitle>Transaction Map</CardTitle>
+                        <CardDescription>Visualize where your transactions occur.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <MapView transactions={transactions} />
                     </CardContent>
                 </Card>
 
