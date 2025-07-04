@@ -21,7 +21,7 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
                 {isCredit ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownLeft className="h-5 w-5" />}
             </div>
             <div className="flex-1">
-                <p className="font-semibold">{transaction.bucket}</p>
+                <p className="font-semibold">{transaction.category}</p>
                 <p className="text-sm text-muted-foreground">{transaction.note}</p>
             </div>
             <div className="text-right">

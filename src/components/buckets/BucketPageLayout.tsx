@@ -60,16 +60,17 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
       const txDate = parseISO(t.date);
       const isDateMatch = !dateRange?.from || isWithinInterval(txDate, {
         start: dateRange.from,
-        end: dateRange.to || dateRange.from,
+        end: dateRange.to ? new Date(dateRange.to.setHours(23, 59, 59, 999)) : dateRange.from,
       });
       const isSearchMatch = !searchTerm || (t.note && t.note.toLowerCase().includes(searchTerm.toLowerCase()));
       const isTypeMatch = transactionType === 'All' || t.type === transactionType;
+      const isCategoryMatch = category === 'All' || t.category === category;
       
-      return isDateMatch && isSearchMatch && isTypeMatch;
+      return isDateMatch && isSearchMatch && isTypeMatch && isCategoryMatch;
     });
   }, [bucketTransactions, filters]);
   
-  const categories = useMemo(() => ['All', ...Array.from(new Set(bucketTransactions.map(t => t.note || '')))], [bucketTransactions]);
+  const categories = useMemo(() => ['All', ...Array.from(new Set(bucketTransactions.map(t => t.category || 'Other')))], [bucketTransactions]);
 
   if (loading) {
     return (
@@ -88,7 +89,7 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
         </header>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-            <Card className="lg:col-span-2 bg-card/60 backdrop-blur-lg">
+            <Card className="lg:col-span-2">
                 <CardHeader>
                     <CardTitle>Category Breakdown</CardTitle>
                 </CardHeader>
@@ -96,7 +97,7 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
                     <SpendingByCategoryChart transactions={filteredTransactions} />
                 </CardContent>
             </Card>
-            <Card className="lg:col-span-3 bg-card/60 backdrop-blur-lg">
+            <Card className="lg:col-span-3">
                  <CardHeader>
                     <CardTitle>Spending Trend</CardTitle>
                 </CardHeader>
@@ -106,7 +107,7 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
             </Card>
         </div>
 
-        <Card className="bg-card/60 backdrop-blur-lg">
+        <Card>
           <CardHeader>
             <CardTitle>Transactions</CardTitle>
             <CardDescription>Review and filter your transactions below.</CardDescription>

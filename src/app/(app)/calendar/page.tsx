@@ -2,7 +2,7 @@
 'use client';
 
 import { PageWrapper } from "@/components/PageWrapper";
-import { FullCalendar } from "@/components/calendar/FullCalendar";
+import { AnalyticsCalendar } from "@/components/calendar/AnalyticsCalendar";
 import { useFirebase } from "@/context/FirebaseContext";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -32,7 +32,7 @@ export default function CalendarPage() {
                         An interactive calendar view of your transactions. Click on a date to see details.
                     </p>
                 </header>
-                <FullCalendar transactions={transactions} />
+                <AnalyticsCalendar transactions={transactions} />
             </div>
         </PageWrapper>
     );
