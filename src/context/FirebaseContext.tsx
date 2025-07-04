@@ -101,7 +101,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
 
                 // Goals
                 const goalsData = data.goals;
-                setGoals(goalsData ? Object.keys(goalsData).map(key => ({ id: key, ...data[key] })) : []);
+                setGoals(goalsData ? Object.keys(goalsData).map(key => ({ id: key, ...goalsData[key] })) : []);
 
                 // AI History
                 const historyData = data.aiHistory;
