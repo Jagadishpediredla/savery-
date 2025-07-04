@@ -1,6 +1,7 @@
 
 'use client';
 
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import CountUp from 'react-countup';
@@ -22,31 +23,34 @@ const iconMap: Record<BucketType, React.ElementType> = {
 export function BucketSummaryCard({ bucket }: BucketSummaryCardProps) {
     const isOverspent = bucket.balance < 0;
     const Icon = iconMap[bucket.name];
+    const href = `/${bucket.name.toLowerCase()}`;
 
     return (
-        <Card className="bg-card/60 backdrop-blur-lg transition-all hover:border-primary/80 hover:shadow-lg hover:shadow-primary/20">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">{bucket.name}</CardTitle>
-                {Icon && <Icon className="h-5 w-5 text-muted-foreground" />}
-            </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold">
-                     <CountUp
-                        start={0}
-                        end={bucket.balance}
-                        duration={1.5}
-                        separator=","
-                        prefix="₹"
-                        decimals={2}
-                    />
-                </div>
-                <div className="text-xs text-muted-foreground flex justify-between">
-                    <span>Spent: ₹{bucket.spent.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                    <span className={cn(isOverspent ? 'text-red-500' : 'text-green-500')}>
-                        {isOverspent ? 'Over' : 'Under'}: ₹{Math.abs(bucket.allocated - bucket.spent).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                    </span>
-                </div>
-            </CardContent>
-        </Card>
+        <Link href={href} passHref>
+            <Card className="bg-card/60 backdrop-blur-lg transition-all hover:border-primary/80 hover:shadow-lg hover:shadow-primary/20 h-full">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">{bucket.name}</CardTitle>
+                    {Icon && <Icon className="h-5 w-5 text-muted-foreground" />}
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">
+                         <CountUp
+                            start={0}
+                            end={bucket.balance}
+                            duration={1.5}
+                            separator=","
+                            prefix="₹"
+                            decimals={2}
+                        />
+                    </div>
+                    <div className="text-xs text-muted-foreground flex justify-between">
+                        <span>Spent: ₹{bucket.spent.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                        <span className={cn(isOverspent ? 'text-red-500' : 'text-green-500')}>
+                            {isOverspent ? 'Over' : 'Under'}: ₹{Math.abs(bucket.allocated - bucket.spent).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                        </span>
+                    </div>
+                </CardContent>
+            </Card>
+        </Link>
     );
 }
