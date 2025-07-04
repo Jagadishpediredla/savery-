@@ -13,6 +13,7 @@ import { SpendingByCategoryChart } from '../analytics/SpendingByCategoryChart';
 import { MonthlyBucketTrendChart } from './MonthlyBucketTrendChart';
 import { Button } from '../ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { NetBalanceTrendChart } from './NetBalanceTrendChart';
 
 const LoadingSkeleton = () => (
   <div className="space-y-8">
@@ -24,7 +25,10 @@ const LoadingSkeleton = () => (
       <Skeleton className="lg:col-span-2 h-[350px]" />
       <Skeleton className="lg:col-span-3 h-[350px]" />
     </div>
-    <Skeleton className="h-96" />
+    <div className="grid gap-6 lg:grid-cols-3">
+        <Skeleton className="lg:col-span-2 h-96" />
+        <Skeleton className="h-96" />
+    </div>
   </div>
 );
 
@@ -102,15 +106,26 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
             </Card>
         </div>
 
-        <Card className="bg-card/60 backdrop-blur-lg">
-          <CardHeader>
-            <CardTitle>Transactions</CardTitle>
-            <CardDescription>All transactions for {format(displayMonth, "MMMM yyyy")}.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <TransactionList transactions={filteredTransactions} />
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card className="lg:col-span-2 bg-card/60 backdrop-blur-lg">
+              <CardHeader>
+                <CardTitle>Transactions</CardTitle>
+                <CardDescription>All transactions for {format(displayMonth, "MMMM yyyy")}.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <TransactionList transactions={filteredTransactions} />
+              </CardContent>
+            </Card>
+            <Card className="bg-card/60 backdrop-blur-lg">
+                <CardHeader>
+                    <CardTitle>Net Balance Trend</CardTitle>
+                    <CardDescription>Your net balance (budget - spent) over time.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <NetBalanceTrendChart bucketType={bucketType} />
+                </CardContent>
+            </Card>
+        </div>
       </div>
     </PageWrapper>
   );
