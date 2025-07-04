@@ -40,7 +40,7 @@ export function SpendingChart() {
         }
         const accountType = t.bucket;
         if (accountType && (accountType === 'Needs' || accountType === 'Wants' || accountType === 'Investments')) {
-          monthlyData[month][accountType] += t.amount;
+          monthlyData[month][accountType] += Number(t.amount || 0);
         }
       }
     });
@@ -55,7 +55,7 @@ export function SpendingChart() {
 
 
   return (
-    <Card>
+    <Card className="bg-card/60 backdrop-blur-lg">
       <CardHeader>
         <CardTitle>Spending Trend</CardTitle>
         <CardDescription>Your spending over the last months</CardDescription>
@@ -99,7 +99,7 @@ export function SpendingChart() {
                 <ChartTooltip
                 cursor={false}
                 content={<ChartTooltipContent 
-                    formatter={(value, name) => `₹${Number(value).toLocaleString()}`}
+                    formatter={(value) => `₹${Number(value).toLocaleString()}`}
                     indicator="dot"
                 />}
                 />

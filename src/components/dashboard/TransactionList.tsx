@@ -9,11 +9,14 @@ interface TransactionListProps {
 }
 
 export function TransactionList({ transactions }: TransactionListProps) {
+  // Ensure transactions are sorted by timestamp descending
+  const sortedTransactions = [...transactions].sort((a, b) => b.timestamp - a.timestamp);
+
   return (
     <>
-      {transactions.length > 0 ? (
+      {sortedTransactions.length > 0 ? (
         <div className="space-y-4">
-          {transactions.map((transaction) => (
+          {sortedTransactions.map((transaction) => (
             <TransactionCard key={transaction.id} transaction={transaction} />
           ))}
         </div>

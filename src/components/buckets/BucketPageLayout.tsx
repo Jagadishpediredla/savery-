@@ -13,8 +13,9 @@ import { SpendingByCategoryChart } from '../analytics/SpendingByCategoryChart';
 import { Button } from '../ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { NetBalanceTrendChart } from './NetBalanceTrendChart';
-import { BudgetVsSpendingChart } from './BudgetVsSpendingChart';
 import { TransactionFilters } from '../transactions/TransactionFilters';
+import { BucketSummary } from './BucketSummary';
+import { DailyTrendDialog } from './DailyTrendDialog';
 
 const LoadingSkeleton = () => (
   <div className="space-y-8">
@@ -40,8 +41,9 @@ interface BucketPageLayoutProps {
 }
 
 export function BucketPageLayout({ bucketType, title, description }: BucketPageLayoutProps) {
-  const { transactions, loading, allCategories } = useFirebase();
+  const { transactions, loading, allCategories, settings } = useFirebase();
   const [displayMonth, setDisplayMonth] = useState(new Date());
+  const [isTrendDialogOpen, setIsTrendDialogOpen] = useState(false);
 
   const [filters, setFilters] = useState({
     searchTerm: '',
@@ -78,12 +80,35 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
   const monthlyTransactions = useMemo(() => {
     return transactions.filter(t => 
         t.bucket === bucketType && isSameMonth(parseISO(t.date), displayMonth)
-    );
+    ).sort((a,b) => b.timestamp - a.timestamp);
   }, [transactions, bucketType, displayMonth]);
   
   const availableCategories = useMemo(() => {
     return ['All', ...(allCategories[bucketType] || [])];
   }, [allCategories, bucketType]);
+
+  const { spent, allocated } = useMemo(() => {
+     const percentageKey = `${bucketType.toLowerCase()}Percentage` as keyof typeof settings;
+      const bucketPercentage = (settings as any)[percentageKey] || 0;
+      const allocated = (Number(settings.monthlySalary) * Number(bucketPercentage)) / 100;
+
+      let spent = 0;
+      if (bucketType === 'Savings') {
+          const credits = monthlyTransactions
+              .filter(t => t.type === 'Credit')
+              .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+           const debits = monthlyTransactions
+              .filter(t => t.type === 'Debit')
+              .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+          spent = credits - debits;
+      } else {
+           spent = monthlyTransactions
+              .filter(t => t.type === 'Debit')
+              .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+      }
+      return { spent, allocated };
+
+  }, [monthlyTransactions, bucketType, settings]);
 
 
   const filteredTransactions = useMemo(() => {
@@ -125,6 +150,12 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <BucketSummary 
+              bucketType={bucketType}
+              spent={spent}
+              allocated={allocated}
+              onShowTrend={() => setIsTrendDialogOpen(true)}
+            />
             <Card className="bg-card/60 backdrop-blur-lg">
                 <CardHeader>
                     <CardTitle>Category Breakdown</CardTitle>
@@ -132,15 +163,6 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
                 </CardHeader>
                 <CardContent>
                     <SpendingByCategoryChart transactions={transactions} displayMonth={displayMonth} bucketType={bucketType} />
-                </CardContent>
-            </Card>
-            <Card className="bg-card/60 backdrop-blur-lg">
-                 <CardHeader>
-                    <CardTitle>Budget vs. {bucketType === 'Savings' ? 'Saved' : 'Spending'}</CardTitle>
-                    <CardDescription>Your budget and {bucketType === 'Savings' ? 'savings' : 'spending'} for {format(displayMonth, "MMMM")}.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <BudgetVsSpendingChart bucketType={bucketType} displayMonth={displayMonth} />
                 </CardContent>
             </Card>
         </div>
@@ -171,8 +193,14 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
             <TransactionList transactions={filteredTransactions} />
           </CardContent>
         </Card>
-
       </div>
+      <DailyTrendDialog 
+        isOpen={isTrendDialogOpen}
+        onOpenChange={setIsTrendDialogOpen}
+        transactions={monthlyTransactions}
+        displayMonth={displayMonth}
+        bucketType={bucketType}
+      />
     </PageWrapper>
   );
 }

@@ -89,7 +89,8 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
                                     const tx = transactionsForMonth[txnId];
                                     allTransactions.push({
                                         id: txnId,
-                                        ...tx
+                                        ...tx,
+                                        amount: Number(tx.amount || 0), // Ensure amount is a number
                                     });
                                  }
                             }
@@ -100,7 +101,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
 
                 // Goals
                 const goalsData = data.goals;
-                setGoals(goalsData ? Object.keys(goalsData).map(key => ({ id: key, ...goalsData[key] })) : []);
+                setGoals(goalsData ? Object.keys(goalsData).map(key => ({ id: key, ...data[key] })) : []);
 
                 // AI History
                 const historyData = data.aiHistory;
@@ -166,6 +167,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
 
         const fullTransaction: Omit<Transaction, 'id'> = {
             ...transaction,
+            amount: Number(transaction.amount),
             bucket: bucket,
             timestamp: new Date().getTime(),
             monthlySalary: currentSettings.monthlySalary,
@@ -250,7 +252,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         });
 
         const getBucketData = (name: 'Needs' | 'Wants' | 'Investments' | 'Savings') => {
-            const allocated = (settings.monthlySalary * (settings as any)[`${name.toLowerCase()}Percentage`]) / 100;
+            const allocated = (Number(settings.monthlySalary) * (Number((settings as any)[`${name.toLowerCase()}Percentage`]) || 0)) / 100;
             
             let spent = 0;
             if (name === 'Savings') {
@@ -260,7 +262,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
                  const debits = monthlyTransactions
                     .filter(t => t.bucket === name && t.type === 'Debit')
                     .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-                spent = credits - debits; // For savings, "spent" is net saving.
+                spent = credits - debits;
                  return { name, allocated, spent, balance: allocated - spent };
             } else {
                  spent = monthlyTransactions
