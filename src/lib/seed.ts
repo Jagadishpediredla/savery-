@@ -45,7 +45,7 @@ const generateRandomTransactions = (year: number, month: number, settings: Omit<
         type = 'Credit';
         bucket = 'Savings';
         account = accountForBucket(bucket);
-        category = getRandomItem(categories.Savings);
+        category = getRandomItem(categories.Savings || ['Salary']);
         note = getRandomItem(mockNotes[category] || ['Income']);
     } else {
         type = 'Debit';
@@ -55,7 +55,7 @@ const generateRandomTransactions = (year: number, month: number, settings: Omit<
         else bucket = 'Investments';
         
         account = accountForBucket(bucket);
-        category = getRandomItem(categories[bucket]);
+        category = getRandomItem(categories[bucket] || ['Other']);
         note = getRandomItem(mockNotes[category] || mockNotes['Other']);
     }
 
@@ -118,7 +118,8 @@ export const seedDatabase = async () => {
             const transactions = generateRandomTransactions(year, month, monthSettings, defaultCategories);
 
             transactions.forEach(tx => {
-                const path = `users/${userId}/transactions/${year}/${monthStr}/${tx.bucket}`;
+                // Correct path based on the new structure
+                const path = `users/${userId}/transactions/${tx.bucket}/${year}/${monthStr}`;
                 const transactionNodeRef = ref(db, path);
                 promises.push(push(transactionNodeRef, tx));
             });

@@ -1,7 +1,7 @@
 
 'use server';
 
-import { ref, get } from 'firebase/database';
+import { ref, get, set } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import type { Transaction, Goal, Settings, Account, BucketType, Categories } from '@/lib/types';
 import { defaultCategories, mockAccounts } from '@/data/mock-data';
@@ -16,21 +16,17 @@ export async function getTransactions(): Promise<Transaction[]> {
     const data = snapshot.val();
     const transactionsArray: Transaction[] = [];
 
-    const accountTypeMap = new Map(mockAccounts.map(acc => [acc.type, acc.name]));
-
-    for (const year in data) {
-        for (const month in data[year]) {
-            for (const bucket in data[year][month]) {
-                 const transactionsForBucket = data[year][month][bucket];
-                 for (const txnId in transactionsForBucket) {
-                    const tx = transactionsForBucket[txnId];
+    // New structure: transactions/{bucket}/{year}/{month}
+    for (const bucket in data) {
+        for (const year in data[bucket]) {
+            for (const month in data[bucket][year]) {
+                const transactionsForMonth = data[bucket][year][month];
+                for (const txnId in transactionsForMonth) {
+                    const tx = transactionsForMonth[txnId];
                     transactionsArray.push({
                         id: txnId,
                         ...tx,
-                        // Explicitly add the bucket from the DB path
-                        bucket: bucket as BucketType,
-                        // Ensure account field is populated for older seed data
-                        account: tx.account || accountTypeMap.get(tx.bucket as BucketType) || 'Unknown'
+                        bucket: bucket as BucketType, // The bucket is now the top-level key
                     })
                  }
             }

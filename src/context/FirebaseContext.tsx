@@ -9,7 +9,7 @@ import { seedDatabase as seedDb, clearDatabase as clearDb } from '@/lib/seed';
 import { financialAssistant } from '@/ai/flows/financial-assistant-flow';
 import { useToast } from '@/hooks/use-toast';
 import { mockAccounts, defaultCategories } from '@/data/mock-data';
-import { getCategories as fetchCategories, updateCategoriesForBucket } from '@/services/firebase-service';
+import * as financialService from '@/services/firebase-service';
 
 
 const userId = 'user1';
@@ -57,73 +57,69 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
 
     const fetchData = useCallback(async () => {
         setLoading(true);
-        const settingsRef = ref(db, `users/${userId}/settings/default`);
-        const transactionsRef = ref(db, `users/${userId}/transactions`);
-        const goalsRef = ref(db, `users/${userId}/goals`);
-        const aiHistoryRef = ref(db, `users/${userId}/aiHistory`);
-
-        // Fetch categories once
-        const categories = await fetchCategories();
-        setAllCategories(categories);
-
-        const settingsUnsub = onValue(settingsRef, (snapshot) => {
+        const userRef = ref(db, `users/${userId}`);
+        
+        const unsub = onValue(userRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                const savingsPercentage = 100 - (data.needsPercentage + data.wantsPercentage + data.investmentsPercentage);
-                setSettings({ ...data, savingsPercentage });
-            }
-        });
-        
-        const transactionsUnsub = onValue(transactionsRef, (snapshot) => {
-            const data = snapshot.val();
-            const allTransactions: Transaction[] = [];
-            if(data) {
-                 for (const year in data) {
-                    for (const month in data[year]) {
-                        for (const bucket in data[year][month]) {
-                             const transactionsForBucket = data[year][month][bucket];
-                             for (const txnId in transactionsForBucket) {
-                                allTransactions.push({
-                                    id: txnId,
-                                    ...transactionsForBucket[txnId],
-                                    bucket: bucket as BucketType,
-                                })
-                             }
+                // Settings
+                const dbSettings = data.settings?.default;
+                if (dbSettings) {
+                    const savingsPercentage = 100 - (dbSettings.needsPercentage + dbSettings.wantsPercentage + dbSettings.investmentsPercentage);
+                    setSettings({ ...dbSettings, savingsPercentage });
+                }
+
+                // Transactions
+                const txData = data.transactions;
+                const allTransactions: Transaction[] = [];
+                if (txData) {
+                    for (const bucket in txData) {
+                        for (const year in txData[bucket]) {
+                            for (const month in txData[bucket][year]) {
+                                const transactionsForMonth = txData[bucket][year][month];
+                                for (const txnId in transactionsForMonth) {
+                                    allTransactions.push({
+                                        id: txnId,
+                                        ...transactionsForMonth[txnId],
+                                        bucket: bucket as BucketType,
+                                    });
+                                }
+                            }
                         }
                     }
                 }
+                setTransactions(allTransactions.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+
+                // Goals
+                const goalsData = data.goals;
+                setGoals(goalsData ? Object.keys(goalsData).map(key => ({ id: key, ...goalsData[key] })) : []);
+
+                // AI History
+                const historyData = data.aiHistory;
+                setAiHistory(historyData ? Object.values(historyData) : []);
+
+                // Categories
+                setAllCategories(data.categories || defaultCategories);
+
+            } else {
+                // Handle case where no user data exists
+                setTransactions([]);
+                setGoals([]);
+                setAiHistory([]);
+                setSettings({
+                    monthlySalary: 75000,
+                    needsPercentage: 50,
+                    wantsPercentage: 30,
+                    investmentsPercentage: 10,
+                    savingsPercentage: 10,
+                });
+                setAllCategories(defaultCategories);
             }
-            setTransactions(allTransactions.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-        });
-
-        const goalsUnsub = onValue(goalsRef, (snapshot) => {
-            const data = snapshot.val();
-            setGoals(data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : []);
-        });
-
-        const aiHistoryUnsub = onValue(aiHistoryRef, (snapshot) => {
-            const data = snapshot.val();
-            setAiHistory(data ? Object.values(data) : []);
+            setLoading(false);
         });
         
-        // Listen for category changes
-        const categoriesRef = ref(db, `users/${userId}/categories`);
-        const categoriesUnsub = onValue(categoriesRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                setAllCategories(data);
-            }
-        });
 
-        setLoading(false);
-
-        return () => {
-            settingsUnsub();
-            transactionsUnsub();
-            goalsUnsub();
-            aiHistoryUnsub();
-            categoriesUnsub();
-        };
+        return () => unsub();
     }, []);
 
     useEffect(() => {
@@ -173,7 +169,9 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
             ...transaction,
             bucket: bucket,
             monthlySalary: currentSettings.monthlySalary,
-            allocationPercentage: allocationMap[bucket] || 0
+            allocationPercentage: allocationMap[bucket] || 0,
+            category: transaction.category || 'Other',
+            note: transaction.note || ''
         };
         
         const removeUndefined = (obj: any): any => {
@@ -192,7 +190,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         
         const sanitizedTransaction = removeUndefined(fullTransaction);
 
-        const path = `users/${userId}/transactions/${year}/${month}/${bucket}`;
+        const path = `users/${userId}/transactions/${bucket}/${year}/${month}`;
         const transactionNodeRef = ref(db, path);
         const newTransactionRef = push(transactionNodeRef);
         await set(newTransactionRef, sanitizedTransaction);
@@ -284,7 +282,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         const currentCategories = allCategories[bucket] || [];
         if (!currentCategories.includes(newCategory)) {
             const newCategories = [...currentCategories, newCategory];
-            await updateCategoriesForBucket(bucket, newCategories);
+            await financialService.updateCategoriesForBucket(bucket, newCategories);
         }
     }, [allCategories]);
 
@@ -294,14 +292,14 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         if (index > -1) {
             const newCategories = [...currentCategories];
             newCategories[index] = newCategory;
-            await updateCategoriesForBucket(bucket, newCategories);
+            await financialService.updateCategoriesForBucket(bucket, newCategories);
         }
     }, [allCategories]);
 
     const deleteCategory = useCallback(async (bucket: BucketType, categoryToDelete: string) => {
         const currentCategories = allCategories[bucket] || [];
         const newCategories = currentCategories.filter(c => c !== categoryToDelete);
-        await updateCategoriesForBucket(bucket, newCategories);
+        await financialService.updateCategoriesForBucket(bucket, newCategories);
     }, [allCategories]);
 
     const value = useMemo(() => ({
@@ -321,7 +319,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         deleteCategory,
         seedDatabase: () => seedDb(),
         clearDatabase: () => clearDb(),
-    }), [transactions, buckets, goals, settings, loading, aiHistory, allCategories, addTransaction, updateSettings, sendChatMessage, clearAiHistory, addCategory, editCategory, deleteCategory, toast]);
+    }), [transactions, buckets, goals, settings, loading, aiHistory, allCategories, addTransaction, updateSettings, sendChatMessage, clearAiHistory, addCategory, editCategory, deleteCategory]);
 
     return <FirebaseContext.Provider value={value}>{children}</FirebaseContext.Provider>;
 };
