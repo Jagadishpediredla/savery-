@@ -142,7 +142,13 @@ export function SettingsForm() {
                                     <FormControl>
                                         <Slider
                                             value={[field.value]}
-                                            onValueChange={(vals) => field.onChange(vals[0])}
+                                            onValueChange={(vals) => {
+                                                const wants = form.getValues('wantsPercentage');
+                                                const investments = form.getValues('investmentsPercentage');
+                                                const newValue = vals[0];
+                                                const cappedValue = Math.min(newValue, 100 - wants - investments);
+                                                field.onChange(cappedValue);
+                                            }}
                                             onValueCommit={handleSettingsUpdate}
                                             max={100}
                                             step={1}
@@ -160,7 +166,13 @@ export function SettingsForm() {
                                     <FormControl>
                                         <Slider
                                             value={[field.value]}
-                                            onValueChange={(vals) => field.onChange(vals[0])}
+                                            onValueChange={(vals) => {
+                                                const needs = form.getValues('needsPercentage');
+                                                const investments = form.getValues('investmentsPercentage');
+                                                const newValue = vals[0];
+                                                const cappedValue = Math.min(newValue, 100 - needs - investments);
+                                                field.onChange(cappedValue);
+                                            }}
                                             onValueCommit={handleSettingsUpdate}
                                             max={100}
                                             step={1}
@@ -178,7 +190,13 @@ export function SettingsForm() {
                                     <FormControl>
                                         <Slider
                                             value={[field.value]}
-                                            onValueChange={(vals) => field.onChange(vals[0])}
+                                            onValueChange={(vals) => {
+                                                const needs = form.getValues('needsPercentage');
+                                                const wants = form.getValues('wantsPercentage');
+                                                const newValue = vals[0];
+                                                const cappedValue = Math.min(newValue, 100 - needs - wants);
+                                                field.onChange(cappedValue);
+                                            }}
                                             onValueCommit={handleSettingsUpdate}
                                             max={100}
                                             step={1}
@@ -189,8 +207,8 @@ export function SettingsForm() {
                         />
                         
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Savings ({savings}%)</label>
-                            <Slider disabled value={[savings]} max={100} step={1} />
+                            <label className="text-sm font-medium">Savings ({savings < 0 ? 0 : savings}%)</label>
+                            <Slider disabled value={[savings < 0 ? 0 : savings]} max={100} step={1} />
                             <p className="text-xs text-muted-foreground">Savings are calculated automatically.</p>
                         </div>
                     </CardContent>
