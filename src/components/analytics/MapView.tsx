@@ -8,14 +8,18 @@ import type { Transaction } from '@/lib/types';
 import { useMemo, memo } from 'react';
 
 // Fix for default icon issue with webpack which can occur in some setups
-const defaultIcon = new L.Icon({
-    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
+// These imports are needed to correctly point to the image assets
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+
+// Deleting and re-merging the default icon options is the standard
+// way to fix broken icon paths in React with Leaflet.
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: iconRetinaUrl.src,
+  iconUrl: iconUrl.src,
+  shadowUrl: shadowUrl.src,
 });
 
 interface MapViewProps {
@@ -42,7 +46,6 @@ function MapViewComponent({ transactions }: MapViewProps) {
                     <Marker
                         key={transaction.id}
                         position={[transaction.location.latitude, transaction.location.longitude]}
-                        icon={defaultIcon}
                     >
                         <Popup>
                             <div>
