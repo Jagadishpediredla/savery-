@@ -9,7 +9,7 @@ import type { ChartConfig } from "@/components/ui/chart";
 import type { Transaction } from "@/lib/types";
 import { useMemo, useState } from "react";
 import { CartesianGrid, Cell, Line, LineChart, Pie, PieChart, XAxis, YAxis } from "recharts";
-import { format, startOfMonth, parseISO } from 'date-fns';
+import { format, startOfMonth, parseISO, addDays } from 'date-fns';
 import { TransactionFilters } from "../transactions/TransactionFilters";
 import type { DateRange } from "react-day-picker";
 
@@ -24,7 +24,6 @@ const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3
 const chartConfig = {
     value: {
         label: "Spending",
-        color: "hsl(var(--chart-1))",
     },
 } satisfies ChartConfig;
 
@@ -189,10 +188,4 @@ export function AccountPageLayout({ title, description, transactions }: AccountP
             </div>
         </PageWrapper>
     );
-}
-
-function addDays(date: Date, days: number): Date {
-    const result = new Date(date);
-    result.setDate(result.getDate() + days);
-    return result;
 }

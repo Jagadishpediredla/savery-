@@ -9,7 +9,6 @@ import {
   Bot,
   PanelLeft,
   LayoutGrid,
-  CalendarDays,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -27,7 +26,6 @@ const mainNavItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/accounts', icon: Wallet, label: 'Accounts' },
   { href: '/investments', icon: CandlestickChart, label: 'Investments' },
-  { href: '/calendar', icon: CalendarDays, label: 'Calendar' },
 ];
 
 const analyticsNavItems = [

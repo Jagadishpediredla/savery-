@@ -5,13 +5,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { LayoutDashboard, Wallet, CalendarDays, Plus, Bot } from 'lucide-react';
+import { LayoutDashboard, Wallet, Plus, Bot, LayoutGrid } from 'lucide-react';
 import { Button } from './ui/button';
 
 const navItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/accounts', icon: Wallet, label: 'Accounts' },
-  { href: '/calendar', icon: CalendarDays, label: 'Calendar' },
+  { href: '/support', icon: LayoutGrid, label: 'Analytics' },
   { href: '/visualizer', icon: Bot, label: 'AI' },
 ];
 

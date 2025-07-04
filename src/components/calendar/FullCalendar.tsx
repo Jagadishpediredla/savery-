@@ -66,11 +66,13 @@ export function FullCalendar({ transactions }: { transactions: Transaction[]}) {
         ? transactions.filter(t => isSameDay(parseISO(t.date), selectedDate))
         : [];
 
-    function DayWithDots(props: ComponentPropsWithRef<'button'> & DayProps & { date: Date }) {
+    function DayWithDots(props: ComponentPropsWithRef<'button'> & { date: Date }) {
         const dateStr = format(props.date, 'yyyy-MM-dd');
         const transactionTypes = transactionsByDate.get(dateStr);
+        // The type for Day is complex, we are casting it to DayPicker['components']['Day']
+        // to get access to the props. This is a bit of a workaround.
         const { Day } = (props.components || {}) as DayPicker['components'];
-        if(!Day) return <></>; // Should not happen with react-day-picker
+        if(!Day) return <></>; 
 
         return (
             <div className="relative">

@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TotalBalanceCard } from "@/components/dashboard/TotalBalanceCard";
 import { SpendingChart } from "@/components/dashboard/SpendingChart";
 import { BalanceOverview } from "@/components/dashboard/BalanceOverview";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TransactionList } from "@/components/dashboard/RecentTransactions";
 import { GoalsOverview } from "@/components/dashboard/GoalsOverview";
 import { TopSpendingCategories } from "@/components/dashboard/TopSpendingCategories";
