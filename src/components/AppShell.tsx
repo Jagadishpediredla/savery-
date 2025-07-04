@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   Wallet,
   CandlestickChart,
-  PanelLeft,
   MapPin,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -16,7 +15,6 @@ import { Button } from './ui/button';
 import { AddTransactionModal } from './transactions/AddTransactionModal';
 import { MobileNav } from './MobileNav';
 import { cn } from '@/lib/utils';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ThemeToggle } from './ThemeToggle';
 import { HeaderDate } from './HeaderDate';
@@ -55,7 +53,6 @@ const NavItem = ({ item, isExpanded }: { item: any, isExpanded: boolean }) => {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const isMobile = useIsMobile();
   
   const sidebarContent = (
@@ -95,21 +92,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex flex-col flex-1 min-w-0">
         <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-8 backdrop-blur-xl">
             <div className="flex items-center gap-4">
-              
-                {isMobile && (
-                    <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                        <SheetTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                                <PanelLeft className="h-5 w-5" />
-                                <span className="sr-only">Toggle Menu</span>
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="left" className="w-64 p-0 border-r-0 bg-card/60 backdrop-blur-lg">
-                           {sidebarContent}
-                        </SheetContent>
-                    </Sheet>
-                )}
-                <HeaderDate />
+              <HeaderDate />
             </div>
 
             <div className="flex items-center gap-4">

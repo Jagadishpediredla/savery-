@@ -21,34 +21,30 @@ const iconMap: Record<BucketType, React.ElementType> = {
 
 
 export function BucketSummaryCard({ bucket }: BucketSummaryCardProps) {
-    const isOverspent = bucket.balance < 0;
     const Icon = iconMap[bucket.name];
     const href = `/${bucket.name.toLowerCase()}`;
 
     return (
         <Link href={href} passHref>
             <Card className="bg-card/60 backdrop-blur-lg transition-all hover:border-primary/80 hover:shadow-lg hover:shadow-primary/20 h-full">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">{bucket.name}</CardTitle>
-                    {Icon && <Icon className="h-5 w-5 text-muted-foreground" />}
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 pb-1 md:p-4 md:pb-2">
+                    <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">{bucket.name}</CardTitle>
+                    {Icon && <Icon className="h-4 w-4 text-muted-foreground md:h-5 md:w-5" />}
                 </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">
+                <CardContent className="p-3 pt-0 md:p-4 md:pt-0">
+                    <div className="text-xl md:text-2xl font-bold">
                          <CountUp
                             start={0}
                             end={bucket.balance}
                             duration={1.5}
                             separator=","
                             prefix="₹"
-                            decimals={2}
+                            decimals={0}
                         />
                     </div>
-                    <div className="text-xs text-muted-foreground flex justify-between">
-                        <span>Spent: ₹{bucket.spent.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                        <span className={cn(isOverspent ? 'text-red-500' : 'text-green-500')}>
-                            {isOverspent ? 'Over' : 'Under'}: ₹{Math.abs(bucket.allocated - bucket.spent).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                        </span>
-                    </div>
+                    <p className="text-[10px] md:text-xs text-muted-foreground truncate">
+                        Spent: ₹{bucket.spent.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </p>
                 </CardContent>
             </Card>
         </Link>
