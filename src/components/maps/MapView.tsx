@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -15,18 +16,23 @@ import VectorLayer from 'ol/layer/Vector';
 import Style from 'ol/style/Style';
 import Icon from 'ol/style/Icon';
 import Overlay from 'ol/Overlay';
-import type { Transaction } from '@/lib/types';
+import type { Transaction, LocationData } from '@/lib/types';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
+import { Button } from '../ui/button';
+import { Expand, Shrink } from 'lucide-react';
+import { MapControlPanel } from './MapControlPanel';
 
 interface MapViewProps {
     transactions: Transaction[];
     center?: [number, number]; // [lon, lat]
     zoom?: number;
     onViewChange?: () => void;
+    isFullscreen: boolean;
+    onToggleFullscreen: () => void;
 }
 
-const MapViewComponent: React.FC<MapViewProps> = ({ transactions, center, zoom, onViewChange }) => {
+const MapViewComponent: React.FC<MapViewProps> = ({ transactions, center, zoom, onViewChange, isFullscreen, onToggleFullscreen }) => {
     const mapRef = useRef<HTMLDivElement>(null);
     const popupRef = useRef<HTMLDivElement>(null);
     
@@ -77,7 +83,6 @@ const MapViewComponent: React.FC<MapViewProps> = ({ transactions, center, zoom, 
             }
         });
 
-        // Inform parent about view changes from user interaction
         map.on('moveend', () => {
           onViewChange?.();
         });
@@ -91,6 +96,13 @@ const MapViewComponent: React.FC<MapViewProps> = ({ transactions, center, zoom, 
             }
         };
     }, [onViewChange]);
+
+    useEffect(() => {
+        if(mapInstance.current) {
+            mapInstance.current.updateSize();
+        }
+    }, [isFullscreen]);
+
 
     useEffect(() => {
         const transactionsWithLocation = transactions.filter(t => t.location);
@@ -115,7 +127,6 @@ const MapViewComponent: React.FC<MapViewProps> = ({ transactions, center, zoom, 
 
     }, [transactions]);
     
-    // This effect handles controlled view changes from parent
     useEffect(() => {
         const map = mapInstance.current;
         if (!map) return;
@@ -128,7 +139,6 @@ const MapViewComponent: React.FC<MapViewProps> = ({ transactions, center, zoom, 
             });
         } else if (transactions.length > 0 && transactions.some(t => t.location)) {
             const extent = vectorSource.current.getExtent();
-            // Check if extent is valid (not Infinity)
             if (isFinite(extent[0])) { 
                 map.getView().fit(extent, { padding: [50, 50, 50, 50], maxZoom: 15, duration: 500 });
             }
@@ -141,20 +151,49 @@ const MapViewComponent: React.FC<MapViewProps> = ({ transactions, center, zoom, 
         }
     }, [transactions, center, zoom]);
 
-    // This effect handles the dark mode tiles
      useEffect(() => {
         if(mapRef.current) {
-            mapRef.current.classList.toggle('dark-mode-tiles', theme === 'dark');
+            mapRef.current.parentElement?.classList.toggle('dark-mode-tiles', theme === 'dark');
         }
     }, [theme]);
     
+    const handlePanelTransactionClick = (location: LocationData) => {
+        const map = mapInstance.current;
+        if (map) {
+            map.getView().animate({
+                center: fromLonLat([location.longitude, location.latitude]),
+                zoom: 15,
+                duration: 1000
+            });
+        }
+    };
+    
     return (
-        <div style={{ position: 'relative', width: '100%', height: '400px' }}>
+        <div className={cn(
+            "relative w-full h-full transition-all duration-300 ease-in-out",
+            isFullscreen && "fixed inset-0 z-50 bg-background pointer-events-auto"
+        )}>
             <div 
                 ref={mapRef} 
                 className="w-full h-full rounded-lg overflow-hidden"
             />
             <div ref={popupRef}></div>
+
+            <Button 
+                variant="secondary" 
+                size="icon" 
+                className="absolute top-4 right-4 z-10"
+                onClick={onToggleFullscreen}
+                aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            >
+                {isFullscreen ? <Shrink className="h-4 w-4" /> : <Expand className="h-4 w-4" />}
+            </Button>
+
+            <MapControlPanel 
+                transactions={transactions} 
+                onTransactionClick={handlePanelTransactionClick}
+                isVisible={isFullscreen}
+            />
         </div>
     );
 };

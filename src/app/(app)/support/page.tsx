@@ -1,7 +1,7 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
-import type { Map } from 'ol';
 import { PageWrapper } from "@/components/PageWrapper";
 import { useFirebase } from "@/context/FirebaseContext";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,6 +12,7 @@ import type { BucketType, Transaction, LocationData } from "@/lib/types";
 import { isWithinInterval, parseISO } from "date-fns";
 import type { DateRange } from "react-day-picker";
 import dynamic from "next/dynamic";
+import { cn } from '@/lib/utils';
 
 const MapView = dynamic(() => import('@/components/maps/MapView'), {
     ssr: false,
@@ -46,6 +47,7 @@ export default function MapsPage() {
     const { loading, transactions, allCategories } = useFirebase();
     const [mapCenter, setMapCenter] = useState<[number, number] | undefined>(undefined);
     const [mapZoom, setMapZoom] = useState<number | undefined>(undefined);
+    const [isMapFullscreen, setIsMapFullscreen] = useState(false);
 
     const [filters, setFilters] = useState<{
         searchTerm: string;
@@ -107,7 +109,9 @@ export default function MapsPage() {
     const handleTransactionClick = (location: LocationData) => {
         setMapCenter([location.longitude, location.latitude]);
         setMapZoom(15);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (!isMapFullscreen) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     };
 
     if (loading) {
@@ -128,36 +132,43 @@ export default function MapsPage() {
                     </p>
                 </header>
                 
-                <Card className="bg-card/60 backdrop-blur-lg">
-                    <CardContent className="p-2 md:p-4">
+                <Card className={cn(
+                    "bg-card/60 backdrop-blur-lg h-[400px] transition-all duration-300",
+                     isMapFullscreen && "h-[calc(100vh-220px)]"
+                )}>
+                    <CardContent className="p-2 md:p-4 h-full w-full">
                         <MapView 
                           transactions={filteredTransactions}
                           center={mapCenter}
                           zoom={mapZoom}
                           onViewChange={() => { setMapCenter(undefined); setMapZoom(undefined); }}
+                          isFullscreen={isMapFullscreen}
+                          onToggleFullscreen={() => setIsMapFullscreen(!isMapFullscreen)}
                         />
                     </CardContent>
                 </Card>
-
-                <Card className="bg-card/60 backdrop-blur-lg">
-                    <CardHeader>
-                        <CardTitle>Transaction History</CardTitle>
-                        <CardDescription>A complete log of your financial activities.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                         <TransactionFilters
-                            filters={filters}
-                            onFilterChange={handleFilterChange}
-                            categories={allUniqueCategories}
-                            clearFilters={clearFilters}
-                            bucketTypes={['All', 'Needs', 'Wants', 'Savings', 'Investments']}
-                         />
-                        <TransactionList 
-                            transactions={filteredTransactions}
-                            onTransactionClick={handleTransactionClick}
-                        />
-                    </CardContent>
-                </Card>
+                
+                {!isMapFullscreen && (
+                    <Card className="bg-card/60 backdrop-blur-lg">
+                        <CardHeader>
+                            <CardTitle>Transaction History</CardTitle>
+                            <CardDescription>A complete log of your financial activities.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <TransactionFilters
+                                filters={filters}
+                                onFilterChange={handleFilterChange}
+                                categories={allUniqueCategories}
+                                clearFilters={clearFilters}
+                                bucketTypes={['All', 'Needs', 'Wants', 'Savings', 'Investments']}
+                            />
+                            <TransactionList 
+                                transactions={filteredTransactions}
+                                onTransactionClick={handleTransactionClick}
+                            />
+                        </CardContent>
+                    </Card>
+                )}
             </div>
         </PageWrapper>
     );
