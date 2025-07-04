@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { Transaction } from '@/lib/types';
@@ -9,11 +8,14 @@ interface TransactionListProps {
 }
 
 export function TransactionList({ transactions }: TransactionListProps) {
+  // Sort transactions by date in descending order (most recent first)
+  const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
   return (
     <>
-      {transactions.length > 0 ? (
+      {sortedTransactions.length > 0 ? (
         <div className="space-y-4">
-          {transactions.map((transaction) => (
+          {sortedTransactions.map((transaction) => (
             <TransactionCard key={transaction.id} transaction={transaction} />
           ))}
         </div>
