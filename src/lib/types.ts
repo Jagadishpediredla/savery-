@@ -12,7 +12,9 @@ export interface Transaction {
   date: string; // YYYY-MM-DD
   type: 'Credit' | 'Debit';
   amount: number;
+  account: string;
   bucket: BucketType;
+  category?: string;
   note?: string; 
   location?: LocationData;
   // Contextual data stored with each transaction

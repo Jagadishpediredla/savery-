@@ -3,7 +3,7 @@
 import { ref, set, remove, push } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import type { Transaction, Goal, Settings, BucketType } from '@/lib/types';
-import { categories } from '@/data/mock-data';
+import { categories, mockAccounts, mockNotes } from '@/data/mock-data';
 
 const userId = 'user1';
 
@@ -30,31 +30,50 @@ const generateRandomTransactions = (year: number, month: number, settings: Omit<
       'Savings': 100 - (settings.needsPercentage + settings.wantsPercentage + settings.investmentsPercentage),
   };
 
+  const accountForBucket = (bucket: BucketType) => mockAccounts.find(a => a.type === bucket)?.name || 'Main Checking';
+
   for (let i = 0; i < numTransactions; i++) {
-    const isCredit = Math.random() < 0.05; // 5% chance of credit
+    const isCredit = Math.random() < 0.05;
     
     let bucket: BucketType;
     let type: 'Credit' | 'Debit';
     let note: string;
+    let category: string;
+    let account: string;
 
     if (isCredit) {
         type = 'Credit';
-        bucket = 'Savings';
-        note = 'Monthly salary deposit';
+        const creditBucketRoll = Math.random();
+        if (creditBucketRoll < 0.8) {
+            bucket = 'Savings';
+            category = 'Salary';
+            note = getRandomItem(mockNotes['Salary']);
+            account = accountForBucket(bucket);
+        } else { 
+            bucket = getRandomItem(['Needs', 'Wants', 'Investments']);
+            category = 'Transfer';
+            note = getRandomItem(mockNotes['Transfer']);
+            account = accountForBucket(bucket);
+        }
     } else {
         type = 'Debit';
         const bucketRoll = Math.random() * 100;
         if (bucketRoll < settings.needsPercentage) bucket = 'Needs';
         else if (bucketRoll < settings.needsPercentage + settings.wantsPercentage) bucket = 'Wants';
         else bucket = 'Investments';
-        note = `Spent on ${bucket}`;
+        
+        account = accountForBucket(bucket);
+        category = getRandomItem(categories.filter(c => c !== 'Salary' && c !== 'Transfer'));
+        note = getRandomItem(mockNotes[category] || mockNotes['Other']);
     }
 
     transactions.push({
       date: getRandomDateForMonth(year, month),
       type,
       amount: parseFloat((Math.random() * (type === 'Credit' ? 40000 : 5000) + (type === 'Credit' ? 20000 : 50)).toFixed(2)),
+      account,
       bucket,
+      category,
       note,
       monthlySalary: settings.monthlySalary,
       allocationPercentage: allocationMap[bucket] || 0

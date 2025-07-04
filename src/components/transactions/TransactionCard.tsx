@@ -20,9 +20,12 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
             )}>
                 {isCredit ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownLeft className="h-5 w-5" />}
             </div>
-            <div className="flex-1">
+            <div className="flex-1 space-y-1">
                 <p className="font-semibold">{transaction.category}</p>
-                <p className="text-sm text-muted-foreground">{transaction.note}</p>
+                <div className="flex items-center text-xs text-muted-foreground gap-2">
+                    <span>{transaction.account}</span>
+                    {transaction.note && <><span>&middot;</span><span className='truncate'>{transaction.note}</span></>}
+                </div>
             </div>
             <div className="text-right">
                  <p className={cn("font-bold", isCredit ? "text-green-400" : "text-red-400")}>

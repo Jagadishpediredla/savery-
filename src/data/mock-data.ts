@@ -19,3 +19,16 @@ export const buckets: { name: BucketType; }[] = [
 export const categories = [
     'Groceries', 'Rent', 'Salary', 'Dining Out', 'Entertainment', 'Transfer', 'Investment', 'Utilities', 'Shopping', 'Other'
 ];
+
+export const mockNotes: Record<string, string[]> = {
+    Groceries: ["Weekly groceries", "Supermarket run", "Stocking up pantry"],
+    Rent: ["Monthly rent payment"],
+    Salary: ["Monthly salary deposit", "Paycheck"],
+    'Dining Out': ["Dinner with friends", "Lunch meeting", "Coffee break"],
+    Entertainment: ["Movie tickets", "Concert", "Streaming service subscription"],
+    Transfer: ["Transfer to savings", "Sending money to a friend"],
+    Investment: ["Stock purchase", "Mutual fund investment"],
+    Utilities: ["Electricity bill", "Internet bill", "Water bill"],
+    Shopping: ["New clothes", "Electronics purchase", "Online shopping"],
+    Other: ["Miscellaneous expense", "Cash withdrawal"]
+};
