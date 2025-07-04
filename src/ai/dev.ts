@@ -1,4 +1,6 @@
 import { config } from 'dotenv';
 config();
 
-import '@/ai/flows/financial-assistant-flow.ts';
+// This file is the entry point for Genkit's development environment.
+// It is used to register flows for local execution and debugging.
+// To add a new flow, simply import it here.

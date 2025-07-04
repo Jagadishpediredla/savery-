@@ -6,13 +6,13 @@ import {
   LayoutDashboard,
   Wallet,
   CandlestickChart,
-  Bot,
   PanelLeft,
   LayoutGrid,
-  Calendar,
   Shield,
   ShoppingBag,
   PiggyBank,
+  ChevronDown,
+  AreaChart,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -22,6 +22,7 @@ import { AddTransactionModal } from './transactions/AddTransactionModal';
 import { MobileNav } from './MobileNav';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ThemeToggle } from './ThemeToggle';
 import { HeaderDate } from './HeaderDate';
@@ -31,15 +32,15 @@ const mainNavItems = [
 ];
 
 const bucketNavItems = [
+    { href: '/accounts', icon: LayoutGrid, label: 'Overview' },
     { href: '/needs', icon: Shield, label: 'Needs' },
     { href: '/wants', icon: ShoppingBag, label: 'Wants' },
     { href: '/savings', icon: PiggyBank, label: 'Savings' },
     { href: '/investments', icon: CandlestickChart, label: 'Investments' },
-]
+];
 
 const analyticsNavItems = [
-  { href: '/support', icon: LayoutGrid, label: 'Analytics' },
-  { href: '/visualizer', icon: Bot, label: 'AI' },
+  { href: '/support', icon: AreaChart, label: 'Analytics' },
 ];
 
 const settingsNavItem = { href: '/settings', icon: Settings, label: 'Settings' };
@@ -64,11 +65,36 @@ const NavItem = ({ item, isExpanded }: { item: any, isExpanded: boolean }) => {
     );
 };
 
+const SubNavItem = ({ item }: { item: any }) => {
+    const pathname = usePathname();
+    const isActive = pathname === item.href;
+    return (
+        <Link
+            href={item.href}
+            className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all duration-300 hover:text-primary hover:bg-primary/10 pl-8 hover:pl-9",
+                isActive && "text-primary font-medium"
+            )}
+        >
+             <item.icon className="h-4 w-4" />
+             <span className="text-sm font-medium">{item.label}</span>
+        </Link>
+    );
+}
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const isMobile = useIsMobile();
+  const pathname = usePathname();
+
+  const isAccountsSectionActive = ['/accounts', '/needs', '/wants', '/savings', '/investments'].some(href => pathname.startsWith(href));
+  
+  const [isAccountsOpen, setIsAccountsOpen] = React.useState(isAccountsSectionActive);
+
+  React.useEffect(() => {
+    setIsAccountsOpen(isAccountsSectionActive);
+  }, [isAccountsSectionActive]);
   
   const sidebarContent = (
     <div className="flex flex-col h-full overflow-y-auto">
@@ -81,9 +107,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             
             <h3 className="px-3 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-2 mt-4">Main</h3>
             {mainNavItems.map((item) => <NavItem key={item.href} item={item} isExpanded={true} />)}
+            
+            <Collapsible open={isAccountsOpen} onOpenChange={setIsAccountsOpen} className="space-y-1">
+                <CollapsibleTrigger className="w-full">
+                    <div className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all duration-300 hover:text-primary hover:bg-primary/10",
+                        "hover:pl-4",
+                        isAccountsSectionActive && "bg-gradient-to-r from-primary/20 to-primary/5 text-primary font-semibold border-l-4 border-primary",
+                    )}>
+                        <Wallet className="h-5 w-5" />
+                        <span className="transition-opacity duration-200 text-sm font-medium flex-1 text-left">Accounts</span>
+                        <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform duration-200", isAccountsOpen && "rotate-180")} />
+                    </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-1 py-1 data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+                    {bucketNavItems.map((item) => <SubNavItem key={item.href} item={item} />)}
+                </CollapsibleContent>
+            </Collapsible>
 
-            <h3 className="px-3 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-2 mt-4">Buckets</h3>
-            {bucketNavItems.map((item) => <NavItem key={item.href} item={item} isExpanded={true} />)}
 
             <h3 className="px-3 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-2 mt-6">Analytics</h3>
             {analyticsNavItems.map((item) => <NavItem key={item.href} item={item} isExpanded={true} />)}

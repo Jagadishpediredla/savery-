@@ -1,8 +1,6 @@
 
 'use server';
-/**
- * @fileOverview This file defines Genkit tools for accessing user financial data from Firebase.
- */
+
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import * as financialService from '@/services/firebase-service';
@@ -10,53 +8,57 @@ import * as financialService from '@/services/firebase-service';
 export const getTransactionsTool = ai.defineTool(
     {
         name: 'getTransactions',
-        description: 'Retrieves a list of all user transactions. Use this to answer questions about spending, income, or specific transaction details.',
-        inputSchema: z.object({}), // No input for now, could add date range later
-        outputSchema: z.array(
-            z.object({
-                id: z.string(),
-                date: z.string(),
-                type: z.enum(['Credit', 'Debit']),
-                amount: z.number(),
-                account: z.string(),
-                category: z.string(),
-                note: z.string(),
-                location: z.object({
-                    latitude: z.number(),
-                    longitude: z.number(),
-                    label: z.string().optional(),
-                }).optional(),
-            })
-        ),
+        description: 'Get a list of financial transactions. Can be filtered by date range and category.',
+        inputSchema: z.object({
+            startDate: z.string().optional().describe('Start date in YYYY-MM-DD format'),
+            endDate: z.string().optional().describe('End date in YYYY-MM-DD format'),
+            category: z.string().optional().describe('Filter by category (e.g., Groceries, Rent)'),
+        }),
+        outputSchema: z.array(z.object({
+            id: z.string(),
+            date: z.string(),
+            type: z.string(),
+            amount: z.number(),
+            account: z.string(),
+            bucket: z.string(),
+            category: z.string().optional(),
+            note: z.string().optional(),
+        })),
     },
-    async () => {
-        return await financialService.getTransactions();
+    async (input) => {
+        const transactions = await financialService.getTransactions();
+        return transactions.filter(t => {
+            const date = new Date(t.date);
+            const isAfterStartDate = !input.startDate || date >= new Date(input.startDate);
+            const isBeforeEndDate = !input.endDate || date <= new Date(input.endDate);
+            const isCategoryMatch = !input.category || t.category === input.category;
+            return isAfterStartDate && isBeforeEndDate && isCategoryMatch;
+        });
     }
 );
 
 export const getGoalsTool = ai.defineTool(
     {
         name: 'getGoals',
-        description: "Retrieves the user's financial goals, such as saving for a vacation or a new laptop. Use this to answer questions about goal progress.",
+        description: 'Get a list of the user\'s financial goals and their progress.',
         inputSchema: z.object({}),
-        outputSchema: z.array(
-            z.object({
-                id: z.string(),
-                name: z.string(),
-                targetAmount: z.number(),
-                currentAmount: z.number(),
-            })
-        ),
+        outputSchema: z.array(z.object({
+            id: z.string(),
+            name: z.string(),
+            targetAmount: z.number(),
+            currentAmount: z.number(),
+        })),
     },
     async () => {
-        return await financialService.getGoals();
+        return financialService.getGoals();
     }
 );
+
 
 export const getSettingsTool = ai.defineTool(
     {
         name: 'getSettings',
-        description: "Retrieves the user's budget settings, including monthly salary and allocation percentages for needs, wants, and investments.",
+        description: 'Get the user\'s current budget settings, including monthly salary and allocation percentages.',
         inputSchema: z.object({}),
         outputSchema: z.object({
             monthlySalary: z.number(),
@@ -67,25 +69,23 @@ export const getSettingsTool = ai.defineTool(
         }).nullable(),
     },
     async () => {
-        return await financialService.getSettings();
+        return financialService.getSettings();
     }
 );
 
 export const getAccountsTool = ai.defineTool(
     {
         name: 'getAccounts',
-        description: "Retrieves a list of all user accounts (Needs, Wants, Savings, Investments) with their current balances. Balances are calculated from transactions.",
+        description: 'Get a list of all user accounts and their current balances.',
         inputSchema: z.object({}),
-        outputSchema: z.array(
-            z.object({
-                id: z.string(),
-                name: z.string(),
-                balance: z.number(),
-                type: z.enum(['Needs', 'Wants', 'Savings', 'Investments']),
-            })
-        ),
+        outputSchema: z.array(z.object({
+            id: z.string(),
+            name: z.string(),
+            type: z.string(),
+            balance: z.number(),
+        })),
     },
     async () => {
-        return await financialService.getAccounts();
+        return financialService.getAccounts();
     }
 );
