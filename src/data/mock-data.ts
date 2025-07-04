@@ -19,7 +19,7 @@ export const buckets: { name: BucketType; }[] = [
 export const defaultCategories: Categories = {
     Needs: ['Groceries', 'Rent', 'Utilities', 'Transportation', 'Insurance'],
     Wants: ['Dining Out', 'Entertainment', 'Shopping', 'Hobbies', 'Vacations'],
-    Savings: ['Salary', 'Transfer', 'Freelance Income', 'Bonus'],
+    Savings: ['Salary', 'Transfer', 'Freelance Income', 'Bonus', 'Other Incomes'],
     Investments: ['Stock Purchase', 'Mutual Fund', 'Retirement Contribution']
 };
 
@@ -35,5 +35,6 @@ export const mockNotes: Record<string, string[]> = {
     Investment: ["Stock purchase", "Mutual fund investment"],
     Utilities: ["Electricity bill", "Internet bill", "Water bill"],
     Shopping: ["New clothes", "Electronics purchase", "Online shopping"],
+    'Other Incomes': ["Side project payment", "Selling old stuff", "Cash gift"],
     Other: ["Miscellaneous expense", "Cash withdrawal"]
 };

@@ -2,7 +2,8 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, CalendarIcon, SlidersHorizontal, Sparkles, ArrowRight, Sun, Moon, ArrowDown, ArrowUp, MapPin, LocateFixed, Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from 'lucide-react';
+import { ArrowLeft, CalendarIcon, SlidersHorizontal, Sparkles, ArrowRight, Sun, Moon, ArrowDown, ArrowUp, MapPin, LocateFixed, Loader2, Send } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -50,6 +51,7 @@ import { Shield, ShoppingBag, PiggyBank, CandlestickChart } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { mockAccounts } from '@/data/mock-data';
 import type { BucketType } from '@/lib/types';
+import { ManageCategoriesDialog } from '../settings/ManageCategoriesDialog';
 
 
 const transactionSchema = z.object({
