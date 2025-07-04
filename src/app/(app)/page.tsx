@@ -9,7 +9,6 @@ import { TransactionList } from "@/components/dashboard/RecentTransactions";
 import { GoalsOverview } from "@/components/dashboard/GoalsOverview";
 import { BucketSummaryCard } from "@/components/dashboard/BucketSummaryCard";
 import { SpendingChart } from "@/components/dashboard/SpendingChart";
-import { MiniCalendar } from "@/components/dashboard/MiniCalendar";
 
 
 const LoadingSkeleton = () => (
@@ -69,7 +68,7 @@ export default function DashboardPage() {
                             <TransactionList transactions={recentTransactions} />
                         </CardContent>
                     </Card>
-                    <MiniCalendar />
+                    <GoalsOverview />
                 </div>
 
             </div>

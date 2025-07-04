@@ -32,7 +32,6 @@ const mainNavItems = [
 ];
 
 const bucketNavItems = [
-    { href: '/accounts', icon: LayoutGrid, label: 'Overview' },
     { href: '/needs', icon: Shield, label: 'Needs' },
     { href: '/wants', icon: ShoppingBag, label: 'Wants' },
     { href: '/savings', icon: PiggyBank, label: 'Savings' },
@@ -109,17 +108,34 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {mainNavItems.map((item) => <NavItem key={item.href} item={item} isExpanded={true} />)}
             
             <Collapsible open={isAccountsOpen} onOpenChange={setIsAccountsOpen} className="space-y-1">
-                <CollapsibleTrigger className="w-full">
-                    <div className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all duration-300 hover:text-primary hover:bg-primary/10",
-                        "hover:pl-4",
-                        isAccountsSectionActive && "bg-gradient-to-r from-primary/20 to-primary/5 text-primary font-semibold border-l-4 border-primary",
-                    )}>
+                <div className={cn(
+                    "flex items-center justify-between rounded-lg transition-colors",
+                    isAccountsSectionActive ? '' : 'hover:bg-primary/10'
+                )}>
+                    <Link 
+                        href="/accounts" 
+                        className={cn(
+                            "flex items-center gap-3 rounded-l-lg px-3 py-2.5 text-muted-foreground transition-all duration-300 hover:text-primary flex-1",
+                            isAccountsSectionActive && "bg-gradient-to-r from-primary/20 to-primary/5 text-primary font-semibold border-l-4 border-primary"
+                        )}
+                    >
                         <Wallet className="h-5 w-5" />
-                        <span className="transition-opacity duration-200 text-sm font-medium flex-1 text-left">Accounts</span>
-                        <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform duration-200", isAccountsOpen && "rotate-180")} />
-                    </div>
-                </CollapsibleTrigger>
+                        <span className="transition-opacity duration-200 text-sm font-medium">Accounts</span>
+                    </Link>
+                    <CollapsibleTrigger asChild>
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className={cn(
+                                "h-full w-10 rounded-l-none",
+                                isAccountsSectionActive ? 'text-primary' : 'text-muted-foreground',
+                            )}
+                        >
+                            <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform duration-200", isAccountsOpen && "rotate-180")} />
+                        </Button>
+                    </CollapsibleTrigger>
+                </div>
+
                 <CollapsibleContent className="space-y-1 py-1 data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
                     {bucketNavItems.map((item) => <SubNavItem key={item.href} item={item} />)}
                 </CollapsibleContent>
