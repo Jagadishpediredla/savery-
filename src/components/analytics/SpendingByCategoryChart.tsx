@@ -24,9 +24,12 @@ export function SpendingByCategoryChart({ transactions, displayMonth, bucketType
             (!bucketType || t.bucket === bucketType)
         );
 
-        const debitTransactions = monthTransactions.filter(t => t.type === 'Debit');
+        // For Savings, we want to see income sources (Credits), not expenses (Debits)
+        const transactionsToChart = bucketType === 'Savings'
+            ? monthTransactions.filter(t => t.type === 'Credit')
+            : monthTransactions.filter(t => t.type === 'Debit');
 
-        debitTransactions.forEach(t => {
+        transactionsToChart.forEach(t => {
             const category = t.category || 'Other';
             const currentAmount = categoryMap.get(category) || 0;
             categoryMap.set(category, currentAmount + t.amount);

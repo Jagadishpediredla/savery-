@@ -28,6 +28,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
+import { ManageCategoriesDialog } from './ManageCategoriesDialog';
+import { BucketType } from '@/lib/types';
 
 const settingsSchema = z.object({
   monthlySalary: z.coerce.number().min(0, 'Salary must be a positive number'),
@@ -49,6 +51,8 @@ const chartConfig = {
 export function SettingsForm() {
   const { settings, updateSettings, loading, seedDatabase, clearDatabase } = useFirebase();
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+  const [isManageCategoriesOpen, setIsManageCategoriesOpen] = useState(false);
+  const [selectedBucketForManage, setSelectedBucketForManage] = useState<BucketType>('Needs');
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsSchema),
@@ -75,6 +79,11 @@ export function SettingsForm() {
     const values = form.getValues();
     updateSettings(values);
   }, [form, updateSettings]);
+  
+  const openManageCategories = (bucket: BucketType) => {
+    setSelectedBucketForManage(bucket);
+    setIsManageCategoriesOpen(true);
+  }
 
   const { watch } = form;
   const needs = watch('needsPercentage');
@@ -99,6 +108,7 @@ export function SettingsForm() {
   }
 
   return (
+    <>
     <Form {...form}>
       <div className="grid gap-8 md:grid-cols-3">
         <Collapsible open={isSettingsOpen} onOpenChange={setIsSettingsOpen} className="md:col-span-2">
@@ -138,7 +148,10 @@ export function SettingsForm() {
                             name="needsPercentage"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Needs ({field.value}%)</FormLabel>
+                                    <FormLabel className='flex justify-between items-center'>
+                                      <span>Needs ({field.value}%)</span>
+                                      <Button variant="link" size="sm" className="p-0 h-auto" onClick={() => openManageCategories('Needs')}>Manage Categories</Button>
+                                    </FormLabel>
                                     <FormControl>
                                         <Slider
                                             value={[field.value]}
@@ -162,7 +175,10 @@ export function SettingsForm() {
                             name="wantsPercentage"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Wants ({field.value}%)</FormLabel>
+                                    <FormLabel className='flex justify-between items-center'>
+                                      <span>Wants ({field.value}%)</span>
+                                      <Button variant="link" size="sm" className="p-0 h-auto" onClick={() => openManageCategories('Wants')}>Manage Categories</Button>
+                                    </FormLabel>
                                     <FormControl>
                                         <Slider
                                             value={[field.value]}
@@ -186,7 +202,10 @@ export function SettingsForm() {
                             name="investmentsPercentage"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Investments ({field.value}%)</FormLabel>
+                                    <FormLabel className='flex justify-between items-center'>
+                                      <span>Investments ({field.value}%)</span>
+                                       <Button variant="link" size="sm" className="p-0 h-auto" onClick={() => openManageCategories('Investments')}>Manage Categories</Button>
+                                    </FormLabel>
                                     <FormControl>
                                         <Slider
                                             value={[field.value]}
@@ -207,10 +226,14 @@ export function SettingsForm() {
                         />
                         
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Savings ({savings < 0 ? 0 : savings}%)</label>
+                            <FormLabel className='flex justify-between items-center'>
+                                <span>Savings ({savings < 0 ? 0 : savings}%)</span>
+                                <Button variant="link" size="sm" className="p-0 h-auto" onClick={() => openManageCategories('Savings')}>Manage Categories</Button>
+                            </FormLabel>
                             <Slider disabled value={[savings < 0 ? 0 : savings]} max={100} step={1} />
-                            <p className="text-xs text-muted-foreground">Savings are calculated automatically.</p>
+                            <p className="text-xs text-muted-foreground">Savings are calculated automatically based on the remainder of your budget.</p>
                         </div>
+
                     </CardContent>
                 </CollapsibleContent>
             </Card>
@@ -294,5 +317,11 @@ export function SettingsForm() {
         </div>
       </div>
     </Form>
+    <ManageCategoriesDialog 
+        isOpen={isManageCategoriesOpen} 
+        onOpenChange={setIsManageCategoriesOpen} 
+        bucketType={selectedBucketForManage} 
+    />
+  </>
   );
 }

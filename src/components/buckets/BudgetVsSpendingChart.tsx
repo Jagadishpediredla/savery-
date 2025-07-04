@@ -13,14 +13,13 @@ interface BudgetVsSpendingChartProps {
     displayMonth: Date;
 }
 
-const chartConfig = {
-    allocated: { label: "Budget", color: "hsl(var(--chart-2))" },
-    spent: { label: "Spent", color: "hsl(var(--chart-1))" },
-} satisfies ChartConfig;
-
-
 export function BudgetVsSpendingChart({ bucketType, displayMonth }: BudgetVsSpendingChartProps) {
     const { transactions, settings } = useFirebase();
+
+    const chartConfig = useMemo(() => ({
+        allocated: { label: "Budget", color: "hsl(var(--chart-2))" },
+        spent: { label: bucketType === 'Savings' ? "Saved" : "Spent", color: "hsl(var(--chart-1))" },
+    } satisfies ChartConfig), [bucketType]);
 
     const data = useMemo(() => {
         const monthTransactions = transactions.filter(t =>
@@ -37,10 +36,10 @@ export function BudgetVsSpendingChart({ bucketType, displayMonth }: BudgetVsSpen
             const credits = monthTransactions
                 .filter(t => t.type === 'Credit')
                 .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-            const debits = monthTransactions
+             const debits = monthTransactions
                 .filter(t => t.type === 'Debit')
                 .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-            spent = credits - debits;
+            spent = credits - debits; // For savings, "spent" is net saving.
         } else {
              spent = monthTransactions
                 .filter(t => t.type === 'Debit')

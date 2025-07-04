@@ -6,7 +6,7 @@ import { PageWrapper } from '@/components/PageWrapper';
 import { useFirebase } from '@/context/FirebaseContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { TransactionList } from '@/components/dashboard/RecentTransactions';
+import { TransactionList } from '@/components/dashboard/TransactionList';
 import { parseISO, isSameMonth, format, subMonths, addMonths, startOfMonth } from 'date-fns';
 import type { BucketType } from '@/lib/types';
 import { SpendingByCategoryChart } from '../analytics/SpendingByCategoryChart';
@@ -128,7 +128,7 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
             <Card className="bg-card/60 backdrop-blur-lg">
                 <CardHeader>
                     <CardTitle>Category Breakdown</CardTitle>
-                    <CardDescription>Top spending categories for {format(displayMonth, "MMMM")}.</CardDescription>
+                    <CardDescription>Top {bucketType === 'Savings' ? 'income sources' : 'spending categories'} for {format(displayMonth, "MMMM")}.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <SpendingByCategoryChart transactions={transactions} displayMonth={displayMonth} bucketType={bucketType} />
@@ -136,14 +136,24 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
             </Card>
             <Card className="bg-card/60 backdrop-blur-lg">
                  <CardHeader>
-                    <CardTitle>Budget vs. Spending</CardTitle>
-                    <CardDescription>Your budget and spending for {format(displayMonth, "MMMM")}.</CardDescription>
+                    <CardTitle>Budget vs. {bucketType === 'Savings' ? 'Saved' : 'Spending'}</CardTitle>
+                    <CardDescription>Your budget and {bucketType === 'Savings' ? 'savings' : 'spending'} for {format(displayMonth, "MMMM")}.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <BudgetVsSpendingChart bucketType={bucketType} displayMonth={displayMonth} />
                 </CardContent>
             </Card>
         </div>
+        
+        <Card className="bg-card/60 backdrop-blur-lg">
+            <CardHeader>
+                <CardTitle>Net Balance Trend</CardTitle>
+                <CardDescription>Your net balance (budget - spent) over time.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <NetBalanceTrendChart bucketType={bucketType} />
+            </CardContent>
+        </Card>
         
         <Card className="bg-card/60 backdrop-blur-lg">
           <CardHeader>
@@ -161,16 +171,7 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
             <TransactionList transactions={filteredTransactions} />
           </CardContent>
         </Card>
-        
-        <Card className="bg-card/60 backdrop-blur-lg">
-            <CardHeader>
-                <CardTitle>Net Balance Trend</CardTitle>
-                <CardDescription>Your net balance (budget - spent) over time.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <NetBalanceTrendChart bucketType={bucketType} />
-            </CardContent>
-        </Card>
+
       </div>
     </PageWrapper>
   );
