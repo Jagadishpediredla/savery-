@@ -14,6 +14,7 @@ import { Button } from '../ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { NetBalanceTrendChart } from './NetBalanceTrendChart';
 import { BudgetVsSpendingChart } from './BudgetVsSpendingChart';
+import { TransactionFilters } from '../transactions/TransactionFilters';
 
 const LoadingSkeleton = () => (
   <div className="space-y-8">
@@ -42,6 +43,24 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
   const { transactions, loading } = useFirebase();
   const [displayMonth, setDisplayMonth] = useState(new Date());
 
+  const [filters, setFilters] = useState({
+    searchTerm: '',
+    category: 'All',
+    transactionType: 'All' as 'All' | 'Credit' | 'Debit',
+  });
+
+  const handleFilterChange = (key: keyof typeof filters, value: any) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      searchTerm: '',
+      category: 'All',
+      transactionType: 'All',
+    });
+  };
+
   const handlePrevMonth = () => {
     setDisplayMonth(prev => subMonths(prev, 1));
   };
@@ -56,11 +75,25 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
   }, [displayMonth]);
 
 
-  const filteredTransactions = useMemo(() => {
+  const monthlyTransactions = useMemo(() => {
     return transactions.filter(t => 
         t.bucket === bucketType && isSameMonth(parseISO(t.date), displayMonth)
     );
   }, [transactions, bucketType, displayMonth]);
+
+  const availableCategories = useMemo(() => {
+    const categories = new Set(monthlyTransactions.map(t => t.category || 'Other'));
+    return ['All', ...Array.from(categories)];
+  }, [monthlyTransactions]);
+
+  const filteredTransactions = useMemo(() => {
+    return monthlyTransactions.filter(t => {
+      const searchTermMatch = !filters.searchTerm || t.note?.toLowerCase().includes(filters.searchTerm.toLowerCase());
+      const categoryMatch = filters.category === 'All' || t.category === filters.category;
+      const typeMatch = filters.transactionType === 'All' || t.type === filters.transactionType;
+      return searchTermMatch && categoryMatch && typeMatch;
+    });
+  }, [monthlyTransactions, filters]);
   
   if (loading) {
     return (
@@ -128,6 +161,12 @@ export function BucketPageLayout({ bucketType, title, description }: BucketPageL
             <CardDescription>All transactions for {format(displayMonth, "MMMM yyyy")}.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+             <TransactionFilters 
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                categories={availableCategories}
+                clearFilters={clearFilters}
+             />
             <TransactionList transactions={filteredTransactions} />
           </CardContent>
         </Card>
