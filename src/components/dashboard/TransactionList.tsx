@@ -1,15 +1,15 @@
 
 'use client';
 
-import type { Transaction } from '@/lib/types';
+import type { Transaction, LocationData } from '@/lib/types';
 import { TransactionCard } from '../transactions/TransactionCard';
 
 interface TransactionListProps {
   transactions: Transaction[];
+  onTransactionClick?: (location: LocationData) => void;
 }
 
-export function TransactionList({ transactions }: TransactionListProps) {
-  // Ensure transactions are sorted by timestamp descending
+export function TransactionList({ transactions, onTransactionClick }: TransactionListProps) {
   const sortedTransactions = [...transactions].sort((a, b) => b.timestamp - a.timestamp);
 
   return (
@@ -17,7 +17,11 @@ export function TransactionList({ transactions }: TransactionListProps) {
       {sortedTransactions.length > 0 ? (
         <div className="space-y-4">
           {sortedTransactions.map((transaction) => (
-            <TransactionCard key={transaction.id} transaction={transaction} />
+            <TransactionCard 
+                key={transaction.id} 
+                transaction={transaction}
+                onClick={transaction.location ? () => onTransactionClick?.(transaction.location!) : undefined}
+            />
           ))}
         </div>
       ) : (
