@@ -256,16 +256,16 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
             if (name === 'Savings') {
                 const credits = monthlyTransactions
                     .filter(t => t.bucket === name && t.type === 'Credit')
-                    .reduce((sum, t) => sum + t.amount, 0);
+                    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
                  const debits = monthlyTransactions
                     .filter(t => t.bucket === name && t.type === 'Debit')
-                    .reduce((sum, t) => sum + t.amount, 0);
+                    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
                 spent = credits - debits; // For savings, "spent" is net saving.
                  return { name, allocated, spent, balance: allocated - spent };
             } else {
                  spent = monthlyTransactions
                     .filter(t => t.bucket === name && t.type === 'Debit')
-                    .reduce((sum, t) => sum + t.amount, 0);
+                    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
                 return { name, allocated, spent, balance: allocated - spent };
             }
         };
