@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { LayoutDashboard, Wallet, Plus, LayoutGrid, Settings } from 'lucide-react';
+import { LayoutDashboard, Wallet, Plus, Settings, CandlestickChart } from 'lucide-react';
 import { Button } from './ui/button';
 
 
@@ -13,7 +13,7 @@ const navItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/accounts', icon: Wallet, label: 'Accounts' },
   // Add button is special
-  { href: '/support', icon: LayoutGrid, label: 'Analytics' },
+  { href: '/investments', icon: CandlestickChart, label: 'Investments' },
   { href: '/settings', icon: Settings, label: 'Settings' },
 ];
 

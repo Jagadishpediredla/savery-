@@ -34,7 +34,7 @@ export default function AccountsPage() {
         <header>
           <h1 className="text-3xl font-bold tracking-tight">Accounts Overview</h1>
           <p className="text-muted-foreground">
-            A summary of all your financial buckets. Click a card or a link in the sidebar to see details.
+            A summary of all your financial buckets. Click a card to see details.
           </p>
         </header>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
