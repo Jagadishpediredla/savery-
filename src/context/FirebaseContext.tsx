@@ -140,10 +140,13 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         const month = (txDate.getMonth() + 1).toString().padStart(2, '0');
         const day = txDate.getDate().toString().padStart(2, '0');
         
+        // Sanitize object to remove undefined values before sending to Firebase.
+        const cleanedTransaction = JSON.parse(JSON.stringify(transaction));
+        
         const path = `users/${userId}/transactions/${account.type}/${year}/${month}/${day}`;
         const transactionNodeRef = ref(db, path);
         const newTransactionRef = push(transactionNodeRef);
-        await set(newTransactionRef, transaction);
+        await set(newTransactionRef, cleanedTransaction);
     }, []);
 
     const updateSettings = useCallback(async (newSettings: Omit<Settings, 'savingsPercentage'>) => {

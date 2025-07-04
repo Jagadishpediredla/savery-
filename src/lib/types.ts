@@ -12,7 +12,7 @@ export interface Transaction {
   amount: number;
   account: string;
   category: string;
-  note: string;
+  note?: string;
   location?: LocationData;
 }
 
