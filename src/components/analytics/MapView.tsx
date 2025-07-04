@@ -1,20 +1,20 @@
 
 'use client';
 
+import * as React from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import type { Transaction } from '@/lib/types';
-import { useMemo, memo } from 'react';
+import { useMemo } from 'react';
+import { Skeleton } from '../ui/skeleton';
 
-// Fix for default icon issue with webpack which can occur in some setups
-// These imports are needed to correctly point to the image assets
+
+// Fix for default icon issue with webpack
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
-// Deleting and re-merging the default icon options is the standard
-// way to fix broken icon paths in React with Leaflet.
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: iconRetinaUrl.src,
@@ -26,14 +26,23 @@ interface MapViewProps {
     transactions: Transaction[];
 }
 
-function MapViewComponent({ transactions }: MapViewProps) {
+export default function MapView({ transactions }: MapViewProps) {
+    const [isClient, setIsClient] = React.useState(false);
+
+    React.useEffect(() => {
+        setIsClient(true);
+    }, []);
+
     const transactionsWithLocation = useMemo(() => transactions.filter(t => t.location), [transactions]);
 
-    // Set a default center if no transactions have location, e.g., New Delhi
     const defaultCenter: [number, number] = [28.6139, 77.2090];
     const center = transactionsWithLocation.length > 0
         ? [transactionsWithLocation[0].location!.latitude, transactionsWithLocation[0].location!.longitude] as [number, number]
         : defaultCenter;
+
+    if (!isClient) {
+        return <Skeleton className="h-[400px] w-full rounded-lg" />;
+    }
 
     return (
         <MapContainer center={center} zoom={10} scrollWheelZoom={true} style={{ height: '400px', width: '100%', borderRadius: 'var(--radius)' }}>
@@ -62,5 +71,3 @@ function MapViewComponent({ transactions }: MapViewProps) {
         </MapContainer>
     );
 };
-
-export default memo(MapViewComponent);

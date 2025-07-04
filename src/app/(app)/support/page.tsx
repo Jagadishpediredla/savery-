@@ -1,7 +1,6 @@
 
 'use client';
 
-import dynamic from 'next/dynamic';
 import { PageWrapper } from "@/components/PageWrapper";
 import { useFirebase } from "@/context/FirebaseContext";
 import { useMemo } from "react";
@@ -13,14 +12,7 @@ import { SpendingByCategoryChart } from "@/components/analytics/SpendingByCatego
 import { TrendingUp, TrendingDown, PiggyBank, Scale } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { NetWorthTrendChart } from "@/components/analytics/NetWorthTrendChart";
-
-const MapView = dynamic(
-  () => import('@/components/analytics/MapView'),
-  { 
-    ssr: false,
-    loading: () => <Skeleton className="h-[400px] w-full rounded-lg" />
-  }
-);
+import MapView from '@/components/analytics/MapView';
 
 
 const AnalyticsLoadingSkeleton = () => (
