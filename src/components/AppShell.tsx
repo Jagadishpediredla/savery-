@@ -7,6 +7,7 @@ import {
   Wallet,
   CandlestickChart,
   PanelLeft,
+  LayoutGrid,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -24,6 +25,10 @@ const mainNavItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/accounts', icon: Wallet, label: 'Accounts' },
   { href: '/investments', icon: CandlestickChart, label: 'Investments' },
+];
+
+const analyticsNavItems = [
+  { href: '/support', icon: LayoutGrid, label: 'Analytics' },
 ];
 
 const settingsNavItem = { href: '/settings', icon: Settings, label: 'Settings' };
@@ -64,6 +69,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             
             <h3 className="px-3 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-2 mt-4">Main</h3>
             {mainNavItems.map((item) => <NavItem key={item.href} item={item} isExpanded={true} />)}
+
+            <h3 className="px-3 text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-2 mt-6">Analytics</h3>
+            {analyticsNavItems.map((item) => <NavItem key={item.href} item={item} isExpanded={true} />)}
 
             <div className="absolute bottom-0 left-0 w-full p-4 space-y-2 border-t bg-card/80 backdrop-blur-lg">
               <NavItem item={settingsNavItem} isExpanded={true} />
